@@ -260,11 +260,11 @@ portfolio_v3.4/
    │  └─ partials/
    │     ├─ aquarium.html      the canvas, the settings, the two drawings
    │     ├─ macros.html        the pieces that repeat (a preview, a row)
-   │     ├─ icons.html         the marks in front of the contact links
+   │     ├─ icons.html         the line icons (contact links, buttons)
    │     └─ topbar.html
    └─ assets/
-      ├─ css/    11 numbered files, concatenated in order
-      ├─ js/     10 numbered files, concatenated in order
+      ├─ css/    12 numbered files, concatenated in order
+      ├─ js/     13 numbered files, concatenated in order
       ├─ img/    fish-left.png, fish-right.png — him, one per direction
       └─ svg/    koi_fish.svg — the drawing v3.3 used. Nothing reads it now
 ```

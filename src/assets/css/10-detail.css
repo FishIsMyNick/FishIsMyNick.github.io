@@ -188,7 +188,7 @@ body.detail-open main { visibility: hidden; opacity: 0; }
 .detail-features .entry:last-child { border-bottom: none; }
 
 /* The Gallery: 3D models in a grid of two columns across the full width
-   (one on phones, see 11-responsive.css), each on the same dark glass as a
+   (one on phones, see 12-responsive.css), each on the same dark glass as a
    preview, with its title and line of text under it. */
 .models {
   display: grid;

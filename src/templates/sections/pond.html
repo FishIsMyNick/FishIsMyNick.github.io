@@ -6,7 +6,9 @@
    A second after he is free the quote fades out, and the name fades in in
    its place — the name just above the water, the subtitle just under it,
    the overview below that, on a pane the same size as the quote's: the two
-   share one cell. Then the nav, and My work. #}
+   share one cell. Under the overview, the Game Mode button. Then the nav,
+   and My work. #}
+{% from "partials/icons.html" import icon %}
 <section class="band band--pond" id="pond">
   <span class="waterline" id="waterline" aria-hidden="true"></span>
 
@@ -24,6 +26,16 @@
         <p>{{ line | emphasis }}</p>
         {% endfor %}
       </div>
+    </div>
+
+    {# Sweeps the page across to the game view (sections/game.html). It comes
+       in with the overview. #}
+    <div class="game-entry pond-final">
+      <button type="button" class="game-toggle" id="game-toggle"
+              aria-controls="game-layer" aria-expanded="false">
+        <span class="game-toggle-icon">{{ icon('joystick') }}</span>
+        <span class="game-toggle-label">{{ site.game.label }}</span>
+      </button>
     </div>
 
   </div>

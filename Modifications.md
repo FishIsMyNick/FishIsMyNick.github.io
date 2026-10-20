@@ -1,4 +1,4 @@
-# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-39 on 2026-10-20)
+# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-40 on 2026-10-20)
 
 Changes made on top of v3.4. Every edit is in src/; the generated index.html,
 styles.css and script.js were rebuilt with `python build.py` after each one.
@@ -623,3 +623,30 @@ Guide.md
       (depth.shallow_color), since home-screen icons can't be transparent.
     - base.html links both. They are not made by build.py: if fish-left.png
       changes, make them again.
+
+40. Game Mode button and the sweep
+    Files: src/templates/sections/pond.html, src/templates/sections/game.html
+           (new), src/templates/base.html, src/templates/partials/icons.html,
+           src/assets/css/11-game.css (new), src/assets/css/04-topbar.css,
+           src/assets/css/11-responsive.css → 12-responsive.css,
+           src/assets/js/13-game.js (new), src/content/site.yaml,
+           src/content/aquarium.yaml, README.md
+    - A round button with a joystick icon (new `joystick` icon in
+      icons.html) sits centred just below the Overview, with "Game Mode"
+      under it as part of the button. It fades in with the Overview
+      (pond-final). Hover turns it orange; the fish circles it
+      (.game-toggle added to fish.circle_targets).
+    - It opens Game Mode, a separate view laid over the water like a detail
+      page (main and the top bar hidden, no scroll). For now the view says
+      "Under construction", with a line of text and a "Back to the
+      portfolio" button; Escape also goes back.
+    - The switch is a band of deep water with lit leaning edges sweeping
+      across the whole screen (left → right in, right → left out); the
+      views swap while it covers the screen. New aquarium.yaml block
+      `game:` — sweep_time 1.1s, sweep_angle 10°. Reduced motion: an
+      instant swap.
+    - New site.yaml block `game:` holds the label, heading, note and back
+      text.
+    - 11-responsive.css is now 12-responsive.css, so it stays last after
+      the new 11-game.css.
+

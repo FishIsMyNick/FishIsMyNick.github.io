@@ -1,0 +1,201 @@
+/* Game Mode: the joystick under the overview, the view it opens, and the
+   band of water that sweeps across the screen between the two. */
+
+/* ===================================================== GAME MODE ======= */
+
+/* ------------------------------------------------------- the button -- */
+
+/* Under the overview, centred, and in with it. A round frosted button the
+   way the corner ones are, only larger, with its name under it. The whole
+   thing is the button, name included. */
+.game-entry {
+  margin-top: clamp(1.25rem, 2.5vw, 2rem);
+  display: flex;
+  justify-content: center;
+}
+
+.game-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .55rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--bone);
+  cursor: pointer;
+}
+
+.game-toggle-icon {
+  display: grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  background: rgba(2, 25, 31, .35);
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  box-shadow: 0 10px 30px -14px rgba(0, 10, 14, .6);
+  transition: color .2s ease, border-color .2s ease, transform .25s cubic-bezier(.4, 0, .2, 1);
+}
+.game-toggle-icon .icon { width: 2rem; height: 2rem; }
+
+.game-toggle-label {
+  font-family: var(--sans);
+  font-size: .8rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 110, "wght" 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--silt);
+  text-shadow: 0 1px 12px rgba(0, 18, 26, .45);
+  transition: color .2s ease;
+}
+
+.game-toggle:hover .game-toggle-icon,
+.game-toggle:focus-visible .game-toggle-icon {
+  color: var(--koi);
+  border-color: var(--koi);
+  transform: translateY(-2px);
+}
+.game-toggle:hover .game-toggle-label,
+.game-toggle:focus-visible .game-toggle-label { color: var(--koi); }
+.game-toggle:focus-visible { outline: none; }
+
+/* ---------------------------------------------------------- the view -- */
+
+/* Laid over the water like a detail page, on the same glass. The page
+   underneath is hidden while it is open, so only the water shows through. */
+.game-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: grid;
+  place-items: center;
+  padding: 4.5rem var(--pad-x) 3rem;
+  overflow-y: auto;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4, 32, 40, calc(var(--panel-opacity) * (.9 + var(--depth) * .15))) 0%,
+      rgba(2, 22, 28, calc(var(--panel-opacity) * (1 + var(--depth) * .2))) 100%
+    );
+  backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
+  -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
+}
+.game-layer[hidden] { display: none; }
+body.game-open { overflow: hidden; }
+body.game-open main { visibility: hidden; opacity: 0; }
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .game-layer { background: rgba(3, 24, 30, .92); }
+}
+
+.game-inner {
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.game-mark {
+  display: grid;
+  place-items: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--silt);
+}
+.game-mark .icon { width: 2.6rem; height: 2.6rem; }
+
+.game-kicker {
+  margin-top: 1.4rem;
+  font-family: var(--sans);
+  font-size: .8rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 110, "wght" 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--silt);
+}
+
+.game-title {
+  margin-top: .35rem;
+  font-family: var(--sans);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 112, "wght" 700;
+  letter-spacing: -.02em;
+  line-height: 1.04;
+  color: var(--bone);
+}
+.game-title:focus { outline: none; }
+
+/* A strip of warning tape under the heading, in the page's own pale
+   colours rather than a borrowed yellow. */
+.game-tape {
+  width: min(14rem, 60%);
+  height: .55rem;
+  margin-top: 1.1rem;
+  border-radius: 2px;
+  background: repeating-linear-gradient(-45deg,
+    rgba(236, 230, 218, .5) 0 .55rem, transparent .55rem 1.1rem);
+  opacity: .8;
+}
+
+.game-note {
+  margin-top: 1.2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #dbeaee;
+}
+
+.game-back {
+  margin-top: 1.8rem;
+  padding: .7rem 1.4rem;
+  background: rgba(2, 25, 31, .35);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: .95rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 105, "wght" 600;
+  color: var(--bone);
+  cursor: pointer;
+  transition: color .2s ease, border-color .2s ease;
+}
+.game-back:hover,
+.game-back:focus-visible { color: var(--koi); border-color: var(--koi); outline: none; }
+
+/* --------------------------------------------------------- the sweep -- */
+
+/* A band of deep water, wider than the screen, with its edges leaning and
+   lit like the foam on the surface. The script slides it across
+   (13-game.js) and sets the lean from game.sweep_angle; it changes the
+   views while the band covers the whole screen. Over everything, the
+   corner buttons too. */
+.sweep {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  width: 160vw;
+  height: 100lvh;
+  pointer-events: none;
+  visibility: hidden;
+  will-change: transform;
+  background: linear-gradient(90deg,
+    transparent 0,
+    rgba(224, 246, 252, .6) .5%,
+    #0a5a72 1.4%,
+    var(--deep) 10%,
+    var(--abyss) 50%,
+    var(--deep) 90%,
+    #0a5a72 98.6%,
+    rgba(224, 246, 252, .6) 99.5%,
+    transparent 100%);
+}
+.sweep.is-running { visibility: visible; }

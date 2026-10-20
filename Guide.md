@@ -70,7 +70,8 @@ Project architecture:
     │  └─ experience.yaml     roles, and skill groups (chips or lines)
     ├─ templates/
     │  ├─ base.html           page shell; includes everything below
-    │  ├─ sections/           title, work, experience, contact, details
+    │  ├─ sections/           title, pond, work, experience, contact, details,
+    │  │                      game (the Game Mode view and the sweep)
     │  ├─ details/            professional.html, hobby.html (the two page shapes)
     │  └─ partials/           aquarium (canvas + config + sprites), topbar,
     │                         macros (video, slideshow, media, split_media,
@@ -79,7 +80,8 @@ Project architecture:
     │                         settings, sound, reset)
     └─ assets/
        ├─ css/  01-tokens 02-reset 03-layout 04-topbar 05-bands 06-title
-       │        07-work 08-experience 09-contact 10-detail 11-responsive (keep last)
+       │        07-work 08-experience 09-contact 10-detail 11-game
+       │        12-responsive (keep last)
        ├─ js/   01-core     settings from aquarium.yaml, shared state
        │        02-nav      year, sticky top bar
        │        03-media    previews: play on hover, empty-state fallback,
@@ -93,6 +95,7 @@ Project architecture:
        │        10-bowl     bowl, castle, cracks, break, page lock, hero dive
        │        11-settings the gear and its panel (open/close only)
        │        12-models   Gallery viewers: lazy load, pan, reset, animations
+       │        13-game     Game Mode: the sweep, opening and closing the view
        ├─ img/  fish-left.png, fish-right.png (trimmed, transparent bg)
        └─ svg/  koi_fish.svg (old v3.3 drawing, unused)
 
@@ -159,6 +162,7 @@ Sections:
     3. Experience & skills
     4. Contact
     (+ Detail pages, opened from My Work)
+    (+ Game Mode, opened from the button under the Overview)
 
 Title:
     Two parts, after Ref Slike/Initial_title_reference.png and
@@ -243,6 +247,11 @@ Title:
       one cell, so their blur panes are always exactly the same size. The intro is one paragraph
       however it is wrapped in the file; *orange*, **one size up** and a
       typed \n work in it.
+    - Game Mode button: centred just below the Overview, coming in with it.
+      A round frosted button (like the corner buttons, larger) with a
+      joystick icon, and under it the label <small uppercase silt>Game Mode<>
+      (game.label in site.yaml). The label is part of the button. On hover
+      the ring, icon and label go orange. Opens Game Mode (see Game Mode).
     - Nav: My work | Experience & skills | Contact — one single bar the full
       width of the panels below, three equal cells, large heading-sized text,
       vertical separators between the cells whose ends fade out; on hover the
@@ -336,7 +345,8 @@ The Fish:
       waterline is a jump (if he's near the surface he jumps straight away,
       otherwise he swims up first and then jumps).
     - Hover: hovering a gallery row, showcase thumbnail, contact row, skill
-      group, role, section heading, nav cell or the sound toggle makes him
+      group, role, section heading, nav cell, the sound toggle or the Game
+      Mode button makes him
       circle it, in a wide, slow
       orbit.
     - Jumps out of the water on his own every so often (fish.jump_every,
@@ -349,6 +359,26 @@ The Fish:
     - Can do a full 360° roll in the water, sometimes instead of a plain turn.
     - Can leave the window past the side edge and come back.
     - Scrolling drags him along with the page (mostly).
+
+Game Mode:
+    A different, more interactive view of the page, opened by the Game Mode
+    button under the Overview. For now it is under construction.
+    - Switching: a band of deep water, wider than the screen, with lit
+      leaning edges like the surface foam, sweeps across the whole screen —
+      left to right on the way in, right to left on the way out, its top
+      edge leaning the way it goes. It gathers pace on the way in and loses
+      it on the way out; the views swap at the halfway point, while it
+      covers the screen. It goes over everything, the corner buttons too.
+      game.sweep_time (1.1s, the whole crossing) and game.sweep_angle (10°)
+      in aquarium.yaml. With reduced motion asked for, the views just swap.
+    - The view: laid over the water on the same glass as a detail page; the
+      page under it, and the top bar, are hidden and it can't scroll. The
+      water, shoal and fish keep going behind it. Centred: the joystick in a
+      ring, <small uppercase>Game Mode<>, <large bold>Under construction<>,
+      a strip of pale warning tape, a line of text, and a "Back to the
+      portfolio" button. All the words are `game:` in site.yaml.
+    - Leaving: the Back button or Escape sweeps back to the page where it
+      was left, with focus on the Game Mode button.
 
 My Work:
     One panel with a heading and two clearly separated shelves (the hobby shelf

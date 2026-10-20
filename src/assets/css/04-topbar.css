@@ -16,6 +16,7 @@
 }
 .topbar.is-visible { transform: none; visibility: visible; }
 body.detail-open .topbar,
+body.game-open .topbar,
 body.is-locked .topbar { transform: translateY(-100%); visibility: hidden; }
 
 /* The bar lines up with the panels under it rather than with the narrower

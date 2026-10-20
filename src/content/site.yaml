@@ -48,6 +48,15 @@ hero:
   # The small line under the bowl. It goes with the glass.
   bowl_note: Tap to break the glass
 
+# ------------------------------------------------------------- game mode --
+# The button under the overview, and the other view of the page it sweeps
+# across to. That view is still being built; until it is, it says so.
+game:
+  label: Game Mode # under the joystick
+  heading: Under construction
+  note: A more playful way through the portfolio is being built here. Come back soon to check it out :)
+  back: Back to the portfolio
+
 # Nav links, used both under your name and in the sticky bar.
 nav:
   - { label: My work, href: "#work" }
@@ -85,8 +94,8 @@ sections:
 contact:
   - label: Email
     icon: mail
-    text: hello@example.com
-    href: mailto:hello@example.com
+    text: luxlupus1997@gmail.com
+    href: mailto:luxlupus1997@gmail.com
 
   - label: GitHub
     icon: code
@@ -96,8 +105,8 @@ contact:
 
   - label: LinkedIn
     icon: profile
-    text: linkedin.com/in/your-profile
-    href: https://www.linkedin.com/in/your-profile
+    text: linkedin
+    href: https://www.linkedin.com/in/luka-miletic-b47781144/
     external: true
 
 # The small line at the very bottom. The year is filled in automatically.

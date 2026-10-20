@@ -182,7 +182,7 @@ fish:
 
   # Hovering anything on the page: he comes and circles it, wide and slow.
   circle: true
-  circle_targets: ".entry, .contact-list li, .skill-set, .roles li, .band-head, .jump a, .sound-toggle, .showcase-item"
+  circle_targets: ".entry, .contact-list li, .skill-set, .roles li, .band-head, .jump a, .sound-toggle, .showcase-item, .game-toggle"
   circle_radius: 210 # how wide the orbit is around the thing, pixels
   circle_margin: 64 # kept this far clear of its edges
   circle_speed: 140 # how fast he goes round, pixels per second
@@ -330,6 +330,14 @@ motion:
   # He still comes when you click: that part is yours, not the page's.
   respect_reduced_motion: true
   reduced_scale: 0.3
+
+# ------------------------------------------------------------ game mode ---
+# The Game Mode button swaps the page for another view behind a band of
+# water that sweeps across the screen: left to right on the way in, back
+# right to left on the way out. The views change while it covers the screen.
+game:
+  sweep_time: 1.1 # seconds for the band to cross the whole screen
+  sweep_angle: 10 # how far its edges lean, degrees
 
 # ----------------------------------------------------------- the sound ---
 sound:

@@ -1,0 +1,20 @@
+{# GAME MODE — the other view of the page, opened by the joystick under the
+   overview (sections/pond.html). It is laid over the water like a detail
+   page, and the page underneath is hidden while it is open. The band that
+   sweeps across the screen on the way in and out is the `.sweep` after it;
+   13-game.js runs both.
+
+   Still being built: for now it only says so, and leads back. #}
+{% from "partials/icons.html" import icon %}
+<section class="game-layer" id="game-layer" aria-labelledby="game-title" hidden>
+  <div class="game-inner">
+    <span class="game-mark">{{ icon('joystick') }}</span>
+    <p class="game-kicker">{{ site.game.label }}</p>
+    <h2 class="game-title" id="game-title" tabindex="-1">{{ site.game.heading }}</h2>
+    <span class="game-tape" aria-hidden="true"></span>
+    <p class="game-note">{{ site.game.note }}</p>
+    <button type="button" class="game-back" id="game-back">{{ site.game.back }}</button>
+  </div>
+</section>
+
+<div class="sweep" id="sweep" aria-hidden="true"></div>
