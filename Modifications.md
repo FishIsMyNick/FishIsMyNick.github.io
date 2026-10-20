@@ -1,4 +1,4 @@
-# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-36 on 2026-10-20)
+# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-37 on 2026-10-20)
 
 Changes made on top of v3.4. Every edit is in src/; the generated index.html,
 styles.css and script.js were rebuilt with `python build.py` after each one.
@@ -593,3 +593,13 @@ Guide.md
         - the nav is a single bar with fading separators
         - the Quote
         - "What I work with" is on the left
+
+37. Published to GitHub Pages
+    Files: .gitignore, .nojekyll (new)
+    - The folder is a git repo pushed to
+      https://github.com/FishIsMyNick/FishIsMyNick.github.io (public, branch
+      main). GitHub Pages serves it from the repo root at
+      https://fishismynick.github.io/
+    - .gitignore leaves out __pycache__/, _vidtest.html and TODO.md.
+    - .nojekyll tells Pages to serve the files as they are, with no Jekyll
+      build.

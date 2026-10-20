@@ -548,3 +548,10 @@ but UI programmer in professional.yaml. Everything else is in: real game
 titles, the hobby projects' text, every professional project's cover clip,
 and Ubisoft Belgrade's contribution clips (montages of gameplay footage, no
 YouTube player overlay in them).
+
+Publishing:
+The site is live at https://fishismynick.github.io/ and is served from the
+main branch of github.com/FishIsMyNick/FishIsMyNick.github.io. To update it,
+run `python build.py`, then `git add -A`, `git commit -m "..."` and
+`git push`. Pages redeploys within a minute or two. Every file has to stay
+under 100 MB (a GitHub limit) and the whole site under 1 GB.
