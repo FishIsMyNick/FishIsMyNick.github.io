@@ -63,10 +63,10 @@
       Each of these areas is a learning experience, and the project is a sandbox for me to explore them in a way that lets me see the results immediately.
     -
       |
-      The project is still in its very early stages, and I'm currently focusing on getting the movement and combat systems working together. Once I have a solid foundation, I'll be able to iterate on the gameplay and add more content to the game.
+      The project is still in its very early stages, and I'm currently focusing on getting the movement and combat systems working together. Once I have a solid foundation, I'll be able to iterate on the gameplay and narrative, and add more content to the game.
 
   technologies:
-    - Unreal Engine
+    - Unreal Engine 5.5.4
     - C++
     - Visual Studio
     - Blueprint
@@ -93,7 +93,7 @@
       title: Movement and Animation
       text: |
         For the very start of the project I focused on getting the main character moving, as this would help me get a feel for the movement mechanics. It's important to have the movement feel deliberate and stick to the theme of a little speedy demon. I also wanted to get a feel for the workflow between Blender and Unreal, so I could iterate on the character's movement and animations quickly.\n
-        Initially I created animations for idle, walking, running, sprinting, and jumping vertically and horizontally. Both the movement and jumping animations were then used to make 1D Blend Spaces in UE5, and the Blend Spaces were used to control the animations based on the character's speed.
+        Initially I created animations for idle, walking, running, sprinting, and jumping vertically and horizontally. Both the movement and jumping animations were then used to make 1D Blend Spaces in UE5, and the Blend Spaces were used to blend between these animations based on the character's speed.
 
     #- media: hobby/infernal-dante/abilities
     #  title: Abilities, animation and combat
@@ -109,7 +109,7 @@
     - title: 3D Model
       model: hobby/infernal-dante/gallery/models/dante3
       text: |
-        A very rough model of a miniature Italian greyhound (yes, they exist). It has a lot of flaws and is pretty basic, but considering this was my first ever modeling project, I'm happy with how it turned out. The proportions may look out of whack, but it's just a very small dog. In reality the proportions are only slightly exaggerated for the head and eyes for maximum cuteness.
+        A rough model of a teacup Italian Greyhound. A Tiggy™, if you will. (And yes, they exist). It's deffinetly not perfect and the paint job is kinda rough, but considering this was my first ever modeling project and I wanted to do it as quickly as possible, I'm happy with how it turned out. The proportions may look a little out of whack, but it's just a very small dog. In reality, the head and eyes are only slightly exaggerated for maximum cuteness.
 
     #- title: Animations
     #  animation: hobby/infernal-dante/gallery/showcase/dante-anim
