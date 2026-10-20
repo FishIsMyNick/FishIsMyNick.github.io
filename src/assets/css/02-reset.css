@@ -1,0 +1,91 @@
+/* Reset, base typography, and the skip link. */
+
+/* --------------------------------------------------------------- reset -- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  /* The canvas paints the water over this; it only shows for the moment
+     before the script starts, and if the script never does. */
+  background: var(--shallow);
+  color: var(--bone);
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--sans);
+  margin: 0;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+a { color: inherit; }
+
+img, video, canvas { display: block; max-width: 100%; }
+
+:focus-visible {
+  outline: 2px solid var(--koi);
+  outline-offset: 3px;
+}
+
+.accent { color: var(--koi); }
+
+/* *word* and **word** in the content files. One takes the accent colour, the
+   other a size up inside whatever line it sits in. */
+.bigger {
+  font-size: 1.22em;
+  letter-spacing: -.03em;
+}
+
+/* ^^st^^ in the content files: the ordinal in 1st, 2nd, 3rd. A line-height
+   of 0 keeps it from pushing its line apart from the ones around it. */
+sup {
+  font-size: .62em;
+  line-height: 0;
+  vertical-align: .55em;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--koi);
+  color: #130600;
+  font-family: var(--sans);
+  padding: .75rem 1.25rem;
+}
+.skip:focus { left: 0; }
+
+/* Description text, and the bulleted lists, are set justified, with the last line left ragged and
+   long words hyphenated so the spacing doesn't open up into gaps. */
+.lede,
+.entry-body p:not(.entry-role),
+.roles p:not(.role-meta),
+.detail-overview p,
+.detail-description p,
+.lines li {
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+/* ...and set a few pixels over the body size. */
+.entry-body p:not(.entry-role),
+.roles p:not(.role-meta),
+.detail-overview p,
+.detail-description p { font-size: calc(1.0625rem + 3px); }
+
+/* The overview sits centred under the name, so its last line does too. */
+.lede { text-align-last: center; }

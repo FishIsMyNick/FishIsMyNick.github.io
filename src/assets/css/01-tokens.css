@@ -1,0 +1,48 @@
+/* Design tokens: the whole palette, type and spacing scale.
+
+   The page is one tall body of water. The top of it is bright — the teal of a
+   lit tank seen from the side — and it darkens all the way down, which is what
+   the scrolling does. Those two colours, and everything else the water and the
+   fish do, live in src/content/aquarium.yaml; the build writes the ones CSS
+   needs down here at the end of the stylesheet, so they only have one home.
+
+   The orange is the fish, and nothing else on the page is allowed to be it. */
+
+:root {
+  --shallow: #0d7fa4;   /* the surface, at the top of the page   */
+  --abyss:   #02191f;   /* the bottom                            */
+  --deep:    #06202a;   /* anything opaque that isn't the water  */
+  --plate:   #06191d;   /* the slab your name sits on            */
+
+  --line:      rgba(224, 246, 252, .16);   /* hairline over water */
+  --line-soft: rgba(224, 246, 252, .10);
+
+  --bone:    #ece6da;   /* primary text         */
+  --silt:    #b7cfd6;   /* secondary text       */
+  --koi:     #ff6b2c;   /* the fish, and the accent */
+  --koi-deep:#c24a1b;
+
+  --shell: 84rem;
+  --preview: 600px;      /* media previews cap here */
+  --topbar: 3.5rem;
+  --pad-x: clamp(1.25rem, 4vw, 4.5rem);
+  --pad-y: clamp(3.5rem, 7vw, 7rem);
+
+  --sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+
+  /* The script keeps this one up to date: 0 at the surface, 1 at the bottom
+     of the page. Anything that should notice the depth can read it. */
+  --depth: 0;
+
+  /* how far a borderless blur pane fades out at its edges */
+  --feather: 3rem;
+
+  /* written over by the build, from src/content/aquarium.yaml */
+  --panel-opacity: .42;
+  --panel-blur: 8px;
+  --panel-radius: 26px;
+  --panel-edge: .22;
+  --bowl-size: 26rem;
+  --bowl-aspect: .92;
+}

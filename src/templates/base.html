@@ -1,0 +1,81 @@
+{# The page shell. Each section is its own file under sections/. #}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ site.name | plain }} — {{ site.tagline | plain }}</title>
+<meta name="description" content="{{ site.meta_description | plain }}">
+<meta name="theme-color" content="{{ aquarium.depth.shallow_color }}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Newsreader:opsz,wght@6..72,300..500&display=swap" rel="stylesheet">
+{# Hides what the lock will hide before the first paint, so it is never seen
+   and then faded out. `has-js` stays for good — it is what keeps the
+   overview back until the water has settled. The bowl script takes
+   `is-booting` off; the timeout is there in case script.js never runs, and
+   then takes both off. Without JavaScript none of this happens and the page
+   is simply the portfolio. The scroll is never restored on a reload: the
+   page always starts at the bowl, and the script takes it from there. #}
+<script>(function(h){if('scrollRestoration' in history)history.scrollRestoration='manual';h.classList.add('has-js','is-booting');setTimeout(function(){h.classList.remove('is-booting');if(!window.Aquarium)h.classList.remove('has-js')},4000)})(document.documentElement);</script>
+<link rel="stylesheet" href="styles.css">
+<script src="script.js" defer></script>
+</head>
+<body>
+{% from "partials/icons.html" import icon %}
+
+<a class="skip" href="#work" id="skip">Skip to my work</a>
+
+{% include "partials/aquarium.html" %}
+{% include "partials/topbar.html" %}
+
+{# Always there, in the top right corner, over everything else: Settings in
+   the corner, Sound on its left. Icons only; the names are for screen
+   readers and the tooltip. #}
+<div class="corner-controls">
+  <button type="button" class="corner-button sound-toggle" id="sound-toggle"
+          aria-pressed="true" aria-label="Sound" title="Sound on">
+    {{ icon('sound') }}
+  </button>
+  <button type="button" class="corner-button settings-toggle" id="settings-toggle"
+          aria-expanded="false" aria-controls="settings" aria-label="Settings" title="Settings">
+    {{ icon('settings') }}
+  </button>
+
+  {# What the gear opens. Scroll lock: whether the hero dive keeps the page
+     to the end, or a scroll takes it back once he is past the quote. Dive
+     speed only matters while the dive keeps the page, so it is off when the
+     scroll is unlocked. #}
+  <div class="settings" id="settings" role="group" aria-label="Settings" hidden>
+    <label class="setting setting--switch" for="scroll-lock">
+      <span class="setting-text">
+        <span class="setting-name">Scroll lock</span>
+        <span class="setting-note">The hero dive keeps the page to the end</span>
+      </span>
+      <input type="checkbox" class="switch" id="scroll-lock">
+    </label>
+    <label class="setting setting--range" for="dive-speed">
+      <span class="setting-text">
+        <span class="setting-name">Dive speed</span>
+        <output class="setting-value" id="dive-speed-value" for="dive-speed"></output>
+      </span>
+      <input type="range" class="slider" id="dive-speed"
+             min="{{ aquarium.fish.escort_speed_min }}" max="{{ aquarium.fish.escort_speed_max }}" step="50"
+             value="{{ aquarium.fish.escort_speed }}">
+    </label>
+  </div>
+</div>
+
+<main id="main">
+{% include "sections/title.html" %}
+{% include "sections/pond.html" %}
+{% include "sections/work.html" %}
+{% include "sections/experience.html" %}
+{% include "sections/contact.html" %}
+</main>
+
+{% include "sections/details.html" %}
+
+</body>
+</html>

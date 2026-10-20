@@ -1,0 +1,38 @@
+{# DETAIL PAGES
+   One <article> per project, hidden until its row is clicked. The layer, the
+   sticky back button and the routing are shared; the two project kinds get
+   their own page shape from details/.
+
+   Nothing here is wired up by hand — `data-project` comes from each project's
+   `id`, and the script matches it to the link with the same id. #}
+<div class="detail-layer" id="detail-layer" hidden>
+  <div class="detail-scroll" id="detail-scroll">
+
+    <div class="detail-bar">
+      <div class="shell">
+        <button type="button" class="detail-close" id="detail-close">Back to my work</button>
+      </div>
+    </div>
+
+    <div class="shell detail-body">
+
+      {% for project in professional %}
+      {% include "details/professional.html" %}
+      {% endfor %}
+
+      {% for project in hobby %}
+      {% include "details/hobby.html" %}
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+
+{# The 3D viewer for the Gallery sections, only on a site that has a model.
+   It is a module, so it never holds up the page; until it arrives the
+   viewports are empty panels. #}
+{% set found = namespace(models=false) %}
+{% for project in professional + hobby %}{% if project.get('gallery') %}{% set found.models = true %}{% endif %}{% endfor %}
+{% if found.models %}
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+{% endif %}

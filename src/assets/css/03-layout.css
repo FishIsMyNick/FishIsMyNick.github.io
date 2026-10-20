@@ -1,0 +1,152 @@
+/* The container, the water behind everything, and the panels floating on it.
+
+   The canvas is fixed to the viewport: the water stays put while the page
+   scrolls over it, which is what lets the fish swim behind the sections and
+   across the gaps between them. */
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--pad-x);
+}
+
+/* ------------------------------------------------------------- water -- */
+
+.aquarium {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;      /* clicks go to the page; the script listens */
+  background: var(--shallow);
+}
+
+.aquarium canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The artwork is only ever read by the script, never shown here. */
+.sprite-source {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------- bands -- */
+
+main { position: relative; z-index: 1; }
+
+.band {
+  position: relative;
+  padding-block: var(--pad-y);
+  scroll-margin-top: var(--topbar);
+}
+
+/* Everything below the title is a panel resting on the water: rounded, part
+   way see-through, with the water visible around it and between them.
+   Their strength is panels.opacity in aquarium.yaml. */
+.band--work,
+.band--experience,
+.band--contact {
+  width: min(100% - 2rem, calc(var(--shell) + 2rem));
+  margin-inline: auto;
+  margin-block: clamp(1.5rem, 4vw, 3.5rem);
+  border: 1px solid rgba(224, 246, 252, calc(var(--panel-edge) * 1));
+  border-radius: var(--panel-radius);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4, 32, 40, calc(var(--panel-opacity) * (.9 + var(--depth) * .15))) 0%,
+      rgba(2, 22, 28, calc(var(--panel-opacity) * (1 + var(--depth) * .2))) 100%
+    );
+  backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
+  -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
+  box-shadow:
+    0 1px 0 rgba(222, 248, 255, .07) inset,
+    0 30px 70px -40px rgba(0, 10, 14, .95);
+  overflow: hidden;          /* keeps the rounded corner honest */
+}
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .band--work,
+  .band--experience,
+  .band--contact { background: rgba(3, 24, 30, .92); }
+}
+
+/* The title sits straight on the water — no panel, so the fish can swim
+   through it. */
+.band--title {
+  padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(1.5rem, 3vw, 2.5rem);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* The panels ride the water: a few pixels over several seconds, each one out
+   of step with the next. Set panels.float to 0 in aquarium.yaml to moor them. */
+@media (prefers-reduced-motion: no-preference) {
+  .band--work,
+  .band--experience,
+  .band--contact {
+    animation: raft calc(12s / max(var(--panel-float), .05)) ease-in-out infinite;
+  }
+  .band--experience { animation-delay: -4s; }
+  .band--contact    { animation-delay: -8s; }
+}
+
+@keyframes raft {
+  0%, 100% { transform: translateY(calc(var(--panel-float) * -4px)); }
+  50%      { transform: translateY(calc(var(--panel-float) *  4px)); }
+}
+
+/* ------------------------------------------------- before the break -- */
+
+/* While the fish is still in the bowl there is nothing else to look at: the
+   page can't be scrolled, and everything under the title is out of the way.
+   Only the root is locked, so the script itself can still take the page
+   down after him once the glass breaks. `is-locked` is added by the script,
+   so without JavaScript the page is just the portfolio. */
+html.is-locked { overflow: hidden; }
+
+body.is-locked .band--work,
+body.is-locked .band--experience,
+body.is-locked .band--contact,
+body.is-locked .title-after {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.band--work,
+.band--experience,
+.band--contact,
+.title-after {
+  transition: opacity .9s ease .1s, visibility .9s;
+}
+
+/* A hero panel was clicked: the page is going all the way down to a group
+   in My work, so everything on the way is there from the start. */
+body.is-locked.is-escorting .band--work,
+body.is-locked.is-escorting .band--experience,
+body.is-locked.is-escorting .band--contact,
+body.is-locked.is-escorting .title-after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Before the script has decided whether to lock the page: hidden, and with no
+   transition, so nothing shows for a frame and then fades away. */
+html.is-booting .band--work,
+html.is-booting .band--experience,
+html.is-booting .band--contact,
+html.is-booting .title-after {
+  opacity: 0;
+  visibility: hidden;
+  transition: none;
+}

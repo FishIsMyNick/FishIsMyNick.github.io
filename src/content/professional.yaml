@@ -1,0 +1,311 @@
+# ============================================================================
+#  Professional projects — the first shelf under "My work".
+#
+#  Each entry becomes a row in My work AND its own detail page. The row
+#  reads "<title> • <studio>", over a thumbnail split corner to corner: the
+#  game above the diagonal, the studio's logo below it.
+#      title   ->  the game's name
+#      studio  ->  who you built it at
+#      Two pictures, each in media/ and named without its extension
+#      (professional/<id>/cover finds cover.jpg, .jpeg, .png, .webp or
+#      .avif). An .mp4 of the same name, if there is one, plays on hover.
+#      thumbnail -> the project's row in My work
+#      cover     -> beside the title on the detail page
+#      (An older single `media:` still works, standing in for both.)
+#      Any of these, and a contribution's `media`, can name a folder instead
+#      by ending in / (professional/<id>/contributions/ui/): every picture
+#      directly in it is shown, in filename order, each fading over the last.
+#      The hero panels on the opening screen have photos of their own, in
+#      media/hero/ — see `panels` in site.yaml.
+#      logo    ->  logos/<studio> — the studio's mark (.png, .svg, .webp,
+#                  .avif), in the lower corner of the thumbnail. Until the
+#                  file is there the corner shows the studio's name.
+#      category -> which part of the industry: AAA, Mobile, Indie… Projects
+#                  are grouped under these on the page, in the order the
+#                  categories first appear, and the hero panels on the opening
+#                  screen lead to them.
+#      summary / tags             -> the row in My work
+#      description / technologies / contributions -> the detail page
+#                  (technologies are badges under the description; leave
+#                  the list out and the section isn't shown)
+#
+#  `id` is the project's URL (…#ubisoft-belgrade). Keep it lowercase with
+#  dashes, and unique across every project in every file.
+#
+#  To add a project, copy one block. To remove one, delete it. Nothing else
+#  needs changing — the build wires up the links and pages.
+#
+#  Still writing something? `in_progress: true` on a block keeps the whole
+#  project off the page, and <<text like this>> inside any line keeps just
+#  that text off. This works in every content file.
+# ============================================================================
+
+- id: ubisoft-belgrade
+  # EDIT: the game's title, if you can name it publicly. Until then this
+  # placeholder is what the row says.
+  title: Assassin's Creed – Black Flag Resynced
+  studio: Ubisoft Belgrade
+  category: AAA
+  logo: logos/ubisoft
+  role: UI programmer
+  thumbnail: professional/ubisoft-belgrade/thumbnail
+  cover: professional/ubisoft-belgrade/cover
+
+  summary: |
+    UI programming in AAA production. Helped give this classic a well-deserved and well-received remaster.
+
+  tags: [C++, Anvil Engine, UI/UX]
+
+  # EDIT: what the game is.
+  description: |
+    AAA production at Ubisoft Belgrade, in C++ and Ubisoft's in-house Anvil Engine, focusing mainly on UI development. Assassin's Creed – Black Flag Resynced revisits the pirate adventure of Edward Kenway, combining open-world exploration, naval combat, stealth, and melee combat in a Caribbean setting during the Golden Age of Piracy. The remaster shows a great leap in visual fidelity, with enhanced graphics, improved character models, and more detailed environments. The team worked hard to refine the gameplay in its entirety, ensuring a fantastic experience that honors the original while introducing new features and improvements. The release results speak for themselves: the game has been well received by both critics and players, with praise for its stunning visuals, engaging gameplay, and faithful representation of the original story. The project was a testament to the dedication and skill of the development team, who worked tirelessly to deliver a polished and immersive experience for fans of the franchise.
+  links:
+      - { label: GameSpot, url: "https://www.gamespot.com/reviews/assassin-s-creed-iv-black-flag-review/1900-6415509/", rating: 9/10 }
+      - { label: PC Gamer, url: "https://www.pcgamer.com/assassins-creed-4-black-flag-review/", rating: 90/100 }
+      - { label: The Guardian, url: "https://www.theguardian.com/games/2026/jul/08/assassins-creed-black-flag-resynced-review" }
+      - { label: Steam Page, url: "https://store.steampowered.com/app/3751950/Assassins_Creed_Black_Flag_Resynced/", rating: 84/100 }
+      #- "https://www.ubisoft.com/"        # no label: the badge reads "ubisoft.com"
+
+  technologies:
+    - C++
+    - Anvil Engine (proprietary)
+    - Various proprietary tools
+    - Perforce
+
+  # What you built, as one or more blocks down the page: each a clip on the
+  # left, an optional heading and its list on the right. Copy a block to add
+  # one. Leave `media` out and the block reuses the game's cover.
+  contributions:
+    # EDIT: the specific things you built.
+    - title: HUD
+      media: professional/ubisoft-belgrade/contribution-gphud
+      items:
+        - Gameplay HUD interaction with player and game state
+        - Visualization of player state and game events in the HUD
+        - HUD toggle (immersive mode) interaction with gameplay elements from the world
+        - Interaction with NPC widgets
+        - Debugging and profiling
+
+    # EDIT: a second contribution — its own clip, heading and list.
+    - title: Menus
+      media: professional/ubisoft-belgrade/contribution-menus
+      items:
+        - Menu interaction with game settings and gameplay features
+        - Inventory and equipment management
+        - Map navigation and interactions with the map widgets
+
+    - title: Quests
+      media: professional/ubisoft-belgrade/contribution-quests
+      items:
+        - Support for quest interaction with the data-driven notification system
+        - Debugging and profiling of quest-related features
+
+    - title: Tutorials
+      media: professional/ubisoft-belgrade/contribution-tutorials
+      items:
+        - Implementation of tutorial features and their interaction with the game state
+        - Interaction with the quest system and HUD elements
+        - Debugging and profiling of tutorial-related features and bugs
+    
+    - title: General contributions
+      media: professional/ubisoft-belgrade/contribution-general
+      items:
+        - Performed well inside an established AAA pipeline and its production standards
+        - Learned and adopted multiple proprietary tools and workflows, including the Anvil Engine, the UI tool and production pipeline, and the asset management system
+        - Iteration with designers and animators on how features ended up feeling, and how to improve them
+        - Ownership of features from first implementation through integration and polish, including debugging and profiling
+
+- id: llamaware
+  # EDIT: the game's title, if you can name it publicly.
+  title: Apocalypse Express
+  studio: Llamaware
+  category: Indie
+  logo: logos/llamaware
+  role: Gameplay programmer
+  thumbnail: professional/llamaware/thumbnail
+  cover: professional/llamaware/cover
+
+  summary: |
+    Gameplay and UI programming in a small indie team. Helped push the game to early access, and later to full release.
+
+  tags: [Unity, C#, Feature Ownership, Mentoring]
+
+  # EDIT: what the game is.
+  description: |
+    Apocalypse Express is an indie action-management roguelite set in a post-apocalyptic wasteland, where survival depends on keeping a heavily armed train operational against relentless waves of enemies. Players must balance combat, resource collection, repairs, and fuel management while upgrading train modules to create increasingly powerful and specialized builds. With a wide range of weapons, defensive systems, upgrades, and relics, each run offers opportunities to experiment with different strategies and adapt to escalating threats. The game combines fast-paced combat with demanding real-time decision-making, challenging players to manage chaos and push their train as far as possible through the remains of the old world.\n
+    I worked as a game developer in a small team with a big dream. It was an amazing journey and I had a blast working on the game with the team. I got hands-on experience with many different parts of the game. The development process was open to the community, and its feedback helped us polish the game into what it is today. The reviews have been overwhelmingly positive, which is, if I may say, very impressive for a debut project. It's a joyride to play and work on, and I'm incredibly happy and proud to have been a part of it.
+  links:
+    - { label: Output Lag, url: "https://outputlag.com/game-reviews/apocalypse-express-review/", rating: 7.5/10 }
+    - { label: Game Atlas, url: "https://game-atlas.de/en/reviews/apocalypse-express/", rating: 72/100 }
+    - { label: Steam Page, url: "https://store.steampowered.com/app/3223160/Apocalypse_Express/", rating: 86/100 }
+
+  technologies:
+    - C#
+    - Unity Engine
+    - GitLab
+
+  contributions:
+    # EDIT: the specific things you built.
+    - title: Enemies
+      media: professional/llamaware/contributions/enemies
+      items:
+        - Enemy Factory 3000™, complete with a PrototypinatorX™ for blazing-fast prototype production, a 2D-Animated-Pixel-Art-Physics-Model-97™ assembly line, an audio controller integration station, and a state-of-the-art EAI™ (Enemy AI) development department, working daily to produce the best targets for your bullets!
+        - State-driven enemy behavior
+        - Movement influenced by the player's actions and the environment
+        - Combat systems, including attack patterns, damage handling, and death and revive sequences
+        - Coordination with other enemies
+        - Movement sequences and pathing
+        - Spawning system and wave management
+        - State-driven sprite animations
+        - Brainstorming, prototyping, iteration, and delivery of worlds of enemies
+
+    - title: Bosses
+      media: professional/llamaware/contributions/bosses
+      items:
+        - Boss Factory 5000™, an upgraded Enemy Factory 3000™ with a greater capacity to accommodate the size of bosses, as well as the added Logistics and Deployment departments. Bring in your old Enemy Factory 3000™ for a big discount on your next deal!
+        - Attack patterns and special attacks
+        - Coordination of multiple boss entities
+        - Progression and reward handling
+
+    - title: UI
+      media: professional/llamaware/contributions/ui
+      items:
+        - HUD elements for player health, ammo, and resources
+        - Menus for upgrades, settings, and game progression
+        - Gameplay systems integration with UI elements
+        - Flashy reload
+        - Localization and consistent styling 
+        - Rich text with icons and dynamic content
+        - Navigation and input handling for both mouse and controller
+        - Cool title screen
+
+    - title: Local Co-op
+      media: professional/llamaware/contributions/coop
+      items:
+        - Double the fun with a friend!
+        - Character customization
+        - Support for two input devices
+        - Handling player inputs competing for shared resources and interactions
+        - Spam E to push your stubborn friend off the big gun
+        - Balancing and tuning gameplay for co-op mechanics
+        - If it's getting late, save the game and pick up where you left off, just don't lose your controller!
+
+    - title: Save/Load System
+      media: professional/llamaware/contributions/save-load
+      items:
+        - Save and load system for player progress, game state, and settings
+        - Journey progression and checkpoint management
+        - Meta progression and unlocks across multiple playthroughs
+        - Serialization of game data to ensure consistency across sessions
+        - Long-term support for save file compatibility and versioning
+        - Integration with UI for save/load menus and feedback
+        - You're always safe with *Fish ><((((-))):)*
+
+    - title: Controller Support
+      media: professional/llamaware/contributions/controller
+      items:
+        - In full control of the system with support for keyboard, Xbox and PlayStation 4/5 controllers for gameplay and menus
+        - UI widgets matching controller types and input prompts
+        - Handling input events and actions for both players in local co-op
+        - Ensuring smooth and responsive controls across various gameplay scenarios
+
+    - title: Architecture
+      media: professional/llamaware/contributions/architecture
+      items:
+        - Core gameplay systems architecture and design, including world generation and progression, save system and UI integration, and others
+        - Modular and extensible codebase for future updates and features
+        - Designer-friendly systems for designers to implement and iterate on gameplay features
+        - Integration of gameplay systems with Unity's component-based architecture
+        - Save/Load system and data management
+
+    - title: Modules
+      media: professional/llamaware/contributions/modules
+      items:
+        - Say hello to my little friends!
+        - Implementing various weapon and tool behaviors
+        - Integration with the Upgrade system to give them a boost
+        - Iterating and improving on existing design
+
+    - title: Upgrades
+      media: professional/llamaware/contributions/upgrades
+      items:
+        - Made countless upgrades... I lost count
+        - Persistence and save/load support
+        - Integration with gameplay systems
+
+    - title: QA
+      media: professional/llamaware/contributions/qa
+      items:
+        - We all pitched in, as a family :)
+        - Rigorous testing, finding edge cases, ensuring there is no stuttering and that everything looks good
+        - Bug reporting and tracking
+        - Self-managing and prioritizing tasks
+        - Diligently working to ensure the game looks and feels its best 
+     
+
+
+
+- id: brave-giant
+  # EDIT: name the three games — or pick the one worth leading with.
+  title: Push Puzzle Rescue Adventure
+  studio: Brave Giant
+  category: Mobile
+  logo: logos/brave-giant
+  role: Gameplay programmer
+  thumbnail: professional/brave-giant/thumbnail
+  cover: professional/brave-giant/cover
+
+  summary: |
+    Fast-paced mobile game development in minimal teams.
+
+  tags: [Unity, C#, Feature Ownership, Mentoring]
+
+  # EDIT: which three games, and what they are.
+  description: |
+    Push Puzzle Rescue Adventure is a cozy Sokoban puzzle game. Go around parks helping trapped animals find their way out. Once you save them, they just might follow you home.\n
+    Working at Brave Giant was very exciting. I got to try my hand at a lot of different games and loved watching them come to life. Fast prototypes, fast testing, fast development cycles, fast releases. In just a year I managed to develop from scratch and publish one game to Steam, Google Play, and the App Store, push one Tower Capture game to its testing phase, and start work on a 3D Object Match game. Sadly, the studio shut down a while ago, and the one game I released has been taken down. For this reason there is very little material available, and releasing any private footage I might have (and I really don't have any anymore) may be a breach of my NDA.
+
+  links:
+    - { label: Steam Page, url: "https://steamcommunity.com/app/1783520/?l=dutch" }
+
+  technologies:
+    - C#
+    - Unity Engine
+
+  contributions:
+    # EDIT: the specific things you built.
+    - title: Gameplay
+      media: professional/brave-giant/contributions/gameplay
+      items:
+        - Gameplay mechanics
+        - Level design and generation
+        - Fast prototyping and flexible development
+
+    - title: Architecture
+      media: professional/brave-giant/contributions/architecture
+      items: 
+        - Architecture and game design
+        - Persistent game state
+        - Progression through collection
+        - No material available
+
+    - title: UI/UX
+      media: professional/brave-giant/contributions/ui/
+      items: 
+        - Using in-house art to make UI panels and effects
+        - Iterating with artists and animators to polish the look and feel
+        - Togglable D-Pad/swipe control feature for mobile gameplay
+
+    - title: Collection
+      media: professional/brave-giant/contributions/collection/
+      items: 
+        - Collect animals as you progress the game
+        - The animal collection can be viewed in an album with stickers, and in the living room of the animal shelter
+        - No material available
+
+    - title: General Contributions
+      media: professional/brave-giant/contributions/general
+      items: 
+        - Publishing to Steam, App Store, and Google Play
+        - Collaboration with members of small teams
+        - Mentoring new employees

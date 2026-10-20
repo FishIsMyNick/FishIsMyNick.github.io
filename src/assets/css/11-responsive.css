@@ -1,0 +1,105 @@
+/* Breakpoints and motion preferences. Keep this last. */
+
+/* ==================================================== RESPONSIVE ======= */
+
+/* A 600px preview needs most of the width. Below that, the text column gets
+   too narrow to read, so the rows stack while the preview keeps its cap. */
+@media (max-width: 78rem) {
+  .entry,
+  .split-media { grid-template-columns: minmax(0, 48%) minmax(0, 1fr); }
+  .detail-head,
+  .contribution:nth-of-type(even),
+  .detail-features .entry:nth-child(even) { grid-template-columns: minmax(0, 1fr) minmax(0, 48%); }
+}
+
+/* Below this the two halves of the title are too narrow to sit side by side,
+   so it stacks: name, bowl, and the showcase under it running on past the
+   bottom of the screen. The subtitle comes down to fit. */
+@media (max-width: 56rem) {
+  .title-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "copy"
+      "bowl"
+      "showcase";
+  }
+  .band--title { padding-top: 3.5rem; }      /* clear of the corner buttons */
+  .bowl-reserve { width: min(var(--bowl-size), 70vw, calc((100svh - 22rem) / var(--bowl-aspect))); }
+  .showcase { height: clamp(26rem, 110vw, 40rem); }
+  .tagline,
+  .pond-tagline { font-size: clamp(2rem, 8vw, 3.5rem); }
+  .title-copy h1,
+  .pond-name { font-size: clamp(1.4rem, 4.4vw, 2rem); }
+  .pond-quote { font-size: clamp(1rem, 4vw, 1.8rem); }
+  .pond-quote p { white-space: normal; }
+}
+
+@media (max-width: 60rem) {
+  .exp-grid { grid-template-columns: minmax(0, 1fr); }
+  .detail-split { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 56rem) {
+  .entry,
+  .split-media,
+  .detail-head { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .detail-head { gap: 1.75rem; }
+  /* Stacked, they no longer take turns: the picture always comes first.
+     These name the same children as the alternating rule in 10-detail.css
+     (`> .media`, `> :not(.media)`), so they are as specific as it and, coming
+     later, win; `> *` alone was weaker and lost. */
+  .contribution:nth-of-type(even),
+  .detail-features .entry:nth-child(even) { grid-template-columns: minmax(0, 1fr); }
+  .contribution:nth-of-type(even) > .media,
+  .contribution:nth-of-type(even) > :not(.media),
+  .detail-features .entry:nth-child(even) > .media,
+  .detail-features .entry:nth-child(even) > :not(.media) { grid-column: auto; grid-row: auto; }
+  /* the Gallery's models, one to a row */
+  .models { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* On a phone the nav stacks too. */
+@media (max-width: 46rem) {
+  /* Three across is too narrow to read here, so the nav becomes three rows
+     with the hairline between them instead of beside them. */
+  .jump { grid-template-columns: minmax(0, 1fr); }
+  .jump a + a::before {
+    top: 0;
+    bottom: auto;
+    left: 12%;
+    right: 12%;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent, rgba(224, 246, 252, .32) 50%, transparent);
+  }
+  .jump a { padding-block: clamp(.8rem, 3vw, 1.1rem); }
+}
+
+@media (max-width: 40rem) {
+  body { font-size: 1rem; }
+  .entry { gap: 1.1rem; }
+  .topbar-name { display: none; }
+  .topbar-nav { font-size: .8125rem; }
+  .topbar-nav a { padding-inline: .7rem; }
+  .contact-list li { gap: .9rem; }
+  .band--work,
+  .band--experience,
+  .band--contact { width: min(100% - 1rem, var(--shell)); border-radius: 18px; }
+}
+
+/* ==================================================== PREFERENCES ====== */
+
+@media (prefers-reduced-motion: reduce) {
+  *:not(.aquarium):not(.aquarium *) {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}

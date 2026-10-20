@@ -1,0 +1,51 @@
+{# A professional project's page: title, with the studio on the line under
+   it, beside the game, the description across the full width, the
+   technologies as badges (if the project lists any), then
+   each contribution as a preview on the left and its list on the right,
+   and at the bottom a gallery of 3D models, if there are any.
+   Rendered once per entry in content/professional.yaml. #}
+{% from "partials/macros.html" import media, lines, references, model_gallery %}
+
+<article class="detail detail--brief" id="detail-{{ project.id }}" data-project="{{ project.id }}" hidden>
+  <div class="detail-head">
+    <h2 class="detail-title" tabindex="-1">{{ project.title }}{% if project.get('studio') %}<span class="detail-studio"> {{ project.studio }}</span>{% endif %}</h2>
+    {{ media(project.get('cover') or project.get('media') or project.get('thumbnail')) }}
+  </div>
+
+  <section class="detail-description" aria-label="Description">
+    <p>{{ project.description }}</p>
+    {{ references(project.get('links')) }}
+  </section>
+
+  {% if project.get('technologies') %}
+  <section class="detail-tech">
+    <h3>Technologies</h3>
+    <ul class="tags">
+      {% for tech in project.technologies %}
+      <li>{{ tech }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {# `contributions` is a list of { title, media, items }; the older single
+     `contribution` list with its `contribution_media` reads as one of them. #}
+  {% set cover = project.get('cover') or project.get('media') or project.get('thumbnail') %}
+  {% set groups = project.get('contributions') or ([{'media': project.get('contribution_media'), 'items': project.contribution}] if project.get('contribution') else []) %}
+  {% if groups %}
+  <section class="detail-contribution">
+    <h3>Contribution</h3>
+    {% for group in groups %}
+    <div class="split-media contribution">
+      {{ media(group.get('media') or cover) }}
+      <div>
+        {% if group.get('title') %}<h4 class="contribution-title">{{ group.title }}</h4>{% endif %}
+        {{ lines(group['items']) }}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {{ model_gallery(project.get('gallery')) }}
+</article>

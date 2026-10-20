@@ -1,0 +1,239 @@
+{# ===========================================================================
+   The pieces that repeat. Change one here and it changes everywhere.
+   =========================================================================== #}
+{% from "partials/icons.html" import icon %}
+
+{# A 16:9 preview. `name` is a file stem in media/ — media/<name>.mp4 plays on
+   hover, media/<name>.jpg (or .jpeg .png .webp .avif) is the still. Either
+   one alone is enough: a clip with no picture shows its own first frame.
+   With neither, the panel is empty water instead of a broken video box.
+   A name ending in / is a folder of pictures instead (see slideshow). #}
+{% macro video(name) -%}
+{% if name is string and name.endswith('/') %}
+{{ slideshow(name | pictures) }}
+{%- else %}
+{% set still = name | still %}{% set clip = name | clip %}
+{%- if still or clip %}
+<video muted loop playsinline {% if still %}preload="none" poster="{{ still }}"{% else %}preload="metadata"{% endif %}>
+  {% if clip %}<source src="{{ clip }}{% if not still %}#t=0.1{% endif %}" type="video/mp4">{% endif %}
+</video>
+{%- endif %}
+{%- endif %}
+{%- endmacro %}
+
+{# Every picture in a folder, stacked, each fading over the last (03-media.js,
+   at hero.fade / hero.hold from aquarium.yaml). A media name ending in / is
+   a folder: `professional/<id>/ui/` shows every .jpg .jpeg .png .webp .avif
+   directly inside it, in filename order. An empty folder is empty water. #}
+{% macro slideshow(photos) -%}
+{%- if photos %}
+<div class="slides">
+  {% for src in photos %}
+  <img class="slide{% if loop.first %} is-on{% endif %}" src="{{ src }}" alt=""{% if not loop.first %} loading="lazy"{% endif %}>
+  {% endfor %}
+</div>
+{%- endif %}
+{%- endmacro %}
+
+{% macro media(name) -%}
+<figure class="media">
+  {{ video(name) }}
+</figure>
+{%- endmacro %}
+
+
+{# A thumbnail cut corner to corner: the game above the diagonal, the studio's
+   logo below it. Falls back to the studio's name set in the corner when there
+   is no logo file yet.
+
+   Over it, out of sight, the project's cover: hovering the row plays it in
+   the thumbnail's place (its clip, or else its picture). Nothing of it is
+   fetched until the first hover (03-media.js). #}
+{% macro split_media(project) -%}
+{% set thumb = project.get('thumbnail') or project.get('media') or project.get('cover') %}
+<figure class="media media--split">
+  <div class="media-game">
+    {{ video(thumb) }}
+  </div>
+  <div class="media-studio{% if project.get('logo') %} has-logo{% endif %}">
+    <span class="media-studio-name">{{ project.studio }}</span>
+    {% if project.get('logo') %}
+    <img class="media-studio-logo" src="{{ project.logo | logo }}" alt="{{ project.studio | plain }}">
+    {% endif %}
+  </div>
+  <span class="media-seam" aria-hidden="true"></span>
+  {% set cover = project.get('cover') %}
+  {% set cover_clip = cover | clip if cover else None %}
+  {% set cover_still = cover | still if cover else None %}
+  {% if cover_clip or cover_still %}
+  <div class="media-cover" aria-hidden="true">
+    {% if cover_clip %}
+    <video muted loop playsinline preload="none" data-src="{{ cover_clip }}"></video>
+    {% else %}
+    <img alt="" data-src="{{ cover_still }}">
+    {% endif %}
+  </div>
+  {% endif %}
+</figure>
+{%- endmacro %}
+
+
+{# One row of a project gallery: preview on the left, text on the right.
+   It shows the project's thumbnail (or its media, if it names no thumbnail).
+   The whole row links through to the project's detail page. A project with a
+   studio gets the split thumbnail and reads "<title> • <studio>". #}
+{% macro project_row(project) -%}
+<li class="entry entry--open">
+  {% if project.get('studio') %}
+  {{ split_media(project) }}
+  {% else %}
+  {{ media(project.get('thumbnail') or project.get('media') or project.get('cover')) }}
+  {% endif %}
+  <div class="entry-body">
+    <h4><a class="entry-link" href="#{{ project.id }}" data-project="{{ project.id }}">{{ project.title }}{% if project.get('studio') %}<span class="entry-studio"> • {{ project.studio }}</span>{% endif %}</a></h4>
+    {% if project.get('role') %}
+    <p class="entry-role">{{ project.role }}</p>
+    {% endif %}
+    <p>{{ project.summary }}</p>
+    {% if project.get('tags') %}
+    <ul class="tags">
+      {% for tag in project.tags %}
+      <li>{{ tag }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <span class="entry-cue">Open details</span>
+  </div>
+</li>
+{%- endmacro %}
+
+
+{# A row in a detail page's Features: preview left, text right.
+   Same shape as a project row, but it doesn't link anywhere. #}
+{% macro media_row(item) -%}
+<li class="entry">
+  {{ media(item.media) }}
+  <div class="entry-body">
+    <h4>{{ item.title }}</h4>
+    <p>{{ item.text }}</p>
+  </div>
+</li>
+{%- endmacro %}
+
+
+{# A detail page's Gallery: 3D models, each in a viewport that turns with
+   the mouse or a finger (Google's <model-viewer>, loaded only when a page
+   has models — see sections/details.html). An item is { model, title,
+   text, poster, zoom, play }; `model` is a file stem in media/ that finds
+   .glb or .gltf, and is only fetched once its panel is on screen
+   (12-models.js). A model with animations in it plays one on a loop: `play`,
+   else Idle, else the first.
+
+   An item with `animation` in place of `model` is an animation showcase:
+   the same viewport, with every animation in the file as a button under
+   it (or only the item's `animations` list, in that order; `clips` is the
+   same list under its first name). Pressing one plays it. The names
+   come from the file at build time.
+   With the mouse over a model the wheel zooms it in, or out to 2.5 times as
+   far as it starts (a pinch on a phone); the round button in the top left
+   puts the zoom back where it started, keeping the angle. Zoom is on
+   unless the item says `zoom: false`; then the wheel scrolls the page and
+   there is no reset. A
+   model not added yet leaves an empty water panel. #}
+{% macro model_gallery(items) -%}
+{% if items %}
+<section class="detail-models">
+  <h3>Gallery</h3>
+  <ul class="models">
+    {% for item in items %}
+    {% set stem = item.get('animation') or item.get('model') %}
+    {% set src = stem | model %}
+    {% set start = item | first_clip %}
+    {% set clips = (item.get('animations') or item.get('clips') or (stem | animations)) if item.get('animation') else [] %}
+    <li class="model{% if clips %} model--animation{% endif %}">
+      <figure class="model-stage{% if not src %} is-empty{% endif %}">
+        {% if src %}
+        <model-viewer data-src="{{ src }}"{% if start %} autoplay animation-name="{{ start }}"{% endif %}{% if item.get('poster') %} poster="{{ item.poster | picture }}"{% endif %}
+                      alt="{{ (item.get('title') or 'A 3D model') | plain }}, drag to turn it"
+                      camera-controls{% if item.get('zoom') == false %} disable-zoom{% endif %} disable-pan
+                      max-camera-orbit="auto auto 250%" max-field-of-view="45deg"
+                      auto-rotate auto-rotate-delay="2500" rotation-per-second="18deg"
+                      interaction-prompt="none" touch-action="pan-y"
+                      shadow-intensity="0.6" exposure="1.05"></model-viewer>
+        <span class="model-hint" aria-hidden="true">Drag to turn</span>
+        {% if item.get('zoom') != false %}
+        <button type="button" class="model-reset" aria-label="Reset zoom" title="Reset zoom">{{ icon('reset') }}</button>
+        {% endif %}
+        {% endif %}
+      </figure>
+      {% if src and clips %}
+      <div class="clips" role="group" aria-label="Animations">
+        {% for clip in clips %}
+        <button type="button" class="clip" data-clip="{{ clip }}" aria-pressed="{{ 'true' if clip == start else 'false' }}">{{ clip | clip_label }}</button>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if item.get('title') or item.get('text') %}
+      <div class="model-body">
+        {% if item.get('title') %}<h4>{{ item.title }}</h4>{% endif %}
+        {% if item.get('text') %}<p>{{ item.text }}</p>{% endif %}
+      </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{%- endmacro %}
+
+
+{# A heading with an optional line of text beside it, opening a shelf. #}
+{% macro part_top(heading, note='') -%}
+<div class="part-top">
+  <h3 class="part-head">{{ heading }}</h3>
+  {% if note %}
+  <p class="part-note">{{ note }}</p>
+  {% endif %}
+</div>
+{%- endmacro %}
+
+
+{# A dashed list. #}
+{% macro lines(items) -%}
+<ul class="lines">
+  {% for item in items %}
+  <li>{{ item }}</li>
+  {% endfor %}
+</ul>
+{%- endmacro %}
+
+
+{# References under a project's description: a row of badges, each with the
+   site's icon in a small bubble on the left, opening in a new tab. An item
+   is { label, url }, or just a url, which then shows its site's name. The
+   icon is the site's own favicon, or media/<icon> if the item names one;
+   if neither loads, the bubble shows the site's first letter. An item with
+   a `rating: a/b` is a rating badge: the score sits in a bubble on the right. #}
+{% macro references(links) -%}
+{% if links %}
+<ul class="refs" aria-label="References">
+  {% for link in links %}
+  {% set url = link.url if link is mapping else link %}
+  {% set site = url | site_name %}
+  {% set rating = link.rating | string if link is mapping and link.get('rating') else '' %}
+  <li>
+    <a class="ref{% if rating %} has-rating{% endif %}" href="{{ url }}" target="_blank" rel="noopener">
+      <span class="ref-icon" aria-hidden="true" data-letter="{{ site[:1] | upper }}">
+        <img src="{{ link.icon | picture if link is mapping and link.get('icon') else 'https://www.google.com/s2/favicons?sz=64&domain=' ~ site }}" alt="" loading="lazy" width="16" height="16">
+      </span>
+      <span class="ref-label">{{ link.label if link is mapping and link.get('label') else site }}</span>
+      {% if rating %}
+      {% set score, out_of = rating.split('/') %}
+      <span class="ref-rating" title="Rated {{ score | trim }} out of {{ out_of | trim }}"><span class="ref-score">{{ score | trim }}</span>/{{ out_of | trim }}</span>
+      {% endif %}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{%- endmacro %}

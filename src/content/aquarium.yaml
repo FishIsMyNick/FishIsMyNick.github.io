@@ -1,0 +1,342 @@
+# ============================================================================
+#  The aquarium. Every number the bowl, the glass, the water and the fish use
+#  lives here — change one, run the build, reload.
+#
+#  Anything from 0 to 1 is a strength: 0 is off, 1 is as much as it goes.
+#  Anything in pixels is in CSS pixels at a 1x screen.
+#
+#  While you're dialling things in, `python build.py --serve` rebuilds on save.
+#  You can also try values live in the browser console without rebuilding:
+#
+#      Aquarium.config.fish.dash_speed = 1400
+#      Aquarium.config.water.movement = 1.4
+#      Aquarium.reset()        put the fish back in a whole bowl
+#      Aquarium.break_()       skip the tapping and let him out
+# ============================================================================
+
+# -------------------------------------------------------------- the bowl --
+bowl:
+  width: 34 # how wide the bowl is, in rem — the CSS reserves this much room (and keeps it on screen)
+  aspect: 0.94 # height ÷ width. Below 1 the bowl is wider than it is tall
+  # A wide opening and almost no flare: the glass comes up off the body and
+  # turns over, rather than pinching into a neck and spreading into a vase.
+  neck: 0.74 # width of the opening, as a fraction of the bowl's width
+  neck_height: 0.07 # how much of the bowl's height the neck takes up
+  flare: 0.02 # how far the lip turns outwards
+  # There is not a straight line or a corner anywhere on the glass: the whole
+  # silhouette is one curve drawn through a ring of points, the lip rolls over
+  # into the rim, and the rim is a curve of its own. This is how far round that
+  # roll goes, as a fraction of the lip — bigger is softer.
+  lip_round: 0.55
+  rim_bow: 0.28 # how much the rim dips as it crosses the opening
+  water_level: 0.8 # how full it is, from the bottom of the glass
+
+  glass_tint: "#dff2f7" # the rim and the highlights
+  glass_alpha: 0.42 # how visible the glass is against the background
+  glass_line: 2.2 # how heavy the outline is, pixels — it is drawn soft
+  water_tint: "#e6f6fb" # the water inside the bowl — it reads nearly white
+  water_alpha: 0.7
+
+  gravel_color: "#d9b27a" # warm sand, not blue
+  gravel_shade: "#b98f55" # the darker stones mixed through it
+  gravel_depth: 0.16 # how much of the bowl they fill
+  gravel_count: 120
+
+  plant_color: "#3fa34a"
+  plant_height: 0.5 # as a fraction of the bowl's height
+  plant_sway: 0.5
+
+  # The castle in the gravel.
+  castle: true
+  castle_color: "#9fb0b8"
+  castle_shade: "#6d8089" # doors, windows and the shaded side
+  castle_width: 0.26 # as a fraction of the bowl's width
+  castle_height: 0.24 # as a fraction of the bowl's height
+  castle_at: 0.63 # where it stands across the bowl, 0 left, 1 right
+
+  wobble: 0.6 # how much the water in the bowl rocks when you tap it
+
+# ------------------------------------------------------- breaking it open --
+glass:
+  taps_to_break: 3 # how many taps it takes
+
+  # What he does on each tap before the last: on the first he comes up for a
+  # look, on the second he puts his nose through the surface. With more taps
+  # than two, the ones in between repeat the rise.
+  rise_hold: 1.4 # seconds he holds his nerve up there
+  breach: 0.35 # how far out of the water he comes, in body heights
+
+  lock_page: true # the page can't be scrolled until he's out
+  crack_spread: 0.62 # how far the cracks reach across the glass, 0–1
+  crack_width: 2.0 # line thickness, pixels
+  crack_color: "#ffffff"
+  crack_jitter: 0.45 # how ragged each crack is
+  shards: 26 # pieces the glass falls apart into
+  shard_spin: 2.2 # how fast they tumble
+  shard_gravity: 1800 # pixels per second², for the shards
+  shard_fade: 1.6 # seconds before a shard disappears
+  shake: 14 # how far the bowl jolts on a tap, pixels
+  shake_decay: 7 # how quickly that jolt settles
+
+  pour_time: 0.9 # seconds before the water counts as poured in (he can jump, bubbles pop)
+  reveal_delay: 0 # seconds between the water reaching the top and the page unlocking
+
+# ------------------------------------------------------------- the fish --
+fish:
+  # There is one drawing per direction — src/assets/img/fish-left.png and
+  # fish-right.png — each trimmed to its ink on a transparent background.
+  # Replace them to change the fish. The only setting tied to the drawing is
+  # `mouth`, and it is read from the nose end whichever way he is facing.
+  mouth: [0.02, 0.5] # where its mouth is on the drawing, 0–1 across and down
+
+  size_bowl: 140 # how long he is while he's in the bowl, pixels
+  grow_to: 1.6 # and how many times that size he is once he's out
+  max_share: 0.5 # but never longer than this share of a narrow screen
+  turn_time: 0.16 # seconds to swing round when he changes direction
+
+  speed: 70 # cruising, pixels per second
+  max_speed: 1600 # the fastest he will ever go
+  accel: 3.2 # how briskly he gets up to speed
+  pitch: 0.45 # how much he tips nose-up or nose-down when climbing or diving
+
+  # How close to the waterline he swims. The first is how far under it he
+  # keeps himself; the second is how far under it a click can take him, which
+  # is smaller so that a click just below the line is somewhere he reaches
+  # rather than somewhere he stops short of. Both in body lengths.
+  surface_gap: 0.12
+  dash_surface_gap: 0.05
+
+  # Coming through the line while swimming — his back out of the water — sets
+  # off a splash of its own, if he is moving quickly enough and it has been
+  # long enough since the last one.
+  break_speed: 140 # pixels per second, up or down
+  break_gap: 1.1 # seconds between two of them
+
+  # Scrolling drags him with the page. The water doesn't move when you scroll
+  # — you move down through it — so neither does he: 1 pins him to the page
+  # and lets the window slide past him, 0 leaves him where he is on screen.
+  scroll_drag: 0.8
+
+  # The dive. He goes into the water head down, swims down to the bottom of
+  # the screen and stays there, nose down and swimming, until the water has
+  # reached the top. Then he is free.
+  dive_speed: 230 # pixels per second, on the way down
+  dive_settle: 0.62 # how far off the bottom of the screen he holds, in body lengths
+  dive_unwind: 0.8 # seconds to level out once he is let go
+  dive_level_lead: 0.6 # after a break by tapping: he starts levelling out this many seconds before the water stops (a hero click keeps him nose down)
+  # After a hero click the page never stops between the bowl and the group:
+  # it sets off with the water and carries on past it, picking up speed.
+  escort_speed: 1200 # the pace it picks up to, pixels per second (Dive speed in Settings; a viewer's own choice there wins)
+  escort_speed_min: 400 # the Dive speed slider's range
+  escort_speed_max: 2400
+  escort_brake: 1600 # how hard it slows as the group arrives, pixels per second²
+  escort_free_scroll: true # once he is past the quote, scrolling takes the page back from the dive (Scroll lock off in Settings; a viewer's own choice there wins)
+
+  # The leap, on the tap that breaks the glass. He goes up to the top of the
+  # screen in `leap_rise` seconds and hangs there turning over until
+  # `leap_turn` seconds have passed, ending nose down. Then the water starts
+  # coming in and he falls into it.
+  leap_rise: 1.0 # seconds to reach the top
+  leap_turn: 2.0 # seconds for the whole turn, counted from the break
+  leap_top: 0.12 # where he hangs, as a fraction of the screen from the top
+  leap_flips: [1, 2] # how many times he turns over
+  leap_gravity: 1500 # pixels per second², on the way down
+  leap_spread: 170 # how far sideways he carries
+
+  # Jumping, once he is out in the water. He breaks the surface of his own
+  # accord every so often, and goes for a click above the waterline — so a
+  # click in the sky is an invitation.
+  jump: true
+  jump_every: [8, 20] # seconds between leaps of his own accord
+  jump_power: 620 # how hard he leaves the water, pixels per second
+  jump_power_max: 1500 # however far away the click is, never harder than this
+  jump_flips: [0, 1] # turns in the air — 0 is a clean arc
+  jump_gravity: 1400 # pixels per second², while he is out of the water
+  jump_at_clicks: true # a click above the waterline is a jump, not a dash
+  jump_near_surface: 320 # he only leaves the water from within this of it
+
+  # He is not kept inside the window. He can carry on past the edge and come
+  # back, which is what makes the water feel wider than the screen.
+  off_frame: 1.4 # how far out he may go, in body lengths
+  off_frame_chance: 0.18 # how often a wander of his own heads out of frame
+  off_frame_speed: 3 # and how much brisker than a cruise he goes when he does
+  off_frame_return: 2.6 # seconds before he turns back once he is outside
+
+  # A full turn, nose over tail, in the water. He does it now and then, and
+  # sometimes instead of flipping round when he doubles back on himself.
+  roll: true
+  roll_time: 0.95 # seconds for one whole turn
+  roll_every: [7, 18] # seconds between rolls of his own accord
+  roll_on_dash: 0.4 # how often a dash back the other way becomes a roll
+
+  follow: true # once he's free, he follows the cursor
+  follow_ease: 2.2 # how eagerly — higher catches up faster
+  follow_gap: 90 # how close he gets before easing off, pixels
+  idle_after: 2.5 # seconds of a still cursor before he wanders off again
+  wander_range: [1.4, 3.6] # seconds between his own changes of mind
+
+  # A click: he turns on the spot and goes straight there.
+  dash_speed: 1100 # pixels per second
+  dash_turn: 0.07 # seconds to come about — small is a hard, snappy turn
+  dash_time: 1.4 # gives up after this long, in case the cursor has moved on
+  dash_arrive: 26 # how close counts as arrived, pixels
+
+  # Hovering anything on the page: he comes and circles it, wide and slow.
+  circle: true
+  circle_targets: ".entry, .contact-list li, .skill-set, .roles li, .band-head, .jump a, .sound-toggle, .showcase-item"
+  circle_radius: 210 # how wide the orbit is around the thing, pixels
+  circle_margin: 64 # kept this far clear of its edges
+  circle_speed: 140 # how fast he goes round, pixels per second
+  circle_lead: 0.34 # how far ahead on the circle he aims — bigger turns tighter
+  circle_ease: 1.5 # how hard he pulls onto the ring. Lower is lazier
+
+  # The swimming itself: the drawing is cut into vertical strips and a wave is
+  # pushed along them, nose to tail.
+  wiggle: 0.55 # how far the body swings, overall
+  wave_length: 1.2 # waves along the body at once
+  stroke_rate: 1.5 # tail beats per second
+  stroke_speedup: 0.5 # how much faster he beats when he's moving fast
+  head_steady: 0.26 # fraction of the body, from the nose, that stays rigid
+
+  glow: 0.3 # how much he lights the water around him
+  shadow: 0.12 # how dark he falls on the water behind him
+
+  bubbles: true
+  bubble_every: [1.6, 5.0] # seconds between puffs
+  bubble_count: [1, 4] # bubbles in a puff
+  bubble_size: [2, 6] # radius, pixels
+  bubble_rise: 42 # pixels per second
+  bubble_wobble: 14 # how much they drift side to side
+  bubble_life: 4.0 # seconds before one reaches the surface and pops
+
+# ------------------------------------------------------------ the water --
+water:
+  movement: 1.0 # how fast the whole surface slides around
+
+  # Where the waterline is. When he starts to fall it comes up from below the
+  # screen and climbs at a steady pace, without stopping, to surface_end; he
+  # lands in it on the way. The page opens once it gets there.
+  surface_end: 0.17 # as a fraction of the first screen
+  rise_time: 3.4 # seconds from below the screen to the top
+  rise_ease: 0.15 # the share of the climb at the end spent slowing down
+
+  surface_layers: 5 # how many waves overlap along the line
+  wave_height: 9 # how tall they are, pixels
+  wave_length: 320 # how far apart they are, pixels
+  foam: 0.5 # the bright edge along the line
+
+  # Something going through the line. The wave leaves the point it went
+  # through and travels out along the surface in both directions, and the
+  # water throws up a crown of droplets where it happened.
+  splash_speed: 540 # how fast that wave travels out, pixels per second
+  splash_wave: 170 # how far apart its crests are, pixels
+  splash_height: 30 # how tall it is at the point it was made, pixels
+  splash_life: 2.4 # seconds before it has gone
+  splash_drops: 16 # droplets thrown up, at strength 1
+  splash_throw: 420 # how hard they go up, pixels per second
+  splash_gravity: 1500 # and what brings them back, pixels per second²
+
+  caustics: 0.4 # the wandering light bands under the surface
+  caustic_scale: 1.0 # bigger number, finer bands
+  caustic_softness: 6.5 # how far their edges are feathered out
+  # Each band is laid down several times over, wider and fainter each pass, so
+  # it fades out instead of ending. More passes is softer; 1 is a hard band.
+  caustic_passes: 3
+  caustic_drift: 0.8 # how much each band wanders on its own, rather than together
+
+  # Of everything on the canvas, the sunbeams and the caustics are what cost
+  # the most to draw. If the page ever feels heavy on a slower machine, these
+  # two and `panels.blur` are the three numbers to turn down first.
+  # If the page can't hold a steady frame on the machine it's open on, the
+  # light is turned down once, by itself, and left there. The water keeps
+  # moving exactly as it did; there is just less of a show in it.
+  auto_quality: true
+
+  shafts: 0.55 # sunlight coming down from the surface
+  shaft_count: 5
+  shaft_width: 0.07 # as a fraction of the screen's width
+  shaft_softness: 3.2 # how feathered their edges are
+  # The beams are blurred outright before they go on the water, which is what
+  # takes the last edge off them. In pixels, at the size they end up.
+  shaft_blur: 34
+  # The beams brighten and fade where several slow waves meet, rather than on
+  # a single timer — which is what makes the light look like it is on water.
+  shaft_interference: [0.21, 0.37, 0.09] # the speeds of the three waves
+  # And no two beams are on the same clock: each one gets its own phase, its
+  # own rates and its own lean, drawn once when the page opens. 0 has them all
+  # move together, 1 is every beam for itself.
+  shaft_randomness: 0.85
+  shaft_wander: 0.09 # how far a beam slides across the screen, 0–1
+
+  motes: 70 # specks of drifting silt
+  mote_opacity: 0.3
+
+  # The rings where you click. They are round, and they are a wave rather
+  # than a circle: a front travels out at `ripple_speed` with the crests
+  # following it `ripple_wave` apart, each fainter than the one in front.
+  ripple_strength: 0.8
+  ripple_life: 2.4 # seconds for one to fade
+  ripple_rings: 4 # crests behind the leading one
+  ripple_speed: 240 # how fast the front travels out, pixels per second
+  ripple_wave: 34 # how far apart the crests are, pixels
+
+# --------------------------------------------------- how deep it gets ----
+# The light deepens as you scroll: the top of the page is the surface, the
+# bottom is as deep as it goes.
+depth:
+  shallow_color: "#06455a" # just under the surface
+  mid_color: "#05364a" # halfway down
+  deep_color: "#03212e" # at the bottom
+  sky_color: "#0d7fa4" # above the waterline
+
+  curve: 1.15 # above 1 holds the light longer, below 1 drops away sooner
+  full_at: 0.85 # the fraction of the page by which it's as dark as it gets
+  darkening: 0.55 # how much the content panels darken with it
+
+# --------------------------------------------- the fish he swims among ---
+shoal:
+  count: 40 # little fish in the water
+  size: [9, 26] # body length, pixels
+  speed: [14, 46] # pixels per second
+  blend: 0.6 # how much they take the colour of the water: 1 is invisible
+  opacity: 0.62
+  color: "#9fe3ef" # their own colour, before the water is mixed into it
+  depth_spread: 0.9 # how much they scale and dim with distance
+  schooling: 0.45 # how much they keep each other company
+  shy: 90 # how close the koi gets before they scatter, pixels
+  wiggle: 1.1
+
+# ------------------------------------------------- the content on top ----
+panels:
+  opacity: 0.4 # how solid the section panels are over the water
+  blur: 8 # frosting behind them, pixels. This is the one setting on the
+  # page that costs real work to draw: 0 turns the frosting off entirely,
+  # which is worth trying if anything ever feels sluggish.
+  radius: 26 # rounded corners, pixels
+  edge: 0.3 # how bright their border is
+  float: 0.25 # how much they ride the water. 0 moors them
+
+# --------------------------------------------- the hero panels' photos ---
+# Each hero panel goes through the pictures in its folder (site.yaml's
+# hero.panels), fading one over the next. Every panel keeps its own clock,
+# with each picture held a different time, so they never change together.
+hero:
+  fade: 2 # seconds for one picture to fade over the other
+  hold: [5, 8] # seconds each picture stays, picked afresh every time
+
+# ------------------------------------------------- movement, in general ---
+motion:
+  # Some people ask their system for less movement on screen. When they have,
+  # the water, the shoal and the plants slow down to this share of normal.
+  # He still comes when you click: that part is yours, not the page's.
+  respect_reduced_motion: true
+  reduced_scale: 0.3
+
+# ----------------------------------------------------------- the sound ---
+sound:
+  enabled: true
+  volume: 0.5
+  tap: 1.0 # knuckle on the glass
+  crack: 1.0 # the glass giving
+  shatter: 1.0 # the break
+  splash: 0.9 # him landing in the water

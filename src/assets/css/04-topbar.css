@@ -1,0 +1,69 @@
+/* The sticky nav that appears once the title scrolls away. */
+
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  /* frosted on the same settings as everything else that floats on the
+     water, so the bar belongs to the page rather than sitting on top of it */
+  background: rgba(2, 25, 31, .74);
+  backdrop-filter: blur(calc(var(--panel-blur) * 1.6)) saturate(1.1);
+  -webkit-backdrop-filter: blur(calc(var(--panel-blur) * 1.6)) saturate(1.1);
+  border-bottom: 1px solid var(--line);
+  transform: translateY(-100%);
+  visibility: hidden;
+  transition: transform .25s ease, visibility .25s ease;
+}
+.topbar.is-visible { transform: none; visibility: visible; }
+body.detail-open .topbar,
+body.is-locked .topbar { transform: translateY(-100%); visibility: hidden; }
+
+/* The bar lines up with the panels under it rather than with the narrower
+   text column, so it reads as the top edge of the same column. */
+.topbar-inner {
+  width: min(100% - 2rem, calc(var(--shell) + 2rem));
+  max-width: none;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 2.5vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: .8rem;
+  /* the Sound and Settings buttons are fixed in the top right corner; on a
+     window narrow enough that the bar reaches them, the bar leaves them room */
+  padding-right: max(clamp(1rem, 2.5vw, 2rem),
+                     calc(7.5rem - (100vw - min(100vw - 2rem, var(--shell) + 2rem)) / 2));
+}
+
+.topbar-name {
+  font-family: var(--sans);
+  font-size: .9375rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 108, "wght" 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.topbar-name:hover { color: var(--koi); }
+
+/* The same three words as the nav on the title page, set to match it: a
+   little larger than they were, and spaced by a rule rather than by a gap. */
+.topbar-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: .9375rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 106, "wght" 600;
+  letter-spacing: -.01em;
+}
+.topbar-nav a {
+  padding: .25rem clamp(.75rem, 1.6vw, 1.25rem);
+  text-decoration: none;
+  color: var(--silt);
+  transition: color .18s;
+}
+.topbar-nav a + a { box-shadow: -1px 0 0 var(--line-soft); }
+.topbar-nav a:last-child { padding-right: 0; }
+.topbar-nav a:hover { color: var(--koi); }

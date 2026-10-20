@@ -1,0 +1,12 @@
+{# Sticky nav. Hidden until the title section scrolls away, so the opening
+   screen stays clean. #}
+<div class="topbar" id="topbar">
+  <div class="shell topbar-inner">
+    <a class="topbar-name" href="#top">{{ site.name }}</a>
+    <nav class="topbar-nav" aria-label="Sections">
+      {% for item in site.nav %}
+      <a href="{{ item.href }}">{{ item.label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+</div>

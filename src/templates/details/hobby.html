@@ -1,0 +1,47 @@
+{# A hobby project's page: title, overview beside what you're working on,
+   technologies as badges under them, then the features, and at the bottom
+   a gallery of 3D models, if there are any.
+   Rendered once per entry in content/hobby.yaml. #}
+{% from "partials/macros.html" import media_row, lines, references, model_gallery %}
+
+<article class="detail detail--hobby" id="detail-{{ project.id }}" data-project="{{ project.id }}" hidden>
+  <h2 class="detail-title" tabindex="-1">{{ project.title }}</h2>
+
+  <div class="detail-split">
+    <div class="detail-overview">
+      <h3>Overview</h3>
+      {% for para in project.overview %}
+      <p>{{ para }}</p>
+      {% endfor %}
+      {{ references(project.get('links')) }}
+    </div>
+    {% if project.get('goals') %}
+    <div class="detail-goals">
+      <h3>What I'm working on</h3>
+      {{ lines(project.goals) }}
+    </div>
+    {% endif %}
+  </div>
+
+  <section class="detail-tech">
+    <h3>Technologies</h3>
+    <ul class="tags">
+      {% for tech in project.technologies %}
+      <li>{{ tech }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  {% if project.get('features') %}
+  <section class="detail-features">
+    <h3>Features</h3>
+    <ul class="gallery">
+      {% for item in project.get('features') %}
+      {{ media_row(item) }}
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {{ model_gallery(project.get('gallery')) }}
+</article>

@@ -1,0 +1,65 @@
+/* Section 4: contact links and the colophon. */
+
+/* ======================================================== 4. CONTACT === */
+
+.contact-list {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* The mark comes first, then the link. There is no word for either of them:
+   an envelope in front of an email address does not need to say "Email". */
+.contact-list li {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: clamp(.9rem, 2vw, 1.4rem);
+  padding-block: clamp(1.1rem, 2.5vw, 1.6rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-link {
+  min-width: 0;
+  font-family: var(--sans);
+  font-size: clamp(1.1rem, 2.6vw, 1.85rem);
+  font-weight: 600;
+  font-variation-settings: "wdth" 108, "wght" 600;
+  letter-spacing: -.015em;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  overflow-wrap: anywhere;
+  transition: color .18s, border-color .18s;
+}
+.contact-link:hover { color: var(--koi); border-bottom-color: var(--koi); }
+
+/* A link of its own, the same colour as the quiet text beside it until you
+   touch it. Sized off the row's type so the two stay in proportion. */
+.contact-mark {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(2rem, 4vw, 2.6rem);
+  aspect-ratio: 1;
+  color: var(--silt);
+  border-radius: 50%;
+  transition: color .18s, background-color .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.contact-mark .icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.contact-mark:hover { color: var(--koi); background: rgba(255, 107, 44, .1); }
+
+/* The same mark, hovered from either half of the row. */
+.contact-list li:hover .contact-mark { color: var(--koi); }
+
+.colophon {
+  margin-top: 2.5rem;
+  font-family: var(--sans);
+  font-size: .8125rem;
+  color: #6f898f;
+}

@@ -1,0 +1,70 @@
+{# 1. TITLE — the opening screen, laid out after Ref Slike/Initial_title_reference
+   and Title_sequence_reference: your name across the top; the bowl on the
+   left; on the right the three hero panels, running on past the
+   bottom of the screen. The bowl and the fish are drawn on the canvas behind
+   the page; what is here is the hole they are drawn into, and the button you
+   tap. Below this screen is the pond (sections/pond.html), where the quote
+   is and where the name ends up.
+
+   Until then this is the whole page: the script adds `is-locked` to the body,
+   which holds the scroll and keeps the rest of the page out of the way. It is
+   added by the script rather than written here, so a page with no JavaScript
+   is simply the portfolio, unlocked. #}
+{% from "partials/macros.html" import media, slideshow %}
+<section class="band band--title" id="top">
+  <div class="shell title-grid">
+
+    {# One word per span, each unbreakable: a name is never hyphenated or left
+       with its last letter on a line of its own, whatever the window does. #}
+    <div class="title-copy">
+      <h1>
+        {% for word in site.name.split() %}
+        <span class="name-word">{{ word }}</span>
+        {% endfor %}
+      </h1>
+      <p class="tagline">{{ site.tagline }}</p>
+    </div>
+
+    {# The bowl's size and place on the page. The canvas measures this box
+       every frame and draws the glass into it. #}
+    <div class="bowl-wrap">
+      <button type="button" class="bowl" id="bowl"
+              aria-describedby="bowl-note"
+              aria-label="{{ site.hero.bowl_note | plain }}">
+        <span class="bowl-reserve" aria-hidden="true"></span>
+      </button>
+      <p class="bowl-note" id="bowl-note">{{ site.hero.bowl_note }}</p>
+    </div>
+
+    {# The hero panels: one per corner of the industry, each showing the
+       pictures in its own folder (site.yaml's hero.panels), fading from one
+       to the next; the project's thumbnail until the folder has any.
+       Clicking one breaks the glass, and once the water is up the
+       page goes down to that part of My work and stops. Which project goes
+       where is site.yaml's hero.panels. They run on past the bottom of
+       the screen. #}
+    {% if site.hero.get('panels') %}
+    <ul class="showcase" aria-label="Professional work">
+      {% for item in site.hero.panels %}
+      {% set project = professional | selectattr('id', 'equalto', item.project) | first %}
+      {% set group = 'pro-' ~ (project.get('category') or 'other') | lower %}
+      <li class="showcase-item showcase-item--{{ loop.index }}">
+        <a class="showcase-link" href="#{{ group }}" data-group="{{ group }}" data-project="{{ project.id }}"
+           aria-label="{{ item.label | plain }}: {{ project.title | plain }}{% if project.get('studio') %} • {{ project.studio | plain }}{% endif %}">
+          {% set photos = item.get('photos') | pictures %}
+          {% if photos %}
+          <figure class="media">
+            {{ slideshow(photos) }}
+          </figure>
+          {% else %}
+          {{ media(item.get('media') or project.get('thumbnail') or project.get('media') or project.get('cover')) }}
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+  </div>
+
+</section>

@@ -1,0 +1,104 @@
+# ============================================================================
+#  Site-wide text: the title section, section headings, and contact links.
+#  Everything here appears on the page. Edit, then run build.
+# ============================================================================
+
+name: Luka Miletić
+tagline: The Game Developing Fish
+
+# Shown in search results and link previews. One sentence.
+meta_description: >-
+  Luka Miletić, gameplay programmer. C++ and C# in Unreal Engine and Unity:
+  movement, combat, and the systems underneath them.
+
+# The paragraph under your name. Shown once the fish is out of the bowl.
+intro: |
+  When a fish is bored it just keeps on swimming, but when *Fish* is bored he makes games. With all this ocean for inspiration, he has a lot of ideas, and he wants to make them all. He is a passionate gamer and game developer with strong expertise in C# and the Unity engine, and solid skills in C++ and Unreal Engine 4/5. He has a few well recieved games under his belt (which he leaves at home cause he's a fish, and fish don't wear belts) that he made with the help of ocean-dewlling friends he's met along the way.\n Using his tools he peers into the depths of the ocean and brings his ideas to life. He loves to experiment with other fish tools that he picks up along the way, but he is also intrigued by strange tools for different species like crabs, octopuses and even birds. He finds ways of using them to upgrade his own tools, learn, grow, and come closer to his ultimate goal:\n**To Become the World's Greatest *Game Developing Fish!* **
+
+# ------------------------------------------------------------------ hero --
+# The opening screen: your name across the top, the bowl on the left, these
+# lines on the right with the hero panels under them. Wrap a word in *asterisks*
+# to put it in the accent colour — *Fish* comes out orange.
+hero:
+  # Three lines, each set larger than the one above it, in the pond under
+  # the opening screen.
+  #   *word*    the orange accent
+  #   **word**  a size up inside its own line
+  #   \n        a line break inside one of these lines
+  pitch:
+    - "Small *Fish*,"
+    - "In a **Big** Pond,"
+    - "With Even **BIGGER IDEAS!**"
+
+  # The hero panels: the three tiles beside the bowl on the opening screen,
+  # one per corner of the industry. Clicking one breaks the glass and takes
+  # the page down to that project's group in My work.
+  #   label    the panel's name; not shown, it's what a screen reader announces
+  #   project  the id of a project in professional.yaml
+  #   photos   a folder in media/ holding the panel's own pictures (any of
+  #            .jpg .jpeg .png .webp .avif, shown in filename order). With
+  #            more than one, the panel fades from one to the next. These are
+  #            separate from the project's thumbnail and cover; until the
+  #            folder has a picture the panel shows the project's thumbnail.
+  panels:
+    - { label: AAA, project: ubisoft-belgrade, photos: hero/aaa }
+    - { label: Mobile, project: brave-giant, photos: hero/mobile }
+    - { label: Indie, project: llamaware, photos: hero/indie }
+
+  # The small line under the bowl. It goes with the glass.
+  bowl_note: Tap to break the glass
+
+# Nav links, used both under your name and in the sticky bar.
+nav:
+  - { label: My work, href: "#work" }
+  - { label: Experience & skills, href: "#experience" }
+  - { label: Contact, href: "#contact" }
+
+# ---------------------------------------------------------------- headings --
+sections:
+  work:
+    heading: My work
+    professional:
+      heading: Professional projects
+      note: ""                      # leave empty for no line beside the heading
+    hobby:
+      heading: Hobby projects
+      note: ""
+
+  experience:
+    heading: Experience & skills
+    note: ""
+    roles_heading: Where I've worked
+    skills_heading: What I work with
+
+  contact:
+    heading: Contact
+    note: Open to gameplay programming work and good technical problems.
+
+# ---------------------------------------------------------------- contact --
+# EDIT: your real email address and LinkedIn URL. `text` is what people see,
+# `href` is where it goes — change both.
+#
+# `icon` picks the mark drawn in front of the link. They are line drawings in
+# the page's own style, not anybody's logo: mail, code, profile, globe, chat.
+# `label` is never shown — it is what a screen reader announces for the icon.
+contact:
+  - label: Email
+    icon: mail
+    text: hello@example.com
+    href: mailto:hello@example.com
+
+  - label: GitHub
+    icon: code
+    text: github.com/FishIsMyNick
+    href: https://github.com/FishIsMyNick
+    external: true
+
+  - label: LinkedIn
+    icon: profile
+    text: linkedin.com/in/your-profile
+    href: https://www.linkedin.com/in/your-profile
+    external: true
+
+# The small line at the very bottom. The year is filled in automatically.
+colophon: Built by hand, fish included.

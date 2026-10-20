@@ -1,0 +1,47 @@
+# ============================================================================
+#  Experience & skills.
+#
+#  roles  -> the left column, in the order you want them read
+#  skills -> the right column. Each group picks how its items are drawn:
+#              style: chips  -> small boxed labels, good for short names
+#              style: lines  -> a dashed list, good for phrases
+# ============================================================================
+
+roles:
+  - title: Ubisoft Belgrade
+    # EDIT: add dates if you want them, e.g. "Gameplay programmer, 2023—now"
+    meta: Gameplay programmer
+    text: AAA production in C++ on an in-house engine, inside an established pipeline.
+
+  - title: Brave Giant
+    meta: Gameplay programmer
+    text: Three games from the ground up with a small team, plus coaching newer programmers.
+
+  - title: Llamaware
+    meta: Gameplay programmer
+    text: Implementation work on a larger indie title alongside the rest of the team.
+
+
+skills:
+  - heading: Languages
+    style: chips
+    items: [C++, C#, Blueprint]        # EDIT: add any others
+
+  - heading: Engines & tools
+    style: chips
+    items:
+      - Unreal Engine
+      - In-house AAA engine
+      - Blender
+      - Git
+      # EDIT: Unity, Perforce, Jira, Rider…
+
+  - heading: What I build
+    style: lines
+    items:
+      - Character movement and state handling
+      - Combat loops and the Gameplay Ability System
+      - Input mapping and player actions
+      - Animation montages and notify-driven hit detection
+      - Reading unfamiliar codebases and extending them safely
+      - Working day to day with designers and animators

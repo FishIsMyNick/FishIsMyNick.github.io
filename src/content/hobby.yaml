@@ -1,0 +1,275 @@
+# ============================================================================
+#  Hobby projects — the second shelf under "My work".
+#
+#  Same row in My work as the professional projects, but a longer detail page:
+#      overview      -> paragraphs on the left
+#      goals         -> "What I'm working on", on the right
+#      technologies  -> badges under them
+#      features      -> picture + text rows under the technologies
+#      gallery       -> optional 3D models at the bottom, each in a viewer
+#                       you can turn with the mouse or a finger:
+#                         - model: hobby/<id>/<name>   (.glb or .gltf in media/)
+#                           title: shown under it        (optional)
+#                           text: a line about it        (optional)
+#                           poster: a picture shown while it loads (optional)
+#                           zoom: false  the wheel scrolls the page over it
+#                                        (by default it zooms the model in and
+#                                        out, with a reset button top left)
+#                           play: Idle   the animation it plays, if the file has
+#                                        any (default: Idle, else the first)
+#                       Or, for an animated model, `animation:` in place of
+#                       `model:` shows every animation in the file as a button
+#                       under it; pressing one plays it:
+#                         - animation: hobby/<id>/<name>
+#                           animations:          (optional: only these, in this
+#                             - Idle               order, by their names in the
+#                             - Walk               file; leave it out for all)
+#      links         -> optional reference badges under the overview, same as
+#                       in professional.yaml: { label, url } or just a url,
+#                       plus `rating: a/b` for a rating badge
+#
+#  Pictures live in media/hobby/<id>/ and are named here without their
+#  extension: hobby/combat-demo/thumbnail finds thumbnail.jpg, .jpeg, .png,
+#  .webp or .avif. An .mp4 of the same name plays on hover. `thumbnail` is
+#  the picture in the project's row in My work. A name ending in / is a
+#  folder: every picture directly in it, in filename order, each fading
+#  over the last (hobby/<id>/features/ui/).
+#
+#  `id` is the project's URL (…#infernal-dante), unique across every project.
+#  To add a project, copy one block.
+# ============================================================================
+
+- id: infernal-dante
+  title: Infernal Dante
+  role: Unreal Engine, in development
+  thumbnail: hobby/infernal-dante/thumbnail
+
+  summary: |
+    
+    A roguelite exploration/fighting game I'm building to get character movement, animation and
+    ability-driven combat working as one loop.
+
+  tags: [Unreal Engine 5, C++, Blender, Modeling, Animation]
+
+  # One list item per paragraph.
+  overview:
+    - |
+      Infernal Dante is my ongoing Unreal project. The gameplay is written in C++,
+      with Blueprint on top for the parts that are faster to iterate on by hand.
+    - |
+      The project is a roguelite exploration/fighting game following a small Italian greyhound protagonist, with a focus on exploration, movement and combat. The player will explore a (hopefully) procedurally generated world, fighting enemies and collecting loot to improve their character.
+    - |
+      For this project I'm tackling many problems at once: narrative, modeling, rigging, animation, input, movement, abilities, music and sound design, and the flow between them in order to get a better feel for the entire development pipeline and the various disciplines involved in making a game.
+      Each of these areas is a learning experience, and the project is a sandbox for me to explore them in a way that lets me see the results immediately.
+    -
+      |
+      The project is still in its very early stages, and I'm currently focusing on getting the movement and combat systems working together. Once I have a solid foundation, I'll be able to iterate on the gameplay and add more content to the game.
+
+  technologies:
+    - Unreal Engine
+    - C++
+    - Visual Studio
+    - Blueprint
+    - Gameplay Ability System
+    - Enhanced Input
+    - Blender
+
+  goals:
+    - Satisfying and fun character movement, with terrain interaction providing a responsive feel
+    - Setting up the Gameplay Ability System and the flow between abilities and stats
+    - Hitbox-based combat with action camera
+    - Animation montages with notify-driven traces for hit detection
+    - Enhanced Input mappings for every player action handled in C++
+    - Setting up the model, rig and animation pipeline between Blender and Unreal
+    - Hands-on experience with the entire game development pipeline, from concept to playable prototype
+
+  features:
+    - title: Modeling
+      media: hobby/infernal-dante/model
+      text: |
+        First and foremost, we need a protagonist. I got into Blender, watched a few tutorials, and came up with this little guy. Isn't he adorable...
+
+    - media: hobby/infernal-dante/animation
+      title: Movement and Animation
+      text: |
+        For the very start of the project I focused on getting the main character moving, as this would help me get a feel for the movement mechanics. It's important to have the movement feel deliberate and stick to the theme of a little speedy demon. I also wanted to get a feel for the workflow between Blender and Unreal, so I could iterate on the character's movement and animations quickly.\n
+        Initially I created animations for idle, walking, running, sprinting, and jumping vertically and horizontally. Both the movement and jumping animations were then used to make 1D Blend Spaces in UE5, and the Blend Spaces were used to control the animations based on the character's speed.
+
+    #- media: hobby/infernal-dante/abilities
+    #  title: Abilities, animation and combat
+    #  text: |        
+    #    An encounter where the player uses an attack ability. The animation notifies the ability to trace the hit at the right time, and the ability handles the hit detection and damage/effect application. This is a good example of how the Gameplay Ability System can be used to handle complex interactions between abilities and animations. The result is a system that is flexible to any changes in the animation, while keeping the execution timings on point.
+
+    - media: hobby/infernal-dante/movement
+      title: Fun movement
+      text: |
+        I'm currently working on making the movement feel better by introducing inertia, obstacles, and adaptive foot placement. It's still in its very early stages, so there's nothing to show yet.
+
+  gallery:
+    - title: 3D Model
+      model: hobby/infernal-dante/gallery/models/dante3
+      text: |
+        A very rough model of a miniature Italian greyhound (yes, they exist). It has a lot of flaws and is pretty basic, but considering this was my first ever modeling project, I'm happy with how it turned out. The proportions may look out of whack, but it's just a very small dog. In reality the proportions are only slightly exaggerated for the head and eyes for maximum cuteness.
+
+    #- title: Animations
+    #  animation: hobby/infernal-dante/gallery/showcase/dante-anim
+      #animations:
+      #  - Idle
+      #  - Walk
+      #  - Run
+      #  - Gallop
+      #  - JumpVert
+      #  - FallingVert
+      #  - JumpHor
+      #  - FallingHor
+     # text: |
+      #  Again, not the best animation I'm sure, but it was my first attempt and I didn't want to lose too much time on perfecting this cause of other priorities. These are all the animations I made.
+
+
+
+# ---------------------------------------------------------------------------
+#  PLACEHOLDER. Replace the copy below with the real thing.
+# ---------------------------------------------------------------------------
+
+- id: combat-demo
+  title: Combat Demo
+  role: Personal project
+  thumbnail: hobby/combat-demo/thumbnail
+
+  # EDIT: one or two sentences about this project.
+  summary: |
+    A sandbox for combat mechanics, with no game around it. Focused on exploring the interaction between animations and the Gameplay Ability System.
+
+  # EDIT: tech used.
+  tags: [Unreal Engine 5, C++, GAS, Animation]
+
+  # EDIT: what the project is, and why you started it.
+  overview:
+    - |
+      A small, self-contained combat sandbox. The aim was to make a playable prototype that would let me explore the interaction between animations and the Gameplay Ability System, and to get a feel for how to structure combat code in Unreal Engine.
+    - |
+      While working on this project I created some attack abilities, a dash ability, and a few enemy behaviors. I also set up a basic camera system, and a simple UI to display the player's health and stamina.
+    - |
+      The most interesting part for me was figuring out the combo system, which allowed chaining animations to keep the combat feeling fluid. This allowed for randomized attack patterns and a more dynamic combat experience. I also learned a lot about how to structure the code for abilities and how to use the Gameplay Ability System effectively.
+    - |
+      The project is just a proof of concept that was limited to free assets, so it lacks polish and content, but it was a great learning experience.
+
+
+  # EDIT: the real stack.
+  technologies: 
+    - Unreal Engine
+    - C++
+    - Visual Studio
+    - GAS
+    - Animation Montages
+    - Notify-driven hit detection
+
+  # EDIT: goals, features being explored.
+  goals:
+    - "One feature I implemented myself, start to finish: a combo system for a fighting game that features chaining animations"
+    - Randomized player attack animations for variety
+    - Driving the Gameplay Ability System with animation notifies to handle hit detection and ability activation
+    - Using Gameplay Attributes to manage player stats and effects, and interact with the ability system
+
+  features:
+    - media: hobby/combat-demo/contributions/punch2
+      title: Punch Combo
+      text: |
+        The full combo consists of 4 punches. When the player presses the Punch button, animations from 4 pools are selected randomly at the start. While the player is holding the Punch button, the character performs the combo. Releasing the button will interrupt the combo.\n
+        It is implemented as a Gameplay Ability to streamline its interaction with other abilities and stamina.
+
+    - media: hobby/combat-demo/contributions/kick2
+      title: Kick Combo
+      text: |
+        The full combo consists of 4 kicks. When the player presses the Kick button, animations from 4 pools are selected randomly at the start. While the player is holding the Kick button, the character performs the combo. Releasing the button will interrupt the combo.\n
+        Just like the punch, the kick is a Gameplay Ability.
+
+    - media: hobby/combat-demo/contributions/slam2
+      title: Slam Ability
+      text: |
+        This ability plays a slam animation, and does AOE damage to surrounding enemies and knocks them back. Triggering this ability will interrupt basic attacks.
+
+    - media: hobby/combat-demo/contributions/dash3
+      title: Dash Ability
+      text: |
+        The dash ability is implemented as a Gameplay Ability, and is driven by an animation. When triggered it interrupts all combat abilities, and the dash ability can be used to dodge attacks or close the distance to enemies.
+
+    - media: hobby/combat-demo/contributions/combos3
+      title: Chaining Combos
+      text: |
+        As all the combat and movement abilities are Gameplay Abilities, they can seamlessly integrate with GAS. By leveraging this I was able to implement a simple animation chaining setup, and used Gameplay Tags to manage animation interruptions using the hierarchy Dash > Slam > Attack.
+
+    - media: hobby/combat-demo/contributions/enemy3
+      title: Enemy Behavior
+      text: |
+        The enemy behavior is implemented as a simple state machine. The enemy patrols. When it sees the player (I know it has no eyes), it attacks in melee if the player is in range, and otherwise aims and shoots at them.
+
+
+# ---------------------------------------------------------------------------
+#  PLACEHOLDER. Replace the copy below with the real thing.
+# ---------------------------------------------------------------------------
+- id: shooter-demo
+  title: Shooter Demo
+  role: Personal project
+  thumbnail: hobby/shooter-demo/thumbnail
+
+  # EDIT: one or two sentences about this project.
+  summary: |
+    A sandbox for shooter mechanics, animation blending, and ECS, with no game around it.
+
+  # EDIT: tech used.
+  tags: [Unreal Engine, C++, ECS]
+
+  # EDIT: what the project is, and why you started it.
+  overview:
+    - |
+      Created as a project to explore third-person shooting mechanics, ECS, and combining animations for omnidirectional running and shooting. There are some unique challenges to making a third-person shooter feel realistic and good, and it was very interesting to tackle these issues. For instance, the walking animation should have good ground traction in all directions, and the projectile trajectory should look realistic for both hip fire and ADS. It was fun to do the projectile calculations; I felt like a NASA scientist for a bit.\n
+      By the end I even picked up materials for a bit and made a neat circular crosshair... a circle hair... Anyway, it ended up working really well, and I'm happy with it and its potential.
+
+  # EDIT: the real stack.
+  technologies: 
+    - Unreal Engine 5
+    - C++
+    - Visual Studio
+    - Materials
+
+  # EDIT: goals, features being explored.
+  goals:
+    - Ballistic projectiles that are shot from the weapon towards the point where the crosshair is aiming
+    - Blending animations for the legs (walking) and torso (shooting)
+    - ADS system that modifies the camera angle and shooting accuracy
+    - Modular design using ECS allowing for faster production of different similar entities
+
+  features:
+    - media: hobby/shooter-demo/contributions/ballistics2
+      title: Ballistics
+      text: |
+        I wanted the projectiles to be ballistic, and I wanted to see them flying from the gun to where I was aiming. For this I had to calculate the bullet's trajectory from the start point (gun muzzle) to the target point (line trace from the crosshair). Once the trajectory was calculated it was a simple matter of instantiating the bullet with these parameters, and letting it fly.
+
+    - media: hobby/shooter-demo/contributions/ads
+      title: ADS
+      text: |
+        Since this is a third-person shooter, the ADS camera doesn't become an FPS camera. Instead, it comes over the character's shoulder and reduces the FOV. This has a smooth animation and triggers UI elements to update. Aiming down sights is very accurate, and hip fire introduces randomness to the trajectory.
+
+    - media: hobby/shooter-demo/contributions/anim-blend
+      title: Animation Blending
+      text: |
+        I wanted the legs to run, and the torso to aim and shoot, but I had separate animations for each. By using animation blueprints I was able to blend these two animations and use both on the same model, where the shooting animation controls the torso and the walking animation controls the legs. By using 2D blendspaces for the leg animation, I was able to support omnidirectional animated walking and crouching.\n 
+        Unfortunately the free animation pack I was using only had 4 cardinal directions of movement, so the forward-left blend ended up looking a little weird, but the other directions worked great.\n
+        Also I dipped into programmatically controlling the animation, adding another layer of blending. This was done to curve the spine as the player looks up and down, so he always faces screen forward.
+
+    - media: hobby/shooter-demo/contributions/ui
+      title: Custom UI 
+      text: |
+        Created a simple lightweight crosshair widget to help with aiming and give more visual feedback on the accuracy. I went with the circle design because I've always preferred that style, and it does a better job of representing where your bullets might land.\n
+        This crosshair doesn't have a source image, only a material; it is procedurally rendered, so modifying its material, radius, feather, color, and opacity can be done on the fly, and tweaking a little more can even produce some interesting shapes. Further, the resizing is controlled by the player's ADS animation and the maximum radius is determined by the character's accuracy stat, so the player state, camera and UI are perfectly in sync.
+
+    - media: hobby/shooter-demo/contributions/ecs
+      title: ECS
+      text: |
+        As I was finishing the character, I realized that I could potentially develop this game further in the future and add more character variety. For this it would be practical to modularize some elements, so I decided to extract the aiming and shooting functionality into some entity components. Now each character only needs to add these components, plug in all the wires, and it has all the gear it needs ready to go. Nice!
+
+    - media: hobby/shooter-demo/contributions/tower
+      title: Enemy Towers
+      text: |
+        Finally I wanted to make a tower with a gun to have fun with targeting. When the tower has no target it just swivels randomly in a 'search' pattern. As soon as a character enters the tower's range, it gets tracked and shot at. Running around helps dodge the bullets once you're at a certain distance, but your best bet is just to shoot it down.

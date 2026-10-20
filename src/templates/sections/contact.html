@@ -1,0 +1,28 @@
+{# 4. CONTACT #}
+{% from "partials/icons.html" import icon %}
+{% set contact = site.sections.contact %}
+
+<section class="band band--contact" id="contact">
+  <div class="shell">
+    <header class="band-head">
+      <h2>{{ contact.heading }}</h2>
+      {% if contact.get('note') %}
+      <p>{{ contact.note }}</p>
+      {% endif %}
+    </header>
+
+    {# The mark goes in front of the link and is a link itself, so either half
+       of the row takes you there. What used to be spelled out beside it —
+       "Email", "GitHub" — is now only the icon's label, for screen readers. #}
+    <ul class="contact-list">
+      {% for link in site.contact %}
+      <li>
+        <a class="contact-mark" href="{{ link.href }}" aria-label="{{ link.label | plain }}"{% if link.get('external') %} target="_blank" rel="noreferrer"{% endif %}>{{ icon(link.get('icon', '')) }}</a>
+        <a class="contact-link" href="{{ link.href }}"{% if link.get('external') %} target="_blank" rel="noreferrer"{% endif %}>{{ link.text }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <p class="colophon">© <span id="year">{{ year }}</span> {{ site.name }}. {{ site.colophon }}</p>
+  </div>
+</section>

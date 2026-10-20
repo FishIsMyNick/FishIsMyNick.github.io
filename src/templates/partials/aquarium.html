@@ -1,0 +1,23 @@
+{# The water, the bowl and the fish all live on one canvas fixed behind the
+   page, so that a single loop draws them in the right order: water, then the
+   inside of the bowl, then the shoal, then him, then the glass over the top.
+
+   Everything they do is driven by src/content/aquarium.yaml, which the build
+   writes out below. It is readable at runtime as Aquarium.config, so values
+   can be tried in the console before being written back to the YAML. #}
+<script id="aquarium-config" type="application/json">{{ aquarium_json }}</script>
+
+<div class="aquarium" id="aquarium" aria-hidden="true">
+  <canvas id="aquarium-canvas"></canvas>
+</div>
+
+{# The two drawings, one for each way he swims. Neither is ever shown here:
+   the script takes a copy of each once and then draws it to the canvas in
+   slices, which is what bends the body as it goes. They are inlined by the
+   build as data URIs, so the page carries its own fish. #}
+<div class="sprite-source" aria-hidden="true">
+  <img id="fish-sprite-left" alt="" src="{{ fish_sprites.left.uri }}"
+       width="{{ fish_sprites.left.w }}" height="{{ fish_sprites.left.h }}">
+  <img id="fish-sprite-right" alt="" src="{{ fish_sprites.right.uri }}"
+       width="{{ fish_sprites.right.w }}" height="{{ fish_sprites.right.h }}">
+</div>

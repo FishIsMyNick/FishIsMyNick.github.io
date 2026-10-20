@@ -1,0 +1,52 @@
+{# 3. EXPERIENCE & SKILLS — what you work with on the left, roles on the right. #}
+{% from "partials/macros.html" import lines %}
+{% set exp = site.sections.experience %}
+
+<section class="band band--experience" id="experience">
+  <div class="shell">
+
+    <header class="band-head">
+      <h2>{{ exp.heading }}</h2>
+      {% if exp.get('note') %}
+      <p>{{ exp.note }}</p>
+      {% endif %}
+    </header>
+
+    <div class="exp-grid">
+
+      <div class="exp-skills">
+        <h3 class="part-head">{{ exp.skills_heading }}</h3>
+        {% for group in experience.skills %}
+        <div class="skill-set">
+          <h4>{{ group.heading }}</h4>
+          {% if group.get('style') == 'lines' %}
+          {{ lines(group['items']) }}
+          {% else %}
+          <ul class="chips">
+            {% for item in group['items'] %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="exp-roles">
+        <h3 class="part-head">{{ exp.roles_heading }}</h3>
+        <ul class="roles">
+          {% for role in experience.roles %}
+          <li>
+            <h4>{{ role.title }}</h4>
+            {% if role.get('meta') %}
+            <p class="role-meta">{{ role.meta }}</p>
+            {% endif %}
+            <p>{{ role.text }}</p>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>

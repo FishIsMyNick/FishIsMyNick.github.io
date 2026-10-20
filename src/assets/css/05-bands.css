@@ -1,0 +1,58 @@
+/* Section headings, and the two shelves inside My work. */
+
+/* The work panel holds two shelves, so it supplies its own edges. */
+.band--work { padding-bottom: 0; }
+
+/* Heading block, top-left of each band (per the wireframe). */
+.band-head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+
+.band-head h2 {
+  font-size: clamp(2.1rem, 5.2vw, 3.6rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 115, "wght" 700;
+  letter-spacing: -.02em;
+}
+
+.band-head p {
+  margin-top: 1rem;
+  max-width: 46ch;
+  color: var(--silt);
+  font-size: 1.0625rem;
+}
+
+/* The two halves of My work are separate shelves inside the one panel: the
+   hobby one is a shade deeper, as if it sits further down. */
+.part { padding-block: clamp(2.25rem, 4vw, 3.25rem); }
+
+.part--pro { padding-top: 0; }
+
+.part--hobby {
+  background: rgba(1, 16, 21, .35);
+  border-top: 1px solid var(--line-soft);
+  padding-bottom: var(--pad-y);
+}
+
+.part-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem 2.5rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.part-head {
+  font-size: clamp(1.35rem, 2.8vw, 1.875rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 118, "wght" 700;
+  letter-spacing: -.02em;
+  color: var(--bone);
+}
+
+.part-note {
+  max-width: 44ch;
+  color: var(--silt);
+  font-size: .9375rem;
+  font-family: var(--sans);
+}

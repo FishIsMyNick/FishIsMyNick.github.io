@@ -1,0 +1,51 @@
+{# 2. MY WORK — two shelves under one heading, built from
+   content/professional.yaml and content/hobby.yaml. #}
+{% from "partials/macros.html" import project_row, part_top %}
+{% set work = site.sections.work %}
+
+<section class="band band--work" id="work">
+  <div class="shell">
+    <header class="band-head">
+      <h2>{{ work.heading }}</h2>
+    </header>
+  </div>
+
+  {# ---------- 2a. Professional ---------- #}
+  <div class="part part--pro">
+    <div class="shell">
+      {{ part_top(work.professional.heading, work.professional.get('note', '')) }}
+
+      {# Grouped by `category`, in the order the categories first appear.
+         Each group is #pro-<category>, which is where a showcase thumbnail
+         on the opening screen leads. #}
+      {% set groups = [] %}
+      {% for project in professional %}
+        {% set cat = project.get('category') or 'Other' %}
+        {% if cat not in groups %}{% set _ = groups.append(cat) %}{% endif %}
+      {% endfor %}
+      {% for cat in groups %}
+      <div class="pro-group" id="pro-{{ cat | lower }}">
+        {% if groups | length > 1 %}<h4 class="pro-group-head">{{ cat }}</h4>{% endif %}
+        <ul class="gallery">
+          {% for project in professional if (project.get('category') or 'Other') == cat %}
+          {{ project_row(project) }}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# ---------- 2b. Hobby ---------- #}
+  <div class="part part--hobby">
+    <div class="shell">
+      {{ part_top(work.hobby.heading, work.hobby.get('note', '')) }}
+      <ul class="gallery gallery--hobby">
+        {% for project in hobby %}
+        {{ project_row(project) }}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</section>

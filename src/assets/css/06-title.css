@@ -1,0 +1,560 @@
+/* Section 1: the opening screen and the pond under it, laid out after
+   Initial_title_reference.png and Title_sequence_reference.jpeg.
+
+   The opening screen: your name across the top, the bowl on the left, the
+   showcase of three thumbnails on the right, running on past the bottom of
+   the screen. The bowl itself is drawn on the canvas; what lives here is the
+   space kept for it and the button you tap, so moving that box here moves
+   the bowl.
+
+   The pond is the band under it, below the water: the quote while he falls,
+   then your name across the waterline and the overview, then the nav. */
+
+/* ========================================================== 1. TITLE === */
+
+/* ------------------------------------------------------- frosted panes --
+
+   Writing over the water sits on a pane of blurred water: no colour of its
+   own and no edge, only the blur, at `panels.blur` from aquarium.yaml. Each
+   one is only as big as the words on it. The name has no pane at all.
+
+   The blur has no edge either: it is faded out over the last `--feather` of
+   the pane on every side, by a mask that is solid everywhere else. Each pane
+   is padded by that much more than it would be, and pulled back out by the
+   same amount with a negative margin, so the fade only ever falls on the
+   blur, never on the words, and nothing around it moves. */
+.pond-quote,
+.lede,
+.title-after-inner,
+.bowl-note {
+  background: none;
+  border: 0;
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent, #000 var(--feather), #000 calc(100% - var(--feather)), transparent),
+    linear-gradient(180deg, transparent, #000 var(--feather), #000 calc(100% - var(--feather)), transparent);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(90deg, transparent, #000 var(--feather), #000 calc(100% - var(--feather)), transparent),
+    linear-gradient(180deg, transparent, #000 var(--feather), #000 calc(100% - var(--feather)), transparent);
+          mask-composite: intersect;
+}
+
+/* Exactly one screen tall. The showcase is let run on out of the bottom of
+   it, under where the water will be. */
+.band--title {
+  height: 100svh;
+  min-height: 0;
+  justify-content: flex-start;
+  padding-block: clamp(1.25rem, 3vw, 2.5rem) 0;
+  z-index: 1;
+}
+
+.title-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    "copy copy"
+    "bowl showcase";
+  column-gap: clamp(1.5rem, 4vw, 4rem);
+  row-gap: clamp(1rem, 2.4vw, 2rem);
+}
+
+/* --------------------------------------------------------- your name -- */
+
+/* The name small, the subtitle large. No pane behind either. */
+.title-copy,
+.pond-name,
+.pond-tagline {
+  text-shadow: 0 1px 12px rgba(0, 18, 26, .45);
+}
+
+.title-copy {
+  grid-area: copy;
+  justify-self: center;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  transition: opacity .6s ease, visibility .6s;
+}
+body.is-breaking .title-copy { opacity: 0; visibility: hidden; }
+
+.title-copy h1,
+.pond-name {
+  font-family: var(--sans);
+  font-size: 2rem;
+  font-weight: 800;
+  font-variation-settings: "wdth" 122, "wght" 800;
+  letter-spacing: -.025em;
+  line-height: 1;
+  color: var(--bone);
+  /* The body allows a long word to be broken rather than overflow. A name is
+     not a long word: it goes on the next line whole, or not at all. */
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+}
+
+/* One word, unbreakable. `Miletić` never leaves its last letter behind. */
+.name-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.tagline,
+.pond-tagline {
+  margin-top: .1em;
+  font-family: var(--sans);
+  font-size: 3.5rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 100, "wght" 600;
+  letter-spacing: -.02em;
+  line-height: 1.02;
+  color: var(--koi);
+}
+
+/* ---------------------------------------------------------- the bowl -- */
+
+.bowl-wrap {
+  grid-area: bowl;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(.6rem, 1.2vw, 1rem);
+}
+
+/* A button with nothing in it: the glass is painted on the canvas behind.
+   It is a button so it can be tabbed to and tapped with the keyboard. */
+.bowl {
+  display: block;
+  overflow: hidden;
+  transition: opacity .5s ease, visibility .5s;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+.bowl:focus-visible { outline: 2px solid var(--koi); outline-offset: 10px; }
+.bowl[disabled] { cursor: default; }
+
+/* As big as its half of the screen allows, and never so tall that the bowl
+   and its caption run off the bottom of the first screen. */
+.bowl-reserve {
+  display: block;
+  width: min(var(--bowl-size), 40vw, calc((100svh - 15rem) / var(--bowl-aspect)));
+  aspect-ratio: 1 / var(--bowl-aspect);
+}
+
+/* Small print under the bowl. It goes when the bowl does. */
+.bowl-note {
+  width: fit-content;
+  white-space: nowrap;
+  padding: calc(var(--feather) + .3em) calc(var(--feather) + .8em);
+  margin: calc(-1 * var(--feather));
+  font-family: var(--sans);
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(236, 230, 218, .8);
+  transition: opacity .45s ease, visibility .45s;
+}
+.bowl-note.is-going { opacity: 0; }
+body.is-breaking .bowl-note,
+body.is-free .bowl-note { opacity: 0; visibility: hidden; }
+
+/* ------------------------------------------------------- the showcase -- */
+
+/* Three thumbnails of one size, staggered: two down the left column, the
+   third in the right column starting halfway down the first. The grid is
+   taller than what is left of the screen, so they run on out of the bottom
+   of it. When the glass goes they stop taking clicks but stay put; once he
+   reaches the top of his leap (`is-apex`) they rise up out of the screen,
+   fading as they go. */
+.showcase {
+  grid-area: showcase;
+  align-self: start;
+  justify-self: center;
+  width: min(100%, 40rem);
+  height: calc(100svh - 2rem);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  gap: clamp(.6rem, 1.2vw, 1rem);
+  transition: opacity .9s ease-in, visibility .9s, transform 1s cubic-bezier(.5, 0, .75, 0);
+}
+body.is-breaking .showcase { pointer-events: none; }
+body.is-apex .showcase { opacity: 0; visibility: hidden; transform: translateY(-40svh); }
+
+.showcase-item--1 { grid-column: 1; grid-row: 1 / 5; }
+.showcase-item--2 { grid-column: 1; grid-row: 5 / 9; }
+.showcase-item--3 { grid-column: 2; grid-row: 3 / 7; }
+
+.showcase-link {
+  position: relative;
+  display: block;
+  height: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+/* the preview fills its box rather than keeping to 16:9 */
+.showcase .media {
+  max-width: none;
+  height: 100%;
+  aspect-ratio: auto;
+  transition: border-color .2s ease;
+}
+.showcase .media.is-empty::after { display: none; }
+
+
+/* No text over the photos: the panel's name is only in its aria-label. */
+.showcase-link:hover .media,
+.showcase-link:focus-visible .media { border-color: rgba(255, 107, 44, .6); }
+.showcase-link:focus-visible { outline: 2px solid var(--koi); outline-offset: 3px; }
+
+/* ----------------------------------------------------------- the pond -- */
+
+/* Under the opening screen, below the water. Tall enough that when its top
+   edge has come up to near the top of the screen, the start of My work is
+   at the bottom of it — which is where he ends up. */
+.band--pond {
+  position: relative;
+  overflow-x: clip;              /* the panes' soft edges never widen the page */
+  min-height: calc(66svh - 3rem);
+  padding-block: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* where the water comes to rest */
+.waterline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+}
+
+/* The quote, and then what replaces it, share one place. The subtitle row
+   sits right under the waterline; the quote is below that, where the
+   overview will be. */
+.pond-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Once the page is open, the sky above the pond is cut away (the script
+   sets the band's height), so scrolling up stops at your name. */
+.band--title.is-trimmed { overflow: hidden; padding: 0; }
+.band--title.is-trimmed .title-grid { visibility: hidden; }
+
+.pond-final { transition: opacity 1s ease, visibility 1s; }
+
+.pond-head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* the name sits on the water, just above the line */
+.pond-name {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: .35em;
+  white-space: nowrap;
+}
+.pond-tagline { margin-top: .15em; }
+
+/* The overview and the quote share one cell under the subtitle, the full
+   width of the shell, so their panes are one size: whichever needs more room
+   sets it for both, and the quote is centred in it. */
+.pond-panes {
+  align-self: stretch;
+  display: grid;
+  grid-template-areas: "pane";
+  margin: calc(clamp(1rem, 2.5vw, 2rem) - var(--feather)) calc(-1 * var(--feather)) calc(-1 * var(--feather));
+}
+.lede,
+.pond-quote {
+  grid-area: pane;
+  padding: var(--feather);
+}
+
+.lede {
+  font-size: 1.2rem;
+  line-height: 1.65;
+  color: #dbeaee;
+  text-shadow: 0 1px 12px rgba(0, 18, 26, .45);
+}
+
+/* Three lines, each a size up on the one before it, centred. */
+.pond-quote {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-variation-settings: "wdth" 112, "wght" 700;
+  font-size: clamp(1.1rem, 2.2vw, 2.3rem);
+  line-height: 1.06;
+  letter-spacing: -.02em;
+  color: #eaf3f6;
+  text-shadow: 0 1px 12px rgba(0, 18, 26, .45);
+  transition: opacity 1s ease, visibility 1s;
+}
+.pond-quote p { white-space: nowrap; }
+.pond-quote p:nth-child(1) { font-size: 1.2em; }
+.pond-quote p:nth-child(2) { font-size: 1.26em; }
+.pond-quote p:nth-child(3) { font-size: 1.58em; }
+.pond-quote p + p { margin-top: .12em; }
+
+/* With the script running: the quote until a second after he is free
+   (`is-titled`), then the name and the overview. Without it: the quote, and
+   the name at the top of the page as usual. */
+.pond-final { opacity: 0; visibility: hidden; }
+body.is-titled .pond-final { opacity: 1; visibility: visible; }
+body.is-titled .pond-quote { opacity: 0; visibility: hidden; }
+
+/* ------------------------------------------------------------ the nav -- */
+
+/* Held back until the water is up. One bar below the grid, the width of the
+   panels further down the page. */
+.title-after { margin-top: auto; padding-top: clamp(1.75rem, 3.5vw, 3rem); }
+
+.title-after-inner {
+  width: calc(min(100% - 2rem, var(--shell) + 2rem) + 2 * var(--feather));
+  margin: calc(-1 * var(--feather)) auto;
+  padding: var(--feather);
+}
+
+/* Three equal parts with a line between each, the line fading out at both
+   ends rather than stopping. Each one is set large enough to be a heading in
+   its own right, because that is what they are. */
+.jump {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  font-family: var(--sans);
+  font-size: clamp(1rem, 1.7vw, 1.45rem);
+  font-weight: 600;
+  font-variation-settings: "wdth" 108, "wght" 600;
+  letter-spacing: -.015em;
+}
+
+.jump a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: clamp(.9rem, 1.8vw, 1.35rem) clamp(.5rem, 1.5vw, 1.25rem);
+  text-align: center;
+  text-decoration: none;
+  color: var(--bone);
+  transition: color .2s ease;
+}
+
+/* the lines between them, not down the outside edges */
+.jump a + a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent, rgba(224, 246, 252, .32) 50%, transparent);
+  pointer-events: none;
+}
+
+/* A mark that grows from the middle rather than an underline switching on. */
+.jump a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: clamp(.45rem, .9vw, .7rem);
+  width: 0;
+  height: 2px;
+  background: var(--koi);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: width .24s cubic-bezier(.4, 0, .2, 1);
+}
+
+.jump a:hover,
+.jump a:focus-visible { color: var(--koi); }
+.jump a:hover::after,
+.jump a:focus-visible::after { width: clamp(1.75rem, 4vw, 3.25rem); }
+
+/* ---------------------------------------------------- corner controls -- */
+
+/* Always in the top right corner, over everything, the detail pages too:
+   Settings in the corner, Sound on its left. Round frosted buttons with a
+   line icon, on the same glass as the pills they replaced. */
+.corner-controls {
+  position: fixed;
+  top: .7rem;
+  right: calc(clamp(.75rem, 2vw, 1.5rem) + 6px);
+  z-index: 60;
+  display: flex;
+  gap: .5rem;
+}
+
+.corner-button {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: rgba(2, 25, 31, .35);
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--silt);
+  cursor: pointer;
+  transition: color .18s, border-color .18s;
+}
+.corner-button:hover,
+.corner-button[aria-expanded="true"] { color: var(--bone); border-color: rgba(236, 230, 218, .5); }
+.corner-button .icon { width: 1.15rem; height: 1.15rem; }
+
+/* Sound: waves when on, a cross when off. */
+.sound-toggle .icon-off { display: none; }
+.sound-toggle[aria-pressed="false"] .icon-on { display: none; }
+.sound-toggle[aria-pressed="false"] .icon-off { display: inline; }
+
+/* The gear turns a little as the panel opens. */
+.settings-toggle .icon { transition: transform .35s cubic-bezier(.4, 0, .2, 1); }
+.settings-toggle[aria-expanded="true"] .icon { transform: rotate(45deg); }
+
+/* The panel, hanging under the buttons. */
+.settings {
+  position: absolute;
+  top: calc(100% + .6rem);
+  right: 0;
+  width: min(17.5rem, 100vw - 2rem);
+  padding: .5rem 1rem;
+  background: rgba(2, 25, 31, .74);
+  backdrop-filter: blur(calc(var(--panel-blur) * 1.6)) saturate(1.1);
+  -webkit-backdrop-filter: blur(calc(var(--panel-blur) * 1.6)) saturate(1.1);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  font-family: var(--sans);
+  color: var(--bone);
+}
+.settings[hidden] { display: none; }
+
+.setting {
+  display: flex;
+  gap: .75rem;
+  padding-block: .75rem;
+  cursor: pointer;
+}
+.setting + .setting { border-top: 1px solid var(--line-soft); }
+.setting--switch { align-items: center; justify-content: space-between; }
+.setting--range { flex-direction: column; gap: .6rem; }
+
+.setting-text {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.setting--range .setting-text { flex-direction: row; justify-content: space-between; }
+.setting-name {
+  font-size: .8125rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 106, "wght" 600;
+}
+.setting-note { font-size: .6875rem; color: var(--silt); }
+.setting-value { font-size: .75rem; color: var(--silt); font-variant-numeric: tabular-nums; }
+
+/* Off: still there to be read, but plainly not to be touched. */
+.setting.is-disabled { cursor: default; opacity: .4; }
+
+/* An on/off switch: the orange dot of the old pills, sliding. */
+.switch {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  position: relative;
+  width: 2.25rem;
+  height: 1.25rem;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(224, 246, 252, .06);
+  cursor: pointer;
+  transition: background .18s, border-color .18s;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: .2rem;
+  width: .75rem;
+  height: .75rem;
+  border-radius: 50%;
+  background: #51686b;
+  transform: translateY(-50%);
+  transition: left .2s cubic-bezier(.4, 0, .2, 1), background .18s;
+}
+.switch:checked { border-color: rgba(255, 107, 44, .55); }
+.switch:checked::after { left: calc(100% - .95rem); background: var(--koi); }
+
+/* The slider: a hairline track, filled in koi up to an orange thumb. */
+.slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.slider:disabled { cursor: default; }
+.slider::-webkit-slider-runnable-track { height: 2px; border-radius: 2px; background: var(--line); }
+.slider::-moz-range-track { height: 2px; border-radius: 2px; background: var(--line); }
+.slider::-moz-range-progress { height: 2px; border-radius: 2px; background: var(--koi); }
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: .9rem;
+  height: .9rem;
+  margin-top: calc(1px - .45rem);
+  border: 0;
+  border-radius: 50%;
+  background: var(--koi);
+}
+.slider::-moz-range-thumb {
+  width: .9rem;
+  height: .9rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--koi);
+}
+.slider:disabled::-webkit-slider-thumb { background: #51686b; }
+.slider:disabled::-moz-range-thumb { background: #51686b; }
+
+.switch:focus-visible,
+.slider:focus-visible { outline: 2px solid var(--koi); outline-offset: 3px; }
+
+body.detail-open { overflow: hidden; }

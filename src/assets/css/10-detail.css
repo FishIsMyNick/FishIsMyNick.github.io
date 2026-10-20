@@ -1,0 +1,372 @@
+/* The detail pages, shared by both project kinds. */
+
+/* ================================================== DETAIL PAGE VIEW === */
+
+/* A project's page is laid over the water the way its row is: the same
+   frosted panel, so a professional page is the colour of the professional
+   shelf and a hobby page the colour of the (slightly deeper) hobby shelf.
+   The page underneath is hidden while it is open, so only the water shows
+   through. */
+.detail-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4, 32, 40, calc(var(--panel-opacity) * (.9 + var(--depth) * .15))) 0%,
+      rgba(2, 22, 28, calc(var(--panel-opacity) * (1 + var(--depth) * .2))) 100%
+    );
+  backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
+  -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
+}
+.detail-layer.is-hobby {
+  background:
+    linear-gradient(rgba(1, 16, 21, .35), rgba(1, 16, 21, .35)),
+    linear-gradient(
+      180deg,
+      rgba(4, 32, 40, calc(var(--panel-opacity) * (.9 + var(--depth) * .15))) 0%,
+      rgba(2, 22, 28, calc(var(--panel-opacity) * (1 + var(--depth) * .2))) 100%
+    );
+}
+.detail-layer[hidden] { display: none; }
+body.detail-open main { visibility: hidden; opacity: 0; }
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .detail-layer,
+  .detail-layer.is-hobby { background: rgba(3, 24, 30, .92); }
+}
+
+.detail-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: clamp(4rem, 8vw, 7rem);
+}
+
+/* the way back stays reachable however far down the page you are */
+.detail-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(2, 20, 26, .55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  padding-block: .8rem;
+}
+
+.detail-body { padding-top: clamp(2rem, 5vw, 3.5rem); }
+
+.detail-close {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem 1.1rem;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: .9375rem;
+  cursor: pointer;
+  transition: border-color .18s, color .18s;
+}
+.detail-close:hover { color: var(--koi); border-color: var(--koi); }
+
+.detail[hidden] { display: none; }
+
+.detail-title {
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 118, "wght" 800;
+  letter-spacing: -.03em;
+}
+.detail-title:focus { outline: none; }
+
+/* On its own line under the title, smaller. */
+.detail-studio {
+  display: block;
+  margin-top: .3em;
+  font-size: .45em;
+  letter-spacing: -.01em;
+  color: var(--silt);
+  font-weight: 500;
+  font-variation-settings: "wdth" 100, "wght" 500;
+}
+
+.detail-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  margin-top: clamp(2rem, 4vw, 3rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+
+.detail h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 100, "wght" 600;
+  color: var(--koi);
+  margin-bottom: 1.1rem;
+}
+
+.detail-overview p { max-width: 62ch; color: #d4e2e5; }
+.detail-overview p + p { margin-top: 1.1rem; }
+
+.detail-tech,
+.detail-features,
+.detail-models {
+  margin-top: clamp(2.25rem, 4vw, 3.25rem);
+  padding-top: clamp(2.25rem, 4vw, 3.25rem);
+  border-top: 1px solid var(--line);
+}
+
+/* technologies as the same orange badges as the gallery's tags */
+.detail-tech .tags { margin-top: 0; font-size: .875rem; }
+
+.detail-goals .lines li + li { margin-top: .75rem; }
+
+/* professional pages: title beside the game, description, contribution */
+.detail-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--preview));
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.detail--brief .detail-title { font-size: clamp(2rem, 4.5vw, 3.5rem); }
+
+.detail-description,
+.detail--brief .detail-tech,
+.detail--brief .detail-models,
+.detail-contribution {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+
+.detail-description p { color: #d4e2e5; }
+.detail-description p + p { margin-top: 1.1rem; }
+
+.split-media {
+  display: grid;
+  grid-template-columns: minmax(0, var(--preview)) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.75rem);
+  align-items: start;
+}
+
+.split-media .lines li + li { margin-top: .75rem; }
+
+/* Contributions and features take turns: the picture on the left, then on
+   the right, and so on down the page. */
+.contribution:nth-of-type(even),
+.detail-features .entry:nth-child(even) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--preview));
+}
+.contribution:nth-of-type(even) > .media,
+.detail-features .entry:nth-child(even) > .media { grid-column: 2; grid-row: 1; }
+.contribution:nth-of-type(even) > :not(.media),
+.detail-features .entry:nth-child(even) > :not(.media) { grid-column: 1; grid-row: 1; }
+
+/* one contribution after another, a hairline between them */
+.contribution + .contribution {
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  padding-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  border-top: 1px solid var(--line-soft);
+}
+.contribution-title {
+  margin-bottom: .9rem;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 108, "wght" 600;
+}
+
+.detail-features .gallery { margin-top: 0; }
+.detail-features .entry:first-child { padding-top: 0; }
+.detail-features .entry:last-child { border-bottom: none; }
+
+/* The Gallery: 3D models in a grid of two columns across the full width
+   (one on phones, see 11-responsive.css), each on the same dark glass as a
+   preview, with its title and line of text under it. */
+.models {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+}
+.model-stage {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  background:
+    radial-gradient(80% 70% at 50% 40%, rgba(13, 127, 164, .16), transparent 70%),
+    rgba(1, 18, 24, .55);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.model-stage model-viewer {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  cursor: grab;
+  --poster-color: transparent;
+  --progress-bar-color: var(--koi);
+}
+.model-stage model-viewer:active { cursor: grabbing; }
+.model-stage model-viewer.is-panning { cursor: move; }
+.model-stage model-viewer:focus-visible { outline: 2px solid var(--koi); outline-offset: -2px; }
+
+/* "Drag to turn", until somebody does. */
+.model-hint {
+  position: absolute;
+  left: 50%;
+  bottom: .75rem;
+  transform: translateX(-50%);
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  background: rgba(2, 25, 31, .55);
+  font-family: var(--sans);
+  font-size: .6875rem;
+  color: var(--silt);
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+.model-stage.is-turned .model-hint { opacity: 0; }
+
+/* Reset zoom: a small round button in the top left, on the corner buttons'
+   glass. */
+.model-reset {
+  position: absolute;
+  top: .65rem;
+  left: .65rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: rgba(2, 25, 31, .45);
+  backdrop-filter: blur(var(--panel-blur));
+  -webkit-backdrop-filter: blur(var(--panel-blur));
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--silt);
+  cursor: pointer;
+  transition: color .18s, border-color .18s;
+}
+.model-reset:hover { color: var(--bone); border-color: rgba(236, 230, 218, .5); }
+.model-reset:focus-visible { outline: 2px solid var(--koi); outline-offset: 2px; }
+.model-reset .icon { width: 1rem; height: 1rem; }
+
+/* a model not added yet: the empty water panel of a missing preview */
+.model-stage.is-empty::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(183, 207, 214, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(183, 207, 214, .07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(70% 70% at 50% 50%, #000 0%, transparent 100%);
+}
+
+/* An animation showcase: its animations as a row of small pills under the
+   viewport, the one playing in koi. */
+.clips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-top: .75rem;
+}
+.clip {
+  padding: .3rem .7rem;
+  background: rgba(2, 25, 31, .35);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--silt);
+  font-family: var(--sans);
+  font-size: .75rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 100, "wght" 600;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.clip:hover { color: var(--bone); border-color: rgba(236, 230, 218, .5); }
+.clip[aria-pressed="true"] { background: var(--koi); border-color: var(--koi); color: #fff; }
+.clip:focus-visible { outline: 2px solid var(--koi); outline-offset: 2px; }
+
+.model-body { margin-top: .9rem; }
+.model-body h4 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 108, "wght" 600;
+}
+.model-body p { margin-top: .35rem; color: #d4e2e5; }
+
+/* References under the description: a row of orange badges, like the tags,
+   each with the site's icon in a small white bubble on the left. */
+.refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: 1.4rem;
+}
+.detail-overview .refs { max-width: 62ch; }
+.ref {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .25rem .8rem .25rem .25rem;
+  background: var(--koi);
+  border-radius: 999px;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: .875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color .18s, transform .18s;
+}
+.ref:hover,
+.ref:focus-visible { background: var(--koi-deep); transform: translateY(-1px); }
+.ref:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.ref-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: #fff;
+  overflow: hidden;
+}
+.ref-icon img { width: 1rem; height: 1rem; object-fit: contain; }
+/* no icon to be had: the site's first letter instead */
+.ref-icon.is-bare::before {
+  content: attr(data-letter);
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--koi-deep);
+}
+
+/* A rating badge: the same badge, with the score in a white bubble on the
+   right to match the icon on the left. */
+.ref.has-rating { padding-right: .25rem; }
+.ref-rating {
+  display: inline-flex;
+  align-items: baseline;
+  flex: none;
+  height: 1.6rem;
+  padding: 0 .6rem;
+  line-height: 1.6rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--koi-deep);
+  font-size: .75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ref-score { font-size: .875rem; font-weight: 700; color: var(--koi); }

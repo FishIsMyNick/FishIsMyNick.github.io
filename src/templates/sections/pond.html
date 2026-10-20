@@ -1,0 +1,42 @@
+{# 1b. THE POND — the band under the opening screen, below the water.
+
+   Its top edge is where the waterline comes to rest (#waterline): when the
+   glass breaks the water rises as the page goes down with the fish, until
+   that edge is near the top of the screen. While he falls it shows the quote.
+   A second after he is free the quote fades out, and the name fades in in
+   its place — the name just above the water, the subtitle just under it,
+   the overview below that, on a pane the same size as the quote's: the two
+   share one cell. Then the nav, and My work. #}
+<section class="band band--pond" id="pond">
+  <span class="waterline" id="waterline" aria-hidden="true"></span>
+
+  <div class="shell pond-grid">
+
+    <div class="pond-head pond-final">
+      <p class="pond-name" aria-hidden="true">{{ site.name }}</p>
+      <p class="pond-tagline" aria-hidden="true">{{ site.tagline }}</p>
+    </div>
+
+    <div class="pond-panes">
+      <p class="lede pond-final">{{ site.intro | prose }}</p>
+      <div class="pond-quote">
+        {% for line in site.hero.pitch %}
+        <p>{{ line | emphasis }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  {# Held back until the water is up. One bar the whole width of the panels
+     underneath it. #}
+  <div class="title-after">
+    <div class="title-after-inner">
+      <nav class="jump" aria-label="Sections">
+        {% for item in site.nav %}
+        <a href="{{ item.href }}">{{ item.label }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+  </div>
+</section>
