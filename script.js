@@ -2918,8 +2918,8 @@ window.Aquarium = (() => {
 
    It is one soft shape: a body and a neck in a single path, stroked twice so
    the line reads as glass rather than as a drawn outline. There is no straight
-   line and no corner anywhere on it — the lip rolls over into the rim, and the
-   rim is a curve of its own. Inside it there is sand, a plant and a castle.
+   line and no corner anywhere on it except the rim: the lip rolls over into
+   it, and the rim runs straight across, because the bowl is seen side on. Inside it there is sand, a plant and a castle.
 
    Tapping it rings the glass, cracks it, and sends him up to look. The last
    tap breaks it: the pieces fall, he leaps up to the top of the screen and
@@ -2981,17 +2981,16 @@ window.Aquarium = (() => {
      the whole requirement, and it means the glass is described by where it
      goes rather than by a list of tangents that have to be kept in step.
 
-     `lip_round` is how far the lip rolls over before the rim starts; `rim_bow`
-     is how much the rim dips as it crosses. */
+     `lip_round` is how far the lip rolls over before the rim starts. The top
+     of the lip and the rim are one level line: the bowl is seen side on, so
+     its opening is seen edge on. */
   function outline(b) {
     const s = shape(b);
     const roll = clamp(Number(get('bowl.lip_round', 0.42)), 0, 1);
-    const bow = clamp(Number(get('bowl.rim_bow', 0.5)), 0, 2);
 
     const r = Math.max(2, s.lip * 0.4 * roll + b.w * 0.012);
     const inner = Math.max(s.lip - r * 1.2, s.lip * 0.3);
-    const rimY = s.lipY - r * 0.35;
-    const dip = (r * 1.2 + b.h * 0.012) * bow;
+    const rimY = s.lipY - r * 0.5;
     const at = f => lerp(s.openY, s.lipY, f);
 
     const pts = [];
@@ -3008,14 +3007,14 @@ window.Aquarium = (() => {
     pts.push({ x: s.cx - s.lip * 0.93,   y: at(0.86) });
     pts.push({ x: s.cx - s.lip,          y: s.lipY + r * 0.22 });
     // over the top of it
-    pts.push({ x: s.cx - s.lip * 0.94,   y: s.lipY - r * 0.5 });
-    pts.push({ x: s.cx - inner,          y: rimY });
-    // and across the rim
-    pts.push({ x: s.cx - inner * 0.45,   y: rimY + dip });
-    pts.push({ x: s.cx + inner * 0.45,   y: rimY + dip });
+    pts.push({ x: s.cx - s.lip * 0.94,   y: rimY, flat: true });
+    pts.push({ x: s.cx - inner,          y: rimY, flat: true });
+    // and straight across the rim
+    pts.push({ x: s.cx - inner * 0.45,   y: rimY, flat: true });
+    pts.push({ x: s.cx + inner * 0.45,   y: rimY, flat: true });
     // the same again, the other way about
-    pts.push({ x: s.cx + inner,          y: rimY });
-    pts.push({ x: s.cx + s.lip * 0.94,   y: s.lipY - r * 0.5 });
+    pts.push({ x: s.cx + inner,          y: rimY, flat: true });
+    pts.push({ x: s.cx + s.lip * 0.94,   y: rimY, flat: true });
     pts.push({ x: s.cx + s.lip,          y: s.lipY + r * 0.22 });
     pts.push({ x: s.cx + s.lip * 0.93,   y: at(0.86) });
     pts.push({ x: s.cx + s.openX * 0.95, y: at(0.4) });
@@ -3028,7 +3027,10 @@ window.Aquarium = (() => {
      The control points are the centripetal Catmull-Rom ones: each knot is
      spaced by the square root of the distance to the next, which is what stops
      a tight turn — the lip — from looping back over itself the way an evenly
-     spaced curve through the same points would. */
+     spaced curve through the same points would.
+
+     A `flat` point is on the level rim: the curve leaves it and arrives at it
+     level, so the lip meets the rim without a bump. */
   function curveThrough(ctx, pts) {
     const n = pts.length;
     const d = (a, c) => Math.sqrt(Math.hypot(c.x - a.x, c.y - a.y)) || 1e-4;
@@ -3046,9 +3048,11 @@ window.Aquarium = (() => {
 
       ctx.bezierCurveTo(
         (d1 * d1 * p2.x - d2 * d2 * p0.x + (2 * d1 * d1 + 3 * d1 * d2 + d2 * d2) * p1.x) / k1,
-        (d1 * d1 * p2.y - d2 * d2 * p0.y + (2 * d1 * d1 + 3 * d1 * d2 + d2 * d2) * p1.y) / k1,
+        p1.flat ? p1.y
+          : (d1 * d1 * p2.y - d2 * d2 * p0.y + (2 * d1 * d1 + 3 * d1 * d2 + d2 * d2) * p1.y) / k1,
         (d3 * d3 * p1.x - d2 * d2 * p3.x + (2 * d3 * d3 + 3 * d3 * d2 + d2 * d2) * p2.x) / k2,
-        (d3 * d3 * p1.y - d2 * d2 * p3.y + (2 * d3 * d3 + 3 * d3 * d2 + d2 * d2) * p2.y) / k2,
+        p2.flat ? p2.y
+          : (d3 * d3 * p1.y - d2 * d2 * p3.y + (2 * d3 * d3 + 3 * d3 * d2 + d2 * d2) * p2.y) / k2,
         p2.x, p2.y);
     }
     ctx.closePath();
@@ -3290,8 +3294,12 @@ window.Aquarium = (() => {
     const line = Number(get('bowl.glass_line', 2.2));
     const s = bowlPath(ctx, b);
 
-    // the pane itself, as a sheen over whatever is behind it
+    // the pane itself, as a sheen over the water only: the air above it is
+    // left fully clear
     ctx.save();
+    ctx.clip();
+    ctx.beginPath();
+    ctx.rect(b.x - 2, waterY(b, env.t), b.w + 4, b.h);
     ctx.clip();
     const sheen = ctx.createLinearGradient(b.x, b.y, b.x + b.w, b.y + b.h);
     sheen.addColorStop(0, hexa(tint, 0.2 * alpha));

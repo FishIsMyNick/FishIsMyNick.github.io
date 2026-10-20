@@ -259,7 +259,9 @@ Title:
 
     The Bowl:
     2D front view, one smooth curve with no sharp corners anywhere, wide opening
-    with a lip that just rolls over. Inside: nearly white water, warm sand gravel
+    with a lip that just rolls over into a rim that is one level line (the
+    opening is seen edge on). The glass sheen covers only the water; the air
+    above it is fully clear. Inside: nearly white water, warm sand gravel
     (not blue), swaying green algae, a small grey castle. The fish (the orange
     sprite) swims inside it. The water in the bowl wobbles when tapped.
 

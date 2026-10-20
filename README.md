@@ -207,7 +207,7 @@ A few worth knowing about:
 | `glass.taps_to_break` | How many taps. 1 for people in a hurry |
 | `glass.lock_page` | `false` leaves the page scrollable from the start |
 | `glass.rise_hold`, `glass.breach` | What a tap does to him before the last one |
-| `bowl.neck`, `flare`, `lip_round`, `rim_bow` | The shape of the glass: how wide the opening, how far the lip rolls over, how the rim crosses |
+| `bowl.neck`, `flare`, `lip_round` | The shape of the glass: how wide the opening, how far the lip rolls over into the level rim |
 | `fish.leap_rise`, `leap_turn`, `leap_top`, `leap_flips`, `grow_to` | The leap out of the broken bowl: how long to the top, how long the turn, where he hangs, how many turns, how much bigger he lands |
 | `fish.jump`, `jump_every`, `jump_power`, `jump_flips` | Leaving the water once he's out there: how often, how hard, how many turns |
 | `fish.jump_at_clicks`, `jump_near_surface` | Whether a click in the sky is a jump, and how near the line he has to be to go |

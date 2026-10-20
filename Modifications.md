@@ -1,4 +1,4 @@
-# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-37 on 2026-10-20)
+# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-38 on 2026-10-20)
 
 Changes made on top of v3.4. Every edit is in src/; the generated index.html,
 styles.css and script.js were rebuilt with `python build.py` after each one.
@@ -603,3 +603,13 @@ Guide.md
     - .gitignore leaves out __pycache__/, _vidtest.html and TODO.md.
     - .nojekyll tells Pages to serve the files as they are, with no Jekyll
       build.
+
+38. Bowl: level rim, clear air above the water
+    Files: src/assets/js/10-bowl.js, src/content/aquarium.yaml, README.md
+    - The glass sheen (and its shine and crescent) is clipped to below the
+      waterline (drawGlass), so the air in the bowl is fully transparent.
+    - The top of the bowl is one level line: the tops of the lip and the
+      whole rim sit at the same height, with no dip. The rim points are marked
+      `flat` in outline(), and curveThrough() keeps the curve level as it
+      leaves and arrives at them, so the lip rounds into the rim with no bump.
+    - bowl.rim_bow is gone from aquarium.yaml (it was what made the rim dip).
