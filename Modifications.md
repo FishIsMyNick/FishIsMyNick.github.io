@@ -1,4 +1,4 @@
-# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-38 on 2026-10-20)
+# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-39 on 2026-10-20)
 
 Changes made on top of v3.4. Every edit is in src/; the generated index.html,
 styles.css and script.js were rebuilt with `python build.py` after each one.
@@ -613,3 +613,13 @@ Guide.md
       `flat` in outline(), and curveThrough() keeps the curve level as it
       leaves and arrives at them, so the lip rounds into the rim with no bump.
     - bowl.rim_bow is gone from aquarium.yaml (it was what made the rim dip).
+
+39. Page icon is the fish facing left
+    Files: favicon.png, apple-touch-icon.png (new, site root),
+           src/templates/base.html
+    - favicon.png: src/assets/img/fish-left.png trimmed, scaled and centred on
+      a 256×256 transparent square, so the browser doesn't squash it.
+    - apple-touch-icon.png: the same on a 180×180 #06455a square
+      (depth.shallow_color), since home-screen icons can't be transparent.
+    - base.html links both. They are not made by build.py: if fish-left.png
+      changes, make them again.

@@ -322,7 +322,10 @@ The Water:
 The Fish:
     - In the water he is 1.6× his bowl size (fish.grow_to).
     - Two drawings, one per direction (fish-left.png / fish-right.png, from
-      Ref Slike, white keyed out and trimmed). Turning
+      Ref Slike, white keyed out and trimmed). fish-left.png is also the page icon:
+      favicon.png (256px, transparent) and apple-touch-icon.png (180px, on
+      #06455a) in the site root, padded square. They are made once, not by the
+      build, so redo them if the drawing changes. Turning
       squashes him through zero width and opens out with the other drawing.
     - Swims by bending: the sprite is drawn in thin vertical strips displaced by
       a wave from nose to tail; the head stays steady, the tail swings hardest.
