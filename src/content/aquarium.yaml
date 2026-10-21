@@ -345,7 +345,7 @@ game:
 
 # ----------------------------------------------------------- the sound ---
 sound:
-  enabled: true
+  enabled: false # off until the viewer turns it on
   volume: 0.5
   tap: 1.0 # knuckle on the glass
   crack: 1.0 # the glass giving

@@ -39,7 +39,8 @@
    readers and the tooltip. #}
 <div class="corner-controls">
   <button type="button" class="corner-button sound-toggle" id="sound-toggle"
-          aria-pressed="true" aria-label="Sound" title="Sound on">
+          aria-pressed="{{ 'true' if aquarium.sound.enabled else 'false' }}" aria-label="Sound"
+          title="{{ 'Sound on' if aquarium.sound.enabled else 'Sound off' }}">
     {{ icon('sound') }}
   </button>
   <button type="button" class="corner-button settings-toggle" id="settings-toggle"

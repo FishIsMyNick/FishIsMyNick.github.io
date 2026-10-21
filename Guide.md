@@ -547,7 +547,8 @@ Sound:
     cross when off) is always visible, fixed in the top right corner over
     everything (detail pages included), just left of the Settings gear; the
     top bar leaves room for both. Volumes in aquarium.yaml. Starts as
-    sound.enabled in aquarium.yaml; a
+    sound.enabled in aquarium.yaml (off by default; the button is drawn in
+    that state from the start); a
     viewer's own click is remembered in their browser (localStorage
     "portfolio.sound") and wins over the yaml from then on.
 

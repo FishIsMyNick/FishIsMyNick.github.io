@@ -796,3 +796,15 @@ Guide.md
     Files: src/content/experience.yaml
     - "Push to early access and release." added after "Ambitious indie
       production with a small team."
+
+
+51. Sound off by default
+    Files: src/content/aquarium.yaml, src/templates/base.html, Guide.md
+    - sound.enabled is now false, so the page starts silent until the
+      Sound button is clicked (the click creates the audio and plays the
+      tap as before).
+    - The button's aria-pressed and tooltip are written from
+      sound.enabled at build time, so it shows the cross from the first
+      frame instead of flipping when the script runs.
+    - A viewer who already clicked the button keeps their saved choice
+      (localStorage "portfolio.sound").
