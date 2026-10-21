@@ -275,23 +275,22 @@
         Finally I wanted to make a tower with a gun to have fun with targeting. When the tower has no target it just swivels randomly in a 'search' pattern. As soon as a character enters the tower's range, it gets tracked and shot at. Running around helps dodge the bullets once you're at a certain distance, but your best bet is just to shoot it down.
 
 - id: shaders-unity
-  title: Shaders in Unity
+  title: Shader 'n' Shapes in Unity
   role: Personal project
   thumbnail: hobby/shaders-unity/thumbnail
 
   # EDIT: one or two sentences about this project.
   summary: |
-    Having fun with shaders and graphs.
+    Having fun with shaders and shapes.
 
   # EDIT: tech used.
-  tags: [Unity Engine, C#, URP]
+  tags: [Unity Engine, C#, URP, HLSL]
 
   # EDIT: what the project is, and why you started it.
   overview:
     - |
-      I wanted to dip my toes into shaders, and some online tutorials led me to try out Unity's URP for making shaders. In the end I wrote my own shaders because I didn't like doing things in the graph, but the end results look pretty much the same. The animations were a different story though, and I would never even attempt this in any graph, but never say never... who knows...\n
+      I wanted to dip my toes into shaders, some online tutorials led me to try out Unity's URP , and in the end I wrote my own shaders in HLSL because I didn't like doing things in the graph, but the end results look pretty much the same. The animations were made in C# by manipulating cube-points' positions using complex wave functions. Note: I'm using the term 'wave function' here a lot to talk about sine waves and more complex wave functions, nothing to do with quantum mechanics in case any quantum physicists are reading.\n
       Anyway, the project ended up being very fun and instructive, and I got to make some beautiful mathematical shapes to tickle your brain :)\n
-      Note: I'm using the term 'wave function' here a lot to talk about sine waves and more complex wave functions, nothing to do with quantum mechanics in case any quantum physicists are reading.
 
   # EDIT: the real stack.
   technologies: 
@@ -302,20 +301,20 @@
 
   # EDIT: goals, features being explored.
   goals:
-    - Make a material for a heat map
+    - Make a shader material for a heat map
     - Make cool shapes
 
   features:
     - media: hobby/shaders-unity/contributions/material
       title: Making the Material
       text: |
-        To have a good visualization of how the points are moving, I wanted to introduce a material that changes color based on its position. This was fairly simple and can be done in a shader graph or HLSL.\n
+        To have a good visualization of how the points are moving, I wanted to introduce a material that changes color based on its position. The X, Y, and Z coordinates are mapped to the output colors R, G, and B values. This places a virtual clipping cube centered at the origin, with opposite vertices at (a,b,c) and (A,B,C), where a, b, c, A, B, C can be adjusted to accomodate any size box. Without a scaling solution in place this whould be limited to a 2x2x2 box ( (-1,-1,-1) to (1,1,1) ). Anything outside the box is clamped to the edge value of the box. This was fairly simple and can be done in a shader graph or HLSL, I went for the latter mainly for the scaling feature.\n
         Putting the material on a cube allows us to see this effect happen in real time.
 
     - media: hobby/shaders-unity/contributions/sine
       title: Simple Sine
       text: |
-        Okay, the color itself isn't that interesting. I started experimenting with placing the cubes, now tiny to represent points, in a line and moving them using a simple sine wave.\n
+        Okay, the color itself isn't that interesting. I started experimenting with placing the now tiny cube-points in a line and moving them using a simple sine wave.\n
         By tweaking the sine function we can manipulate the shape of the resulting curve to get interesting effects.
 
     - media: hobby/shaders-unity/contributions/sine-2d
@@ -326,12 +325,12 @@
     - media: hobby/shaders-unity/contributions/surface
       title: Surfaces
       text: |
-        The surface manipulation is especially hypnotic to me for some reason. I love watching the simulation run. More complex functions are used here, and different wave functions can even be overlapped.
+        The surface manipulation is hypnotic to me for some reason. I love watching the simulation run. More complex functions are used here, and different wave functions can even be overlapped.
 
     - media: hobby/shaders-unity/contributions/sphere
       title: Going 3D
       text: |
-        If you thought the last one was hypnotic, this is gonna blow you away. By doing some shader magic I was able to make some amazing 3D geometry animations.
+        If you thought the last one was hypnotic, this is gonna blow you away. By doing some math magic I was able to make some amazing 3D geometry animations.
 
     - media: hobby/shaders-unity/contributions/torous
       title: More 3D
