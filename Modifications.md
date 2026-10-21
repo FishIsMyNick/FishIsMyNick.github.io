@@ -808,3 +808,9 @@ Guide.md
       frame instead of flipping when the script runs.
     - A viewer who already clicked the button keeps their saved choice
       (localStorage "portfolio.sound").
+
+
+52. Settings: scroll lock note
+    Files: src/templates/base.html, Guide.md
+    - "The hero dive keeps the page to the end" → "The dive keeps
+      scrolling the page to the end".

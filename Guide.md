@@ -560,7 +560,8 @@ Settings:
     - Scroll lock (switch): on, the hero dive keeps the page to the group;
       off, a scroll takes the page back once he is past the Quote (see Hero
       panels). Starts as the opposite of fish.escort_free_scroll (true, so
-      unlocked).
+      unlocked). Its note reads "The dive keeps scrolling the page to the
+      end".
     - Dive speed (slider, fish.escort_speed_min..max, 400-2400px/s, shown as
       a % of fish.escort_speed): the pace of the hero dive. Disabled while
       the scroll is unlocked. A change during a dive takes effect at once.
