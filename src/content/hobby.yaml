@@ -54,7 +54,7 @@
   # One list item per paragraph.
   overview:
     - |
-      Infernal Dante is my ongoing Unreal project. The gameplay is written in C++,
+      Infernal Dante is my ongoing Unreal project. The gameplay is written in C++
       and Blueprint.
     - |
       The project is a roguelite exploration/fighting game following a small Italian greyhound protagonist, with a focus on exploration, movement and combat. The player will explore a (hopefully) procedurally generated world, fighting enemies and collecting loot to improve their character.

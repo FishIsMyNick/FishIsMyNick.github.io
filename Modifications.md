@@ -778,5 +778,5 @@ Guide.md
       solutions, Architecture and game design added; "notify-driven hit
       detection" → event-driven.
     - Infernal Dante: tag Unreal Engine 5 → 5.5.4; the Blueprint sentence
-      shortened; "Most importantly I'm trying to have fun with it." added
+      shortened (comma after C++ removed); "Most importantly I'm trying to have fun with it." added
       to the overview and "Have fun with it!" to the goals.
