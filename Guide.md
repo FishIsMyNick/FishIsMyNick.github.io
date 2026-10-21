@@ -530,7 +530,7 @@ Contact:
     each with a monochrome line icon in the page style in front of it (envelope,
     code brackets, profile card — not company logos). The icon is a link too;
     the label exists only for screen readers.
-    Colophon at the bottom: © year, name, "aka Fish." (Fish in the accent
+    Colophon at the bottom: © year, name, "a.k.a. Fish." (Fish in the accent
     colour; site.yaml colophon).
 
 Top bar:
