@@ -746,3 +746,24 @@ Guide.md
       reworded), "Go to 3D" retitled "Going 3D".
     - Spelling kept American ("favourite" → favorite, "Ok" → Okay,
       "heat-map" → heat map).
+
+
+46. Shaders in Unity: sine joined with a second take
+    Files: media/hobby/shaders-unity/contributions/sine.mp4
+    - Temp/OBS/Portfolio/Shaders/final-cut/sine-additional.mp4 (1920x1080,
+      25 fps, 7.5s; the plain sine wave) is cropped like sine in 44: the
+      game view left of the inspector, from under the Bandicam watermark
+      and its shadow, cut to 16:9 (1136x639 at 3,222) around the wave,
+      scaled to 1280x720. No overlay.
+    - The feature video now plays that clip first, then the original sine
+      clip from 44 (sine, Multi Wave, ripple), joined with a 0.4s
+      crossfade: 14.0s, 25 fps, 1280x720, no audio.
+    - Both single clips are kept in final-cut/trimmed (sine.mp4,
+      sine-additional.mp4) for checking.
+
+
+47. Shaders in Unity: summary, tags and overview
+    Files: src/content/hobby.yaml
+    - Summary "shaders and graphs" → "shaders and shapes"; HLSL added to
+      the tags; the overview's first sentence now says the shaders were
+      written in HLSL.
