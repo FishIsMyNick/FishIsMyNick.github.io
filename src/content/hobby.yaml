@@ -273,3 +273,67 @@
       title: Enemy Towers
       text: |
         Finally I wanted to make a tower with a gun to have fun with targeting. When the tower has no target it just swivels randomly in a 'search' pattern. As soon as a character enters the tower's range, it gets tracked and shot at. Running around helps dodge the bullets once you're at a certain distance, but your best bet is just to shoot it down.
+
+- id: shaders-unity
+  title: Shaders in Unity
+  role: Personal project
+  thumbnail: hobby/shaders-unity/thumbnail
+
+  # EDIT: one or two sentences about this project.
+  summary: |
+    Having fun with shaders and graphs.
+
+  # EDIT: tech used.
+  tags: [Unity Engine, C#, URP]
+
+  # EDIT: what the project is, and why you started it.
+  overview:
+    - |
+      I wanted to dip my toes into shaders, and some online tutorials led me to try out Unity's URP for making shaders. In the end I wrote my own shaders because I didn't like doing things in the graph, but the end results look pretty much the same. The animations were a different story though, and I would never even attempt this in any graph, but never say never... who knows...\n
+      Anyway, the project ended up being very fun and instructive, and I got to make some beautiful mathematical shapes to tickle your brain :)\n
+      Note: I'm using the term 'wave function' here a lot to talk about sine waves and more complex wave functions, nothing to do with quantum mechanics in case any quantum physicists are reading.
+
+  # EDIT: the real stack.
+  technologies: 
+    - Unity Engine
+    - C#
+    - Shader Graph
+    - HLSL
+
+  # EDIT: goals, features being explored.
+  goals:
+    - Make a material for a heat map
+    - Make cool shapes
+
+  features:
+    - media: hobby/shaders-unity/contributions/material
+      title: Making the Material
+      text: |
+        To have a good visualization of how the points are moving, I wanted to introduce a material that changes color based on its position. This was fairly simple and can be done in a shader graph or HLSL.\n
+        Putting the material on a cube allows us to see this effect happen in real time.
+
+    - media: hobby/shaders-unity/contributions/sine
+      title: Simple Sine
+      text: |
+        Okay, the color itself isn't that interesting. I started experimenting with placing the cubes, now tiny to represent points, in a line and moving them using a simple sine wave.\n
+        By tweaking the sine function we can manipulate the shape of the resulting curve to get interesting effects.
+
+    - media: hobby/shaders-unity/contributions/sine-2d
+      title: Complex Sine
+      text: |
+        We can also extend this to the 3^^rd^^ dimension by making a plane of points and manipulating them with perpendicular wave functions. Complex wave functions produce some interesting shapes.
+
+    - media: hobby/shaders-unity/contributions/surface
+      title: Surfaces
+      text: |
+        The surface manipulation is especially hypnotic to me for some reason. I love watching the simulation run. More complex functions are used here, and different wave functions can even be overlapped.
+
+    - media: hobby/shaders-unity/contributions/sphere
+      title: Going 3D
+      text: |
+        If you thought the last one was hypnotic, this is gonna blow you away. By doing some shader magic I was able to make some amazing 3D geometry animations.
+
+    - media: hobby/shaders-unity/contributions/torous
+      title: More 3D
+      text: |
+        Finally, everyone's favorite shape - the Torus! I added some random noise at the end for an interesting effect. What else is there to say, enjoy the visuals.

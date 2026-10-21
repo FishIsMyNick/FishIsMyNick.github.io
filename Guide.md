@@ -208,7 +208,9 @@ Title:
       shows its project's thumbnail. Which project is which is hero.panels in site.yaml
       (AAA = Ubisoft Belgrade, Mobile = Brave Giant, Indie = Llamaware).
       The moment one is clicked all three stop taking clicks (mouse and
-      keyboard), but stay where they are; when the fish reaches the peak of
+      keyboard), but stay where they are; at once the clicked one grows a
+      little (1.06×, keeping its orange edge) and the other two fade back to
+      45%, over 0.35s (hero.picked_scale / picked_fade / picked_time); when the fish reaches the peak of
       his leap (fish.leap_rise, 1s) they rise up the screen (40% of its
       height, easing in over 1s) and fade out as they go. Clicking one plays the break sequence; then,
       instead of letting go, the fish keeps swimming nose down and the page

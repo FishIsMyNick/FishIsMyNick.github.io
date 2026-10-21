@@ -947,12 +947,30 @@
     smash(Aquarium.clock(), { group: 'work' });
   });
 
+  /* The panel clicked grows a little and the other two fade back at once,
+     before anything else happens (hero.picked_* in aquarium.yaml). */
+  function pick(link) {
+    if (!showcase) return;
+    const item = link.closest('.showcase-item');
+    showcase.style.setProperty('--picked-scale', String(get('hero.picked_scale', 1.06)));
+    showcase.style.setProperty('--picked-fade', String(get('hero.picked_fade', 0.45)));
+    showcase.style.setProperty('--picked-time', `${Number(get('hero.picked_time', 0.35))}s`);
+    showcase.classList.add('is-picked');
+    if (item) item.classList.add('is-chosen');
+  }
+  function unpick() {
+    if (!showcase) return;
+    showcase.classList.remove('is-picked');
+    showcase.querySelectorAll('.is-chosen').forEach(item => item.classList.remove('is-chosen'));
+  }
+
   // A thumbnail on the opening screen breaks the glass too, and then takes
   // the page down to its part of My work. Nothing is opened: it stops there.
   document.querySelectorAll('.showcase-link').forEach(link => {
     link.addEventListener('click', event => {
       if (state.broken) return;
       event.preventDefault();
+      pick(link);
       smash(Aquarium.clock(), { group: link.dataset.group });
     });
   });
@@ -975,6 +993,7 @@
     body.classList.remove('is-escorting');
     body.classList.remove('is-apex');
     if (showcase) showcase.inert = false;
+    unpick();
     heading = null;
     state.heading = false;
     untrim();

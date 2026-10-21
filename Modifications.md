@@ -1,4 +1,4 @@
-# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-40 on 2026-10-20)
+# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-40 on 2026-10-20, 41-45 on 2026-10-21)
 
 Changes made on top of v3.4. Every edit is in src/; the generated index.html,
 styles.css and script.js were rebuilt with `python build.py` after each one.
@@ -650,3 +650,99 @@ Guide.md
     - 11-responsive.css is now 12-responsive.css, so it stays last after
       the new 11-game.css.
 
+41. Hero panels: the clicked one stands out
+    Files: src/assets/js/10-bowl.js (pick, unpick), src/assets/css/06-title.css,
+           src/content/aquarium.yaml
+    - The moment a hero panel is clicked, it grows slightly and keeps its
+      orange border, and the other two fade back a little, before the break
+      sequence carries on as before (they still rise and fade out at the
+      top of his leap).
+    - New in aquarium.yaml hero: picked_scale 1.06, picked_fade 0.45 (how
+      visible the other two stay), picked_time 0.35s.
+    - Aquarium.reset() puts them back.
+
+42. Shaders in Unity: feature videos
+    Files: media/hobby/shaders-unity/contributions/material.mp4, sine.mp4,
+           sine-2d.mp4, surface.mp4, sphere.mp4, torous.mp4,
+           media/hobby/shaders-unity/thumbnail.jpg (new)
+    - Made from the screen recordings in Temp/OBS/Portfolio/Shaders (old
+      Bandicam captures played full screen on YouTube). From each
+      recording only the last play of the clip is used, starting 0.5s in
+      so YouTube's play flash is gone, and ending just before its end
+      screen.
+    - Each one is cropped to the Unity game view: under the Bandicam
+      watermark, left of the inspector, clear of the YouTube controls.
+      Wide views are cut to 16:9, tall ones are padded to 16:9 with the
+      editor's flat grey (#3d3d3d), so no shape is cut off.
+    - Where the YouTube controls were showing, their dark gradient over
+      the bottom of the picture is taken back out, frame by frame, measured
+      from the empty grey down the sides of the game view. The full-height
+      recordings (material, sphere 3, torus) use only stretches where the
+      controls were hidden.
+    - The cleaned single clips (1280x720, 30 fps) are kept in
+      Temp/OBS/Portfolio/Shaders/trimmed for checking; each feature video
+      joins its clips with 0.4s crossfades: material (6.8s), sine (6.4s),
+      sine-2d (2 clips, 10.3s), surface (surface 1-2, complex-surface 1-2,
+      overlapping-sine 1-2, 29.1s), sphere (3 clips, 15.3s), torous
+      (3 clips, 14.2s). No audio.
+    - thumbnail.jpg is a stand-in: a frame of the first torus clip.
+
+
+43. Shaders in Unity: sine-2d, sphere and torus re-recorded
+    Files: media/hobby/shaders-unity/contributions/sine-2d.mp4, sphere.mp4,
+           torous.mp4
+    - Remade from the new, already trimmed recordings in
+      Temp/OBS/Portfolio/Shaders/final-cut, which run smoother than the old
+      captures. Each keeps its source frame rate: sine-2d 60 fps, sphere and
+      torous 25 fps (all 1280x720, no audio).
+    - Each recording switches layout once, so it is split into two clips at
+      that cut and the two are joined with a 0.4s crossfade:
+        sine-2d   Wave (0.1-6.2s) → Multi Wave (6.25s-end), 11.2s
+        sphere    editor view (0-11.24s) → full game view, 16.9s
+        torous    small window (0-5.88s) → full game view, 22.1s
+    - Crops, all clear of the Bandicam watermark; no YouTube controls show
+      in these takes (sine-2d's first 0.1s, which had the progress bar
+      under the picture, is dropped):
+        editor view: the game view left of the inspector, from just under
+          the watermark. Sine-2d fills it, so it is padded to 16:9 with the
+          editor grey (#3d3d3d); sphere's shapes sit in the middle, so it
+          is cut to 16:9 instead.
+        torous small window: cut to 16:9 across the full window width.
+        full game view: sphere cut to 16:9, torous (which fills the whole
+          height) padded to 16:9.
+    - The single clips are kept in Temp/OBS/Portfolio/Shaders/final-cut/
+      trimmed for checking (the old ones in Shaders/trimmed are untouched).
+
+
+44. Shaders in Unity: sine and surface re-recorded
+    Files: media/hobby/shaders-unity/contributions/sine.mp4, surface.mp4
+    - Remade from the new, already trimmed recordings in
+      Temp/OBS/Portfolio/Shaders/final-cut (1920x1080). Each keeps its
+      source frame rate: sine 25 fps (6.9s), surface 60 fps (40.4s); both
+      1280x720, no audio.
+    - Crops, all under the Bandicam watermark and its shadow:
+        sine: the game view left of the inspector, cut to 16:9 around the
+          wave (it sits in the middle, so nothing is lost).
+        surface: the recording switches from the editor view to a bigger
+          zoomed-in view at 11.48s, so it is split into two clips there and
+          joined with a 0.4s crossfade. The editor view is cut to 16:9 like
+          sine; the zoomed view fills the height, so it is padded to 16:9
+          with the editor grey (#3d3d3d). The tip of the point column that
+          rises above the plane is clipped by the watermark crop.
+    - Where the YouTube controls showed (surface 5.7-8.3s and around the
+      cut, then 0-3s and 5.5-8.5s into the zoomed view), their dark
+      gradient over the bottom of the picture is taken back out frame by
+      frame, measured from the empty grey at the left edge of the game
+      view. Sine has no overlay.
+    - The single clips (sine, surface-1, surface-2) are kept in
+      Temp/OBS/Portfolio/Shaders/final-cut/trimmed for checking.
+
+
+45. Shaders in Unity: text proofread
+    Files: src/content/hobby.yaml
+    - Grammar and typos in the overview and feature texts ("praph" → graph,
+      "who know's" → who knows, "Torous" → Torus, "In the end I ended up
+      writing" → In the end I wrote, the Surfaces and More 3D sentences
+      reworded), "Go to 3D" retitled "Going 3D".
+    - Spelling kept American ("favourite" → favorite, "Ok" → Okay,
+      "heat-map" → heat map).

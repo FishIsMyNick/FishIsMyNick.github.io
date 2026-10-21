@@ -14,8 +14,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Newsreader:opsz,wght@6..72,300..500&display=swap" rel="stylesheet">
 <script>(function(h){if('scrollRestoration' in history)history.scrollRestoration='manual';h.classList.add('has-js','is-booting');setTimeout(function(){h.classList.remove('is-booting');if(!window.Aquarium)h.classList.remove('has-js')},4000)})(document.documentElement);</script>
-<link rel="stylesheet" href="styles.css?v=dcfa0cec54">
-<script src="script.js?v=f316957aaf" defer></script>
+<link rel="stylesheet" href="styles.css?v=92b5efed89">
+<script src="script.js?v=c76f9bea55" defer></script>
 </head>
 <body>
 
@@ -253,7 +253,10 @@
     "hold": [
       5,
       8
-    ]
+    ],
+    "picked_scale": 1.06,
+    "picked_fade": 0.45,
+    "picked_time": 0.35
   },
   "motion": {
     "respect_reduced_motion": true,
@@ -608,6 +611,23 @@
       <li>Unreal Engine</li>
       <li>C++</li>
       <li>ECS</li>
+    </ul>
+    <span class="entry-cue">Open details</span>
+  </div>
+</li>
+        <li class="entry entry--open">
+  <figure class="media">
+  <video muted loop playsinline preload="none" poster="media/hobby/shaders-unity/thumbnail.jpg">
+</video>
+</figure>
+  <div class="entry-body">
+    <h4><a class="entry-link" href="#shaders-unity" data-project="shaders-unity">Shaders in Unity</a></h4>
+    <p class="entry-role">Personal project</p>
+    <p>Having fun with shaders and graphs.</p>
+    <ul class="tags">
+      <li>Unity Engine</li>
+      <li>C#</li>
+      <li>URP</li>
     </ul>
     <span class="entry-cue">Open details</span>
   </div>
@@ -1491,6 +1511,103 @@
   <div class="entry-body">
     <h4>Enemy Towers</h4>
     <p>Finally I wanted to make a tower with a gun to have fun with targeting. When the tower has no target it just swivels randomly in a &#39;search&#39; pattern. As soon as a character enters the tower&#39;s range, it gets tracked and shot at. Running around helps dodge the bullets once you&#39;re at a certain distance, but your best bet is just to shoot it down.</p>
+  </div>
+</li>
+    </ul>
+  </section>
+
+  
+</article>
+
+<article class="detail detail--hobby" id="detail-shaders-unity" data-project="shaders-unity" hidden>
+  <h2 class="detail-title" tabindex="-1">Shaders in Unity</h2>
+
+  <div class="detail-split">
+    <div class="detail-overview">
+      <h3>Overview</h3>
+      <p>I wanted to dip my toes into shaders, and some online tutorials led me to try out Unity&#39;s URP for making shaders. In the end I wrote my own shaders because I didn&#39;t like doing things in the graph, but the end results look pretty much the same. The animations were a different story though, and I would never even attempt this in any graph, but never say never... who knows...<br>Anyway, the project ended up being very fun and instructive, and I got to make some beautiful mathematical shapes to tickle your brain :)<br>Note: I&#39;m using the term &#39;wave function&#39; here a lot to talk about sine waves and more complex wave functions, nothing to do with quantum mechanics in case any quantum physicists are reading.</p>
+      
+    </div>
+    <div class="detail-goals">
+      <h3>What I'm working on</h3>
+      <ul class="lines">
+  <li>Make a material for a heat map</li>
+  <li>Make cool shapes</li>
+</ul>
+    </div>
+  </div>
+
+  <section class="detail-tech">
+    <h3>Technologies</h3>
+    <ul class="tags">
+      <li>Unity Engine</li>
+      <li>C#</li>
+      <li>Shader Graph</li>
+      <li>HLSL</li>
+    </ul>
+  </section>
+
+  <section class="detail-features">
+    <h3>Features</h3>
+    <ul class="gallery">
+      <li class="entry">
+  <figure class="media">
+  <video muted loop playsinline preload="metadata">
+<source src="media/hobby/shaders-unity/contributions/material.mp4#t=0.1" type="video/mp4"></video>
+</figure>
+  <div class="entry-body">
+    <h4>Making the Material</h4>
+    <p>To have a good visualization of how the points are moving, I wanted to introduce a material that changes color based on its position. This was fairly simple and can be done in a shader graph or HLSL.<br>Putting the material on a cube allows us to see this effect happen in real time.</p>
+  </div>
+</li>
+      <li class="entry">
+  <figure class="media">
+  <video muted loop playsinline preload="metadata">
+<source src="media/hobby/shaders-unity/contributions/sine.mp4#t=0.1" type="video/mp4"></video>
+</figure>
+  <div class="entry-body">
+    <h4>Simple Sine</h4>
+    <p>Okay, the color itself isn&#39;t that interesting. I started experimenting with placing the cubes, now tiny to represent points, in a line and moving them using a simple sine wave.<br>By tweaking the sine function we can manipulate the shape of the resulting curve to get interesting effects.</p>
+  </div>
+</li>
+      <li class="entry">
+  <figure class="media">
+  <video muted loop playsinline preload="metadata">
+<source src="media/hobby/shaders-unity/contributions/sine-2d.mp4#t=0.1" type="video/mp4"></video>
+</figure>
+  <div class="entry-body">
+    <h4>Complex Sine</h4>
+    <p>We can also extend this to the 3<sup>rd</sup> dimension by making a plane of points and manipulating them with perpendicular wave functions. Complex wave functions produce some interesting shapes.</p>
+  </div>
+</li>
+      <li class="entry">
+  <figure class="media">
+  <video muted loop playsinline preload="metadata">
+<source src="media/hobby/shaders-unity/contributions/surface.mp4#t=0.1" type="video/mp4"></video>
+</figure>
+  <div class="entry-body">
+    <h4>Surfaces</h4>
+    <p>The surface manipulation is especially hypnotic to me for some reason. I love watching the simulation run. More complex functions are used here, and different wave functions can even be overlapped.</p>
+  </div>
+</li>
+      <li class="entry">
+  <figure class="media">
+  <video muted loop playsinline preload="metadata">
+<source src="media/hobby/shaders-unity/contributions/sphere.mp4#t=0.1" type="video/mp4"></video>
+</figure>
+  <div class="entry-body">
+    <h4>Going 3D</h4>
+    <p>If you thought the last one was hypnotic, this is gonna blow you away. By doing some shader magic I was able to make some amazing 3D geometry animations.</p>
+  </div>
+</li>
+      <li class="entry">
+  <figure class="media">
+  <video muted loop playsinline preload="metadata">
+<source src="media/hobby/shaders-unity/contributions/torous.mp4#t=0.1" type="video/mp4"></video>
+</figure>
+  <div class="entry-body">
+    <h4>More 3D</h4>
+    <p>Finally, everyone&#39;s favorite shape - the Torus! I added some random noise at the end for an interesting effect. What else is there to say, enjoy the visuals.</p>
   </div>
 </li>
     </ul>

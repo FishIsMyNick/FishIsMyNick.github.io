@@ -322,6 +322,10 @@ panels:
 hero:
   fade: 2 # seconds for one picture to fade over the other
   hold: [5, 8] # seconds each picture stays, picked afresh every time
+  # The moment one is clicked: it grows a little, the other two fade back.
+  picked_scale: 1.06 # how much bigger the clicked one gets
+  picked_fade: 0.45 # how visible the other two stay, 0–1
+  picked_time: 0.35 # seconds for both
 
 # ------------------------------------------------- movement, in general ---
 motion:
