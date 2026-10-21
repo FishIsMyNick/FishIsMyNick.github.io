@@ -814,3 +814,10 @@ Guide.md
     Files: src/templates/base.html, Guide.md
     - "The hero dive keeps the page to the end" → "The dive keeps
       scrolling the page to the end".
+
+
+53. Footer line
+    Files: src/content/site.yaml
+    - Colophon "Built by hand, fish included." → "aka *Fish*." (Fish in
+      the accent colour), so the bottom line reads "© 2026 Luka Miletić.
+      aka Fish."

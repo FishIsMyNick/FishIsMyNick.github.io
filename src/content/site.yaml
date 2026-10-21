@@ -110,4 +110,5 @@ contact:
     external: true
 
 # The small line at the very bottom. The year is filled in automatically.
-colophon: Built by hand, fish included.
+colophon: | 
+  aka *Fish*.
