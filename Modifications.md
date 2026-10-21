@@ -790,3 +790,9 @@ Guide.md
       "Ambitious indie production with a small team.", Brave Giant
       "Fast-paced mobile development of multiple projects with one
       publication, mentoring."
+
+
+50. Experience: Llamaware line
+    Files: src/content/experience.yaml
+    - "Push to early access and release." added after "Ambitious indie
+      production with a small team."
