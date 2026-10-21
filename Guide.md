@@ -530,7 +530,8 @@ Contact:
     each with a monochrome line icon in the page style in front of it (envelope,
     code brackets, profile card — not company logos). The icon is a link too;
     the label exists only for screen readers.
-    Colophon at the bottom: © year, name, "Built by hand, fish included."
+    Colophon at the bottom: © year, name, "aka Fish." (Fish in the accent
+    colour; site.yaml colophon).
 
 Top bar:
     Sticky, fixed to the top, appears only once the title section has scrolled
@@ -579,11 +580,9 @@ Accessibility and responsiveness:
       showcase); on phones the nav cells stack; galleries, detail pages and the
       experience columns collapse to one column.
 
-Content still missing: the real email address and LinkedIn URL (site.yaml
-still has hello@example.com and linkedin.com/in/your-profile), role dates in
-experience.yaml, and one picture (hobby/infernal-dante/movement, which the
-build lists). The Ubisoft role reads Gameplay programmer in experience.yaml
-but UI programmer in professional.yaml. Everything else is in: real game
+Content still missing: role dates in experience.yaml, and one picture
+(hobby/infernal-dante/movement, which the build lists). Everything else is
+in: the real contact links, real game
 titles, the hobby projects' text, every professional project's cover clip,
 and Ubisoft Belgrade's contribution clips (montages of gameplay footage, no
 YouTube player overlay in them).

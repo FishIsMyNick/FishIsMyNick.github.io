@@ -821,3 +821,10 @@ Guide.md
     - Colophon "Built by hand, fish included." → "aka *Fish*." (Fish in
       the accent colour), so the bottom line reads "© 2026 Luka Miletić.
       aka Fish."
+
+
+54. Guide brought up to date
+    Files: Guide.md
+    - Contact: the colophon is now "aka Fish." (from 53).
+    - Content still missing: the contact links are real now, and the
+      Ubisoft role matches in both files (from 49), so both notes are gone.
