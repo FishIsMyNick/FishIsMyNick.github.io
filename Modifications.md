@@ -1,4 +1,4 @@
-# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-40 on 2026-10-20, 41-45 on 2026-10-21)
+# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-40 on 2026-10-20, 41-53 on 2026-10-21, 54 on 2026-10-22)
 
 Changes made on top of v3.4. Every edit is in src/; the generated index.html,
 styles.css and script.js were rebuilt with `python build.py` after each one.
@@ -542,6 +542,10 @@ Guide.md is updated to match.
 
 
 Guide.md
+    - (51) Sound: off by default, the button drawn off from the start.
+      (52) Settings, Scroll lock: the note's new wording.
+      (54) Contact: the colophon reads "aka Fish."; Content still missing:
+      the contact links and the Ubisoft role are done.
     - (23) Hero panels and Opening sequence step 3: the panels wait for the
       peak of the leap, then rise and fade. (24) Gallery: Alt + middle-drag
       pans, recentres and unzooms when it resumes turning; "Panning is off"
