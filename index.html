@@ -571,7 +571,7 @@
     <p class="entry-role">Unreal Engine, in development</p>
     <p>A roguelite exploration/fighting game I&#39;m building to get character movement, animation and ability-driven combat working as one loop.</p>
     <ul class="tags">
-      <li>Unreal Engine 5</li>
+      <li>Unreal Engine 5.5.4</li>
       <li>C++</li>
       <li>Blender</li>
       <li>Modeling</li>
@@ -621,7 +621,7 @@
 </video>
 </figure>
   <div class="entry-body">
-    <h4><a class="entry-link" href="#shaders-unity" data-project="shaders-unity">Shaders in Unity</a></h4>
+    <h4><a class="entry-link" href="#shaders-unity" data-project="shaders-unity">Shader &#39;n&#39; Shapes in Unity</a></h4>
     <p class="entry-role">Personal project</p>
     <p>Having fun with shaders and shapes.</p>
     <ul class="tags">
@@ -653,16 +653,19 @@
         <div class="skill-set">
           <h4>Languages</h4>
           <ul class="chips">
-            <li>C++</li>
             <li>C#</li>
-            <li>Blueprint</li>
+            <li>C++</li>
+            <li>Python</li>
+            <li>HLSL</li>
           </ul>
         </div>
         <div class="skill-set">
           <h4>Engines &amp; tools</h4>
           <ul class="chips">
-            <li>Unreal Engine</li>
-            <li>In-house AAA engine</li>
+            <li>Unity Engine</li>
+            <li>Unreal Engine 4/5</li>
+            <li>Anvil Engine (proprietary Ubisoft engine)</li>
+            <li>Visual Studio</li>
             <li>Blender</li>
             <li>Git</li>
           </ul>
@@ -672,8 +675,10 @@
           <ul class="lines">
   <li>Character movement and state handling</li>
   <li>Combat loops and the Gameplay Ability System</li>
+  <li>UI/UX solutions</li>
   <li>Input mapping and player actions</li>
-  <li>Animation montages and notify-driven hit detection</li>
+  <li>Architecture and game design</li>
+  <li>Animation montages and event-driven hit detection</li>
   <li>Reading unfamiliar codebases and extending them safely</li>
   <li>Working day to day with designers and animators</li>
 </ul>
@@ -1224,9 +1229,9 @@
   <div class="detail-split">
     <div class="detail-overview">
       <h3>Overview</h3>
-      <p>Infernal Dante is my ongoing Unreal project. The gameplay is written in C++, with Blueprint on top for the parts that are faster to iterate on by hand.</p>
+      <p>Infernal Dante is my ongoing Unreal project. The gameplay is written in C++, and Blueprint.</p>
       <p>The project is a roguelite exploration/fighting game following a small Italian greyhound protagonist, with a focus on exploration, movement and combat. The player will explore a (hopefully) procedurally generated world, fighting enemies and collecting loot to improve their character.</p>
-      <p>For this project I&#39;m tackling many problems at once: narrative, modeling, rigging, animation, input, movement, abilities, music and sound design, and the flow between them in order to get a better feel for the entire development pipeline and the various disciplines involved in making a game. Each of these areas is a learning experience, and the project is a sandbox for me to explore them in a way that lets me see the results immediately.</p>
+      <p>For this project I&#39;m tackling many problems at once: narrative, modeling, rigging, animation, input, movement, abilities, music and sound design, and the flow between them in order to get a better feel for the entire development pipeline and the various disciplines involved in making a game. Each of these areas is a learning experience, and the project is a sandbox for me to explore them in a way that lets me see the results immediately. Most importantly I&#39;m trying to have fun with it.</p>
       <p>The project is still in its very early stages, and I&#39;m currently focusing on getting the movement and combat systems working together. Once I have a solid foundation, I&#39;ll be able to iterate on the gameplay and narrative, and add more content to the game.</p>
       
     </div>
@@ -1240,6 +1245,7 @@
   <li>Enhanced Input mappings for every player action handled in C++</li>
   <li>Setting up the model, rig and animation pipeline between Blender and Unreal</li>
   <li>Hands-on experience with the entire game development pipeline, from concept to playable prototype</li>
+  <li>Have fun with it!</li>
 </ul>
     </div>
   </div>
@@ -1521,18 +1527,18 @@
 </article>
 
 <article class="detail detail--hobby" id="detail-shaders-unity" data-project="shaders-unity" hidden>
-  <h2 class="detail-title" tabindex="-1">Shaders in Unity</h2>
+  <h2 class="detail-title" tabindex="-1">Shader &#39;n&#39; Shapes in Unity</h2>
 
   <div class="detail-split">
     <div class="detail-overview">
       <h3>Overview</h3>
-      <p>I wanted to dip my toes into shaders, some online tutorials led me to try out Unity&#39;s URP for making shaders, and in the end I wrote my own shaders in HLSL because I didn&#39;t like doing things in the graph, but the end results look pretty much the same. The animations were a different story though, and I would never even attempt this in any graph, but never say never... who knows...<br>Anyway, the project ended up being very fun and instructive, and I got to make some beautiful mathematical shapes to tickle your brain :)<br>Note: I&#39;m using the term &#39;wave function&#39; here a lot to talk about sine waves and more complex wave functions, nothing to do with quantum mechanics in case any quantum physicists are reading.</p>
+      <p>I wanted to dip my toes into shaders, some online tutorials led me to try out Unity&#39;s URP , and in the end I wrote my own shaders in HLSL because I didn&#39;t like doing things in the graph, but the end results look pretty much the same. The animations were made in C# by manipulating cube-points&#39; positions using complex wave functions. Note: I&#39;m using the term &#39;wave function&#39; here a lot to talk about sine waves and more complex wave functions, nothing to do with quantum mechanics in case any quantum physicists are reading.<br>Anyway, the project ended up being very fun and instructive, and I got to make some beautiful mathematical shapes to tickle your brain :)</p>
       
     </div>
     <div class="detail-goals">
       <h3>What I'm working on</h3>
       <ul class="lines">
-  <li>Make a material for a heat map</li>
+  <li>Make a shader material for a heat map</li>
   <li>Make cool shapes</li>
 </ul>
     </div>
@@ -1558,7 +1564,7 @@
 </figure>
   <div class="entry-body">
     <h4>Making the Material</h4>
-    <p>To have a good visualization of how the points are moving, I wanted to introduce a material that changes color based on its position. This was fairly simple and can be done in a shader graph or HLSL.<br>Putting the material on a cube allows us to see this effect happen in real time.</p>
+    <p>To have a good visualization of how the points are moving, I wanted to introduce a material that changes color based on its position. The X, Y, and Z coordinates are mapped to the output colors R, G, and B values. This places a virtual clipping cube centered at the origin, with opposite vertices at (a,b,c) and (A,B,C), where a, b, c, A, B, C can be adjusted to accomodate any size box. Without a scaling solution in place this whould be limited to a 2x2x2 box ( (-1,-1,-1) to (1,1,1) ). Anything outside the box is clamped to the edge value of the box. This was fairly simple and can be done in a shader graph or HLSL, I went for the latter mainly for the scaling feature.<br>Putting the material on a cube allows us to see this effect happen in real time.</p>
   </div>
 </li>
       <li class="entry">
@@ -1568,7 +1574,7 @@
 </figure>
   <div class="entry-body">
     <h4>Simple Sine</h4>
-    <p>Okay, the color itself isn&#39;t that interesting. I started experimenting with placing the cubes, now tiny to represent points, in a line and moving them using a simple sine wave.<br>By tweaking the sine function we can manipulate the shape of the resulting curve to get interesting effects.</p>
+    <p>Okay, the color itself isn&#39;t that interesting. I started experimenting with placing the now tiny cube-points in a line and moving them using a simple sine wave.<br>By tweaking the sine function we can manipulate the shape of the resulting curve to get interesting effects.</p>
   </div>
 </li>
       <li class="entry">
@@ -1588,7 +1594,7 @@
 </figure>
   <div class="entry-body">
     <h4>Surfaces</h4>
-    <p>The surface manipulation is especially hypnotic to me for some reason. I love watching the simulation run. More complex functions are used here, and different wave functions can even be overlapped.</p>
+    <p>The surface manipulation is hypnotic to me for some reason. I love watching the simulation run. More complex functions are used here, and different wave functions can even be overlapped.</p>
   </div>
 </li>
       <li class="entry">
@@ -1598,7 +1604,7 @@
 </figure>
   <div class="entry-body">
     <h4>Going 3D</h4>
-    <p>If you thought the last one was hypnotic, this is gonna blow you away. By doing some shader magic I was able to make some amazing 3D geometry animations.</p>
+    <p>If you thought the last one was hypnotic, this is gonna blow you away. By doing some math magic I was able to make some amazing 3D geometry animations.</p>
   </div>
 </li>
       <li class="entry">

@@ -25,13 +25,15 @@ roles:
 skills:
   - heading: Languages
     style: chips
-    items: [C++, C#, Blueprint]        # EDIT: add any others
+    items: [C#, C++, Python, HLSL]        # EDIT: add any others
 
   - heading: Engines & tools
     style: chips
     items:
-      - Unreal Engine
-      - In-house AAA engine
+      - Unity Engine
+      - Unreal Engine 4/5
+      - Anvil Engine (proprietary Ubisoft engine)
+      - Visual Studio
       - Blender
       - Git
       # EDIT: Unity, Perforce, Jira, Rider…
@@ -41,7 +43,9 @@ skills:
     items:
       - Character movement and state handling
       - Combat loops and the Gameplay Ability System
+      - UI/UX solutions
       - Input mapping and player actions
-      - Animation montages and notify-driven hit detection
+      - Architecture and game design
+      - Animation montages and event-driven hit detection
       - Reading unfamiliar codebases and extending them safely
       - Working day to day with designers and animators

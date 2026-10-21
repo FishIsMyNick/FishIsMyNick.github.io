@@ -767,3 +767,16 @@ Guide.md
     - Summary "shaders and graphs" → "shaders and shapes"; HLSL added to
       the tags; the overview's first sentence now says the shaders were
       written in HLSL.
+
+
+48. Skills and Infernal Dante text
+    Files: src/content/experience.yaml, src/content/hobby.yaml
+    - Skills: Languages are now C#, C++, Python, HLSL (Blueprint dropped).
+      Engines & tools: Unity Engine, Unreal Engine 4/5, Anvil Engine
+      (proprietary Ubisoft engine), Visual Studio added in place of
+      "Unreal Engine" and "In-house AAA engine". Gameplay list: UI/UX
+      solutions, Architecture and game design added; "notify-driven hit
+      detection" → event-driven.
+    - Infernal Dante: tag Unreal Engine 5 → 5.5.4; the Blueprint sentence
+      shortened; "Most importantly I'm trying to have fun with it." added
+      to the overview and "Have fun with it!" to the goals.

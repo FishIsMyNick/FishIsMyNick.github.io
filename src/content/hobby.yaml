@@ -49,18 +49,18 @@
     A roguelite exploration/fighting game I'm building to get character movement, animation and
     ability-driven combat working as one loop.
 
-  tags: [Unreal Engine 5, C++, Blender, Modeling, Animation]
+  tags: [Unreal Engine 5.5.4, C++, Blender, Modeling, Animation]
 
   # One list item per paragraph.
   overview:
     - |
       Infernal Dante is my ongoing Unreal project. The gameplay is written in C++,
-      with Blueprint on top for the parts that are faster to iterate on by hand.
+      and Blueprint.
     - |
       The project is a roguelite exploration/fighting game following a small Italian greyhound protagonist, with a focus on exploration, movement and combat. The player will explore a (hopefully) procedurally generated world, fighting enemies and collecting loot to improve their character.
     - |
       For this project I'm tackling many problems at once: narrative, modeling, rigging, animation, input, movement, abilities, music and sound design, and the flow between them in order to get a better feel for the entire development pipeline and the various disciplines involved in making a game.
-      Each of these areas is a learning experience, and the project is a sandbox for me to explore them in a way that lets me see the results immediately.
+      Each of these areas is a learning experience, and the project is a sandbox for me to explore them in a way that lets me see the results immediately. Most importantly I'm trying to have fun with it.
     -
       |
       The project is still in its very early stages, and I'm currently focusing on getting the movement and combat systems working together. Once I have a solid foundation, I'll be able to iterate on the gameplay and narrative, and add more content to the game.
@@ -82,6 +82,7 @@
     - Enhanced Input mappings for every player action handled in C++
     - Setting up the model, rig and animation pipeline between Blender and Unreal
     - Hands-on experience with the entire game development pipeline, from concept to playable prototype
+    - Have fun with it!
 
   features:
     - title: Modeling
