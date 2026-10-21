@@ -780,3 +780,13 @@ Guide.md
     - Infernal Dante: tag Unreal Engine 5 → 5.5.4; the Blueprint sentence
       shortened (comma after C++ removed); "Most importantly I'm trying to have fun with it." added
       to the overview and "Have fun with it!" to the goals.
+
+
+49. Experience: roles
+    Files: src/content/experience.yaml
+    - Ubisoft Belgrade: Gameplay programmer → UI programmer (matches its
+      project page).
+    - Llamaware now comes before Brave Giant. New lines: Llamaware
+      "Ambitious indie production with a small team.", Brave Giant
+      "Fast-paced mobile development of multiple projects with one
+      publication, mentoring."

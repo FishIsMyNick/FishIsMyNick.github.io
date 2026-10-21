@@ -10,16 +10,16 @@
 roles:
   - title: Ubisoft Belgrade
     # EDIT: add dates if you want them, e.g. "Gameplay programmer, 2023—now"
-    meta: Gameplay programmer
+    meta: UI programmer
     text: AAA production in C++ on an in-house engine, inside an established pipeline.
-
-  - title: Brave Giant
-    meta: Gameplay programmer
-    text: Three games from the ground up with a small team, plus coaching newer programmers.
 
   - title: Llamaware
     meta: Gameplay programmer
-    text: Implementation work on a larger indie title alongside the rest of the team.
+    text: Ambitious indie production with a small team.
+
+  - title: Brave Giant
+    meta: Gameplay programmer
+    text: Fast-paced mobile development of multiple projects with one publication, mentoring.
 
 
 skills:
