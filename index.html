@@ -14,8 +14,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Newsreader:opsz,wght@6..72,300..500&display=swap" rel="stylesheet">
 <script>(function(h){if('scrollRestoration' in history)history.scrollRestoration='manual';h.classList.add('has-js','is-booting');setTimeout(function(){h.classList.remove('is-booting');if(!window.Aquarium)h.classList.remove('has-js')},4000)})(document.documentElement);</script>
-<link rel="stylesheet" href="styles.css?v=92b5efed89">
-<script src="script.js?v=c76f9bea55" defer></script>
+<link rel="stylesheet" href="styles.css?v=86b51be8d8">
+<script src="script.js?v=db9829d385" defer></script>
 </head>
 <body>
 
@@ -142,7 +142,10 @@
     "dash_time": 1.4,
     "dash_arrive": 26,
     "circle": true,
-    "circle_targets": ".entry, .contact-list li, .skill-set, .roles li, .band-head, .jump a, .sound-toggle, .showcase-item, .game-toggle",
+    "circle_targets": ".contribution, .game-story, .entry, .contact-list li, .skill-set, .roles li, .band-head, .jump a, .sound-toggle, .showcase-item, .game-toggle",
+    "circle_skip": ".title-copy h1, .title-copy .tagline, .pond-name, .pond-tagline",
+    "circle_any": "a, button, input, label, li, p, h1, h2, h3, h4, h5, h6, blockquote, figure, img, video, picture, dt, dd, .chips li, .media, .settings, .corner-button, .detail-close, .game-back",
+    "circle_whole": ".contribution, .game-story",
     "circle_radius": 210,
     "circle_margin": 64,
     "circle_speed": 140,
@@ -254,6 +257,10 @@
       5,
       8
     ],
+    "contribution_hold": [
+      3,
+      4
+    ],
     "picked_scale": 1.06,
     "picked_fade": 0.45,
     "picked_time": 0.35
@@ -262,17 +269,53 @@
     "respect_reduced_motion": true,
     "reduced_scale": 0.3
   },
-  "game": {
-    "sweep_time": 1.1,
-    "sweep_angle": 10
-  },
   "sound": {
-    "enabled": false,
+    "enabled": true,
     "volume": 0.5,
     "tap": 1.0,
     "crack": 1.0,
     "shatter": 1.0,
-    "splash": 0.9
+    "crumble": 1.0,
+    "woosh": 0.3,
+    "ding": 0.7,
+    "woosh_peak": 0.2,
+    "splash": 0.9,
+    "big_splash": 0.6,
+    "files": {
+      "shatter": "media/audio/sfx/glass-break.mp3",
+      "splash": "media/audio/sfx/splash.mp3",
+      "big_splash": "media/audio/sfx/splash-big.mp3",
+      "crumble": "media/audio/sfx/crumbling.mp3",
+      "woosh": "media/audio/sfx/woosh-single.mp3",
+      "ding": "media/audio/sfx/ding.mp3"
+    }
+  },
+  "game": {
+    "sweep_time": 1.1,
+    "sweep_angle": 10,
+    "fish_size": 0.15,
+    "fish_min": 90,
+    "fish_max": 170,
+    "swim_speed": 520,
+    "swim_ease": 3.2,
+    "dash_speed": 1250,
+    "dash_time": 0.32,
+    "dash_cooldown": 0.4,
+    "tunnel_time": 5,
+    "dive_time": 2,
+    "tunnel_length": 2.2,
+    "shaft_length": 1.6,
+    "border_top_extra": 5,
+    "border": 30,
+    "max_pixels": 3700000,
+    "paint_under_sweep": 0.6,
+    "gap": 2.4,
+    "crate_size": 0.15,
+    "reset_fade": 0.4,
+    "reveal_time": 1.4,
+    "hat_x": 0.78,
+    "hat_y": 0.2,
+    "hat_size": 0.34
   }
 }</script>
 
@@ -299,8 +342,8 @@
 
 <div class="corner-controls">
   <button type="button" class="corner-button sound-toggle" id="sound-toggle"
-          aria-pressed="false" aria-label="Sound"
-          title="Sound off">
+          aria-pressed="true" aria-label="Sound"
+          title="Sound on">
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
      aria-hidden="true" focusable="false">  <path d="M3.75 9.6h3.1l4.4-3.7v12.2l-4.4-3.7h-3.1Z"></path>
@@ -317,14 +360,35 @@
   </button>
 
   <div class="settings" id="settings" role="group" aria-label="Settings" hidden>
-    <label class="setting setting--switch" for="scroll-lock">
+    <p class="settings-title">Settings</p>
+    <div class="setting setting--range">
+      <span class="setting-text">
+        <label class="setting-name" for="sound-volume">Volume</label>
+        <output class="setting-value" id="sound-volume-value" for="sound-volume"></output>
+      </span>
+      <span class="setting-sound">
+        <button type="button" class="corner-button sound-toggle" id="sound-mute"
+                aria-pressed="true" aria-label="Sound"
+                title="Sound on">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+     aria-hidden="true" focusable="false">  <path d="M3.75 9.6h3.1l4.4-3.7v12.2l-4.4-3.7h-3.1Z"></path>
+  <path class="icon-on" d="M15 9.3a3.9 3.9 0 0 1 0 5.4"></path>
+  <path class="icon-on" d="M17.7 6.7a7.6 7.6 0 0 1 0 10.6"></path>
+  <path class="icon-off" d="M15.6 9.6l4.8 4.8M20.4 9.6l-4.8 4.8"></path></svg>
+        </button>
+        <input type="range" class="slider" id="sound-volume" min="0" max="100" step="1"
+               value="50">
+      </span>
+    </div>
+    <label class="setting setting--switch setting--page" for="scroll-lock">
       <span class="setting-text">
         <span class="setting-name">Scroll lock</span>
         <span class="setting-note">The dive keeps scrolling the page to the end</span>
       </span>
       <input type="checkbox" class="switch" id="scroll-lock">
     </label>
-    <label class="setting setting--range" for="dive-speed">
+    <label class="setting setting--range setting--page" for="dive-speed">
       <span class="setting-text">
         <span class="setting-name">Dive speed</span>
         <output class="setting-value" id="dive-speed-value" for="dive-speed"></output>
@@ -411,7 +475,7 @@
     </div>
 
     <div class="pond-panes">
-      <p class="lede pond-final">When a fish is bored it just keeps on swimming, but when <span class="accent">Fish</span> is bored he makes games. With all this ocean for inspiration, he has a lot of ideas, and he wants to make them all. He is a passionate gamer and game developer with strong expertise in C# and the Unity engine, and solid skills in C++ and Unreal Engine 4/5. He has a few well recieved games under his belt (which he leaves at home cause he&#39;s a fish, and fish don&#39;t wear belts) that he made with the help of ocean-dewlling friends he&#39;s met along the way.<br>Using his tools he peers into the depths of the ocean and brings his ideas to life. He loves to experiment with other fish tools that he picks up along the way, but he is also intrigued by strange tools for different species like crabs, octopuses and even birds. He finds ways of using them to upgrade his own tools, learn, grow, and come closer to his ultimate goal:<br><span class="bigger">To Become the World&#39;s Greatest <span class="accent">Game Developing Fish!</span> </span></p>
+      <p class="lede pond-final">When a fish is bored it just keeps on swimming, but when <span class="accent">Fish</span> is bored he makes games. With all this ocean for inspiration, he has a lot of ideas, and he wants to make them all. He is a passionate gamer and game developer with strong expertise in C# and the Unity engine, and solid skills in C++ and Unreal Engine 4/5. With the help of some ocean-dewlling friends he&#39;s met along the way, he&#39;s got a few well recieved games under his belt (which he leaves at home cause he&#39;s a fish, and fish don&#39;t wear belts).<br>He peers into the depths of the ocean and uses his fish tools to bring his ideas to life. He loves to experiment with other fish tools that he picks up along the way, adding them to his tool-kit, but he is also intrigued by strange tools for different species like crabs, octopuses and even birds. He finds ways of using them to upgrade his own tools, learn, grow, and come closer to his ultimate goal:<br><span class="bigger">To Become the World&#39;s Greatest <span class="accent">Game Developing Fish!</span> </span></p>
       <div class="pond-quote">
         <p>Small <span class="accent">Fish</span>,</p>
         <p>In a <span class="bigger">Big</span> Pond,</p>
@@ -541,7 +605,7 @@
   <div class="entry-body">
     <h4><a class="entry-link" href="#brave-giant" data-project="brave-giant">Push Puzzle Rescue Adventure<span class="entry-studio"> • Brave Giant</span></a></h4>
     <p class="entry-role">Gameplay programmer</p>
-    <p>Fast-paced mobile game development in minimal teams.</p>
+    <p>Fast-paced mobile game development in minimal teams. One game released on mobile platforms and Steam.</p>
     <ul class="tags">
       <li>Unity</li>
       <li>C#</li>
@@ -1313,8 +1377,8 @@
         <span class="model-hint" aria-hidden="true">Drag to turn</span>
         <button type="button" class="model-reset" aria-label="Reset zoom" title="Reset zoom"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
-     aria-hidden="true" focusable="false">  <path d="M4.6 12a7.4 7.4 0 1 0 2.2-5.25"></path>
-  <path d="M4.4 3.9v3.6H8"></path></svg></button>
+     aria-hidden="true" focusable="false">  <path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5"></path>
+  <path d="M4.2 4.2v3.6h3.6"></path></svg></button>
       </figure>
       <div class="model-body">
 <h4>3D Model</h4><p>A rough model of a teacup Italian Greyhound. A Tiggy™, if you will. (And yes, they exist). It&#39;s deffinetly not perfect and the paint job is kinda rough, but considering this was my first ever modeling project and I wanted to do it as quickly as possible, I&#39;m happy with how it turned out. The proportions may look a little out of whack, but it&#39;s just a very small dog. In reality, the head and eyes are only slightly exaggerated for maximum cuteness.</p>      </div>
@@ -1629,21 +1693,87 @@
 </div>
 
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
-<section class="game-layer" id="game-layer" aria-labelledby="game-title" hidden>
-  <div class="game-inner">
-    <span class="game-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
-     aria-hidden="true" focusable="false">  <rect x="3" y="15.25" width="18" height="5.25" rx="2.6"></rect>
-  <path d="M12 15.25V9.6"></path>
-  <circle cx="12" cy="6.6" r="3"></circle>
-  <path d="M15.6 15.25v-1.2a.9.9 0 0 1 .9-.9h1a.9.9 0 0 1 .9.9v1.2"></path></svg></span>
-    <p class="game-kicker">Game Mode</p>
-    <h2 class="game-title" id="game-title" tabindex="-1">Under construction</h2>
-    <span class="game-tape" aria-hidden="true"></span>
-    <p class="game-note">A more playful way through the portfolio is being built here. Come back soon to check it out :)</p>
-    <button type="button" class="game-back" id="game-back">Back to the portfolio</button>
+<section class="game-layer" id="game-layer" aria-labelledby="game-title" data-game-script="game.js?v=f61b19065a" hidden>
+
+  <div class="game-pages" aria-hidden="true">
+    <div class="game-page" data-level="0">
+<img src="media/professional/brave-giant/cover.jpg" alt="">    </div>
+    <div class="game-page" data-level="1">
+<img src="media/professional/llamaware/cover.png" alt="">    </div>
   </div>
+
+  <canvas class="game-canvas" id="game-canvas" aria-hidden="true"></canvas>
+
+  <div class="game-hud">
+    <div class="game-start" id="game-start">
+      <div class="game-start-block">
+        <h2 class="game-name" id="game-title" tabindex="-1">The Fishy Adventure</h2>
+        <div class="game-start-row" id="game-start-row">
+          <div class="game-story">
+            <p>On one fine and wet day, <span class="accent">Fish</span> was very busy building one of his games. He got so caught up in it that he completely forgot he has to put fresh air in his human-bowl. If he doesn&#39;t get home soon his human will surely suffocate. But he has to get through all the levels he&#39;s made so far, and these levels are not going to be easy. Poor little Jimmy... He&#39;s <span class="accent">Fish&#39;s</span> best friend in the whole world, and there isn&#39;t much air left... OH, THE PISCIANITY! Help him get through his game before his little Jimmy dies!</p>
+            <p>While you&#39;re already here, feel free to enjoy the scenery for a moment if you like it. I&#39;m sure little Jimmy can hang on for a few more minutes, just hope he doesn&#39;t break the glass and get up to the surface again. Getting him back down here is such a hassle... Welp, good luck!</p>
+          </div>
+          <div class="game-hints">
+            <p class="game-hint">Swim with the mouse.</p>
+            <p class="game-hint">Click to dash or use special ability.</p>
+            <p class="game-start-hint">Swim into the hole<br>in the coral to start <span class="game-nudge" aria-hidden="true">→</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-tunnel" id="game-tunnel" aria-live="polite">
+      <p class="game-tunnel-top" id="game-tunnel-top"></p>
+      <p class="game-tunnel-bottom" id="game-tunnel-bottom"></p>
+    </div>
+
+    <div class="game-goal" id="game-goal">
+      <p class="game-goal-level" id="game-goal-level"></p>
+      <p class="game-goal-text" id="game-goal-text"></p>
+    </div>
+
+    <div class="game-plates" id="game-plates">
+      <p class="game-plate game-moves" id="game-moves" hidden>Moves <b id="game-moves-left"></b></p>
+      <div class="game-plate game-out" id="game-out" role="alert" hidden>
+        <p>Out of moves!</p>
+        <button type="button" class="game-retry" id="game-retry">Retry</button>
+      </div>
+      <div class="game-plate game-results" id="game-results" hidden>
+        <button type="button" class="game-results-hide" id="game-results-hide"
+                aria-label="Collapse" title="Collapse"><span aria-hidden="true">↙</span></button>
+        <h3 class="game-results-title">Results</h3>
+        <table class="game-results-table">
+          <thead>
+            <tr><th scope="col">Room</th><th scope="col">Moves</th><th scope="col">Stars</th></tr>
+          </thead>
+          <tbody id="game-results-rows"></tbody>
+          <tfoot>
+            <tr><th scope="row">Total</th><td id="game-results-moves"></td><td id="game-results-stars"></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <button type="button" class="game-results-show" id="game-results-show" hidden
+              aria-label="Results" title="Results"><i class="game-star is-got"></i></button>
+    </div>
+  </div>
+
+  <div class="game-room" id="game-room" hidden>
+    <div class="shell detail-body" id="game-room-body"></div>
+  </div>
+  <div class="game-room-bar" id="game-room-bar" aria-hidden="true" hidden></div>
+  <button type="button" class="game-room-up" id="game-room-up" hidden><span aria-hidden="true">↑</span> Swim back up</button>
+
+  <div class="game-fade" id="game-fade" aria-hidden="true"></div>
+  <button type="button" class="corner-button game-reset" id="game-reset" hidden
+          aria-label="Reset level" title="Reset level"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+     aria-hidden="true" focusable="false">  <path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5"></path>
+  <path d="M4.2 4.2v3.6h3.6"></path></svg></button>
+
+  <button type="button" class="game-back" id="game-back">Back to the portfolio</button>
 </section>
+
+<script type="application/json" id="game-data">{"back_kicker": "Back to the start", "done": "The way on is open. Right for the next level, down for the details, left to go back", "done_last": "The way on leads back to the start. Right to swim home, down for the details, left to go back", "end_kicker": "The end?", "end_title": "More levels coming soon", "levels": [{"hat": "hardhat", "mechanic": "pushpuzzle", "project": "brave-giant", "studio": "Brave Giant", "sublevels": [{"field": ["X X O O O O O O", "X O H H X X O O", "S H O O O O X G", "O O O H O O X X", "X O O O O O O O"], "hint": "Arrow keys, or click the space next to him. Reach the chest in as few moves as you can", "moves": 15, "stars": [13, 14, 15]}, {"field": ["O H O O O C O O", "O O X X C X X O", "S O C O O O X G", "O O O C O O O X", "O X X O O O O X"], "hint": "A clam that can\u0027t move breaks when it\u0027s pushed", "moves": 15, "stars": [13, 14, 15]}, {"field": ["O O O O O O O X", "O H O H O O O X", "S O X C O X X G", "O C X A X X O O", "O O X A C O O O"], "hint": "Algae takes two moves to swim into", "moves": 18, "stars": [16, 17, 18]}], "tint": "#1d7f8c", "title": "Push Puzzle Rescue Adventure"}, {"hat": "conductor", "mechanic": "construction", "project": "llamaware", "studio": "Llamaware", "sublevels": [{"note": "New games will come as soon as *Fish* is done with them", "sign": ["Under", "Construction"]}], "tint": "#5a6f3a", "title": "Apocalypse Express"}], "sub_done": "The way on is open. Right for the next room, left to go back", "title": "The Fishy Adventure"}</script>
 
 <div class="sweep" id="sweep" aria-hidden="true"></div>
 

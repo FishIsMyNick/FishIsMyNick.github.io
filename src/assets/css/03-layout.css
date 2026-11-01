@@ -150,3 +150,29 @@ html.is-booting .title-after {
   visibility: hidden;
   transition: none;
 }
+
+/* ------------------------------------------------------- scroll bars -- */
+
+/* Every scroll bar on the site: no track of its own, over the water, and a
+   pale rounded thumb on the hairline colour that turns koi under the cursor.
+   (Where the -webkit- ones work they are used, as setting scrollbar-color
+   would switch them off.) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(224, 246, 252, .24);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--koi);
+  background-clip: padding-box;
+}
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(224, 246, 252, .24) transparent;
+  }
+}

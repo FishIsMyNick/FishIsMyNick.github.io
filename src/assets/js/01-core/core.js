@@ -21,7 +21,7 @@ window.Portfolio = {
 
   // The sound module fills these in once the audio graph exists. Until then
   // calling one does nothing, so nothing else has to check.
-  sound: { tap() {}, crack() {}, shatter() {}, splash() {}, bubble() {} }
+  sound: { tap() {}, crack() {}, shatter() {}, splash() {}, bigSplash() {}, bubble() {} }
 
 };
 

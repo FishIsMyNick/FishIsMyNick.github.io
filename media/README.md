@@ -3,6 +3,11 @@
 Every picture and clip the site shows lives here, one folder per project:
 
     media/
+    ├─ audio/
+    │  └─ sfx/                    every sound effect: glass-break.mp3, splash.mp3,
+    │                             splash-big.mp3,
+    │                             crumbling.mp3, ding.mp3, woosh-single.mp3 (the first of
+    │                             the ten in woosh.mp3)
     ├─ hero/                      the three tiles on the opening screen
     │  ├─ aaa.jpeg
     │  ├─ mobile
@@ -27,6 +32,13 @@ name each file by its path from here without the extension, e.g.
 `media: professional/llamaware/cover`. The hero tiles are named in
 `site.yaml` under `hero.showcase`. Rename or move anything freely: change
 the name in the yaml to match and rebuild.
+
+## Sound effects
+
+All of the site's sound effects live in `audio/sfx/`. Which file plays for
+which sound is set in `src/content/aquarium.yaml` under `sound.files`
+(full path from the site root, extension included). A sound with no file
+there is synthesised in the browser instead.
 
 ## Pictures and clips
 

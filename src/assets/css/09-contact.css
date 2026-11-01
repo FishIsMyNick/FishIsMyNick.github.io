@@ -2,6 +2,9 @@
 
 /* ======================================================== 4. CONTACT === */
 
+/* The line under the heading runs the width of the shell. */
+.band--contact .band-head p { max-width: none; }
+
 .contact-list {
   display: grid;
   gap: 0;

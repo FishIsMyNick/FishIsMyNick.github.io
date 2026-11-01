@@ -13,7 +13,7 @@ three generated files as the whole site — with a different opening.
                  src/content/*.yaml   ─┐
                  src/templates/**     ─┼─►  index.html
                  src/assets/css/*     ─┼─►  styles.css      the whole site
-                 src/assets/js/*      ─┴─►  script.js
+                 src/assets/js/**/*   ─┴─►  script.js
 ```
 
 Those three files plus `media/` are the site. Upload them anywhere.
@@ -248,11 +248,11 @@ from `aquarium.yaml` falls back to a sensible one instead of stopping the page.
 
 ```
 portfolio_v3.4/
-├─ index.html  styles.css  script.js   generated — don't edit
+├─ index.html  styles.css  script.js  game.js   generated — don't edit
 ├─ media/                              your clips and posters
 ├─ build.py  build.bat  requirements.txt
 └─ src/
-   ├─ content/     the five YAML files above
+   ├─ content/     the YAML files above, and game.yaml for Game Mode
    ├─ templates/
    │  ├─ base.html             the page shell
    │  ├─ sections/             one file per section of the page
@@ -264,7 +264,9 @@ portfolio_v3.4/
    │     └─ topbar.html
    └─ assets/
       ├─ css/    12 numbered files, concatenated in order
-      ├─ js/     13 numbered files, concatenated in order
+      ├─ js/     numbered folders of scripts, joined into script.js
+      ├─ game/   the game: the engine and one file per level mechanic, joined
+      │          into game.js, which is fetched when Game Mode is wanted
       ├─ img/    fish-left.png, fish-right.png — him, one per direction
       └─ svg/    koi_fish.svg — the drawing v3.3 used. Nothing reads it now
 ```
@@ -272,20 +274,21 @@ portfolio_v3.4/
 The number prefixes on the CSS and JS parts **are** the order they're joined
 in. Add a file and it's picked up; no list to update.
 
-### The ten scripts
+### The scripts
 
 | | |
 | --- | --- |
-| `01-core.js` | The settings from `aquarium.yaml`, and the state the rest share |
-| `02-nav.js` | The year, and the sticky nav bar |
-| `03-media.js` | Project previews: play on hover, empty-state fallback |
-| `04-detail.js` | Detail pages: open, close, focus, one URL each |
-| `05-sound.js` | Glass and water, synthesised — no audio files to ship |
-| `06-depth.js` | How deep a point on the page is, and what colour that is |
-| `07-water.js` | The canvas, the loop, the water, the surface, the ripples |
-| `08-shoal.js` | The little fish |
-| `09-fish.js` | Him: swimming, the leap, jumping, rolling, circling, dashing |
-| `10-bowl.js` | The bowl, the castle, the cracks, the break, the lock |
+| `01-core/` | The settings from `aquarium.yaml`, and the state the rest share |
+| `02-page/` | The nav bar, project previews, detail pages |
+| `03-sound/` | The recordings, the synthesised sounds, the volume |
+| `04-water/` | Depth colour, the canvas and water, the little fish |
+| `05-fish.scope/` | Him: swimming, the leap, jumping, rolling, circling, dashing |
+| `06-bowl.scope/` | The bowl, the castle, the cracks, the break, the lock |
+| `07-controls/` | The settings panel, the model viewers |
+| `08-game/` | Game Mode: the sweep, and fetching the game |
+
+A folder named `*.scope` is one script in parts: they share variables, so the
+build wraps all its files in a single function and they don't run on their own.
 
 Everything is drawn on one canvas fixed behind the page, in layers with an
 order — water 10, the inside of the bowl 20, the shoal 30, him 50, the glass

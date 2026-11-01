@@ -180,9 +180,16 @@ fish:
   dash_time: 1.4 # gives up after this long, in case the cursor has moved on
   dash_arrive: 26 # how close counts as arrived, pixels
 
-  # Hovering anything on the page: he comes and circles it, wide and slow.
+  # Hovering anything on the page: he comes and circles it, wide and slow,
+  # one way round or the other (picked at random for each thing hovered).
+  # circle_targets are whole things, circled as one even when the cursor is
+  # on something inside them. Anything else in circle_any is circled on its
+  # own; open water isn't in it, so there he just follows the cursor.
   circle: true
-  circle_targets: ".entry, .contact-list li, .skill-set, .roles li, .band-head, .jump a, .sound-toggle, .showcase-item, .game-toggle"
+  circle_targets: ".contribution, .game-story, .entry, .contact-list li, .skill-set, .roles li, .band-head, .jump a, .sound-toggle, .showcase-item, .game-toggle"
+  circle_skip: ".title-copy h1, .title-copy .tagline, .pond-name, .pond-tagline" # never circled: the name and subtitle
+  circle_any: "a, button, input, label, li, p, h1, h2, h3, h4, h5, h6, blockquote, figure, img, video, picture, dt, dd, .chips li, .media, .settings, .corner-button, .detail-close, .game-back"
+  circle_whole: ".contribution, .game-story" # of those, the ones circled all the way round however big they are
   circle_radius: 210 # how wide the orbit is around the thing, pixels
   circle_margin: 64 # kept this far clear of its edges
   circle_speed: 140 # how fast he goes round, pixels per second
@@ -322,6 +329,7 @@ panels:
 hero:
   fade: 2 # seconds for one picture to fade over the other
   hold: [5, 8] # seconds each picture stays, picked afresh every time
+  contribution_hold: [3, 4] # the same, for a professional project's contributions
   # The moment one is clicked: it grows a little, the other two fade back.
   picked_scale: 1.06 # how much bigger the clicked one gets
   picked_fade: 0.45 # how visible the other two stay, 0–1
@@ -335,19 +343,25 @@ motion:
   respect_reduced_motion: true
   reduced_scale: 0.3
 
-# ------------------------------------------------------------ game mode ---
-# The Game Mode button swaps the page for another view behind a band of
-# water that sweeps across the screen: left to right on the way in, back
-# right to left on the way out. The views change while it covers the screen.
-game:
-  sweep_time: 1.1 # seconds for the band to cross the whole screen
-  sweep_angle: 10 # how far its edges lean, degrees
-
 # ----------------------------------------------------------- the sound ---
 sound:
-  enabled: false # off until the viewer turns it on
-  volume: 0.5
+  enabled: true # on from the start; the viewer can turn it off
+  volume: 0.5 # where the Volume slider in Settings starts, 0-1; the viewer's own setting wins
   tap: 1.0 # knuckle on the glass
   crack: 1.0 # the glass giving
   shatter: 1.0 # the break
+  crumble: 1.0 # the rock giving way in Game Mode
+  woosh: 0.3 # the band sweeping between the portfolio and Game Mode
+  ding: 0.7 # a level finished in Game Mode
+  woosh_peak: 0.2 # how far into its recording the woosh is loudest, seconds
   splash: 0.9 # him landing in the water
+  big_splash: 0.6 # the dive after the break (its recording is loud)
+  # Recorded sound effects. All of them live in media/audio/sfx/. A sound
+  # without a file here (or whose file won't load) is synthesised instead.
+  files:
+    shatter: media/audio/sfx/glass-break.mp3
+    splash: media/audio/sfx/splash.mp3
+    big_splash: media/audio/sfx/splash-big.mp3
+    crumble: media/audio/sfx/crumbling.mp3
+    woosh: media/audio/sfx/woosh-single.mp3
+    ding: media/audio/sfx/ding.mp3

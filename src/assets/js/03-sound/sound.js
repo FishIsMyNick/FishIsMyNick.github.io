@@ -1,4 +1,10 @@
-/* Glass, and water. All synthesised — there is no audio file to ship.
+/* Glass, and water.
+
+   The break, the splash, the crumbling rock and the woosh are recordings, kept in media/audio/sfx/ (every
+   sound effect the site uses lives in that folder; the files are named in
+   the `sound.files` block of src/content/aquarium.yaml). Everything else is
+   synthesised, and so are those until their file has loaded, or if it
+   can't be loaded at all.
 
    A tap is a filtered noise transient, two ringing partials and the low thud
    of the panel flexing. A crack is the same with the ring bent downwards. The
@@ -18,10 +24,13 @@
 
   const cfg = (path, fallback) => Aquarium.get('sound.' + path, fallback);
 
+  const clamp01 = v => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5);
+
   const sound = (() => {
     let ctx = null;
     let master = null;
     let enabled = cfg('enabled', true) !== false;
+    let volume = clamp01(Number(cfg('volume', 0.5)));
 
     function ready() {
       if (!enabled) return false;
@@ -35,8 +44,52 @@
         soften.frequency.value = 9000;
         master.connect(soften).connect(ctx.destination);
       }
-      master.gain.value = Number(cfg('volume', 0.5)) || 0;
+      master.gain.value = volume;
       if (ctx.state === 'suspended') ctx.resume();
+      load();
+      return true;
+    }
+
+    /* The recordings. Fetched and decoded the first time sound is wanted, so
+       a viewer who never turns it on never downloads them. Opened from disk
+       (file://) there is no fetch, so an <audio> element plays them instead. */
+    const clips = {};        // name -> AudioBuffer, or a URL for <audio>
+    let loading = false;
+
+    function load() {
+      if (loading) return;
+      loading = true;
+      const files = cfg('files', {}) || {};
+      Object.keys(files).forEach(name => {
+        const url = files[name];
+        if (!url) return;
+        fetch(url)
+          .then(res => { if (!res.ok) throw new Error(res.status); return res.arrayBuffer(); })
+          .then(data => new Promise((ok, no) => ctx.decodeAudioData(data, ok, no)))
+          .then(buf => { clips[name] = buf; })
+          .catch(() => { clips[name] = url; });
+      });
+    }
+
+    /* Play a recording, if it's there. `rate` nudges its pitch, so that two
+       of the same in a row don't sound like a loop. */
+    function play(name, gain, rate = 1) {
+      const clip = clips[name];
+      if (!clip) return false;
+      if (typeof clip === 'string') {
+        const el = new Audio(clip);
+        el.volume = Math.min(1, Math.max(0, gain * master.gain.value));
+        el.playbackRate = rate;
+        el.play().catch(() => {});
+        return true;
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = clip;
+      src.playbackRate.value = rate;
+      const g = ctx.createGain();
+      g.gain.value = gain;
+      src.connect(g).connect(master);
+      src.start();
       return true;
     }
 
@@ -116,9 +169,32 @@
     }
 
     /* The break: the panel letting go, then the pieces landing. */
+    /* The band sweeping across between the portfolio and Game Mode. */
+    function woosh(strength = 1) {
+      if (!ready()) return;
+      const s = strength * Number(cfg('woosh', 1));
+      if (play('woosh', s)) return;
+      noise(ctx.currentTime, { dur: 0.5, type: 'bandpass', freq: 900, q: 0.6, gain: 0.2 * s, decay: 2 });
+    }
+
+    /* A level finished, in Game Mode. */
+    function ding(strength = 1) {
+      if (!ready()) return;
+      const s = strength * Number(cfg('ding', 1));
+      if (!play('ding', s)) tap(s);
+    }
+
+    /* Rock coming apart, for the openings in Game Mode. */
+    function crumble(strength = 1) {
+      if (!ready()) return;
+      const s = strength * Number(cfg('crumble', 1));
+      if (!play('crumble', s)) crack(s);
+    }
+
     function shatter(strength = 1) {
       if (!ready()) return;
       const s = strength * Number(cfg('shatter', 1));
+      if (play('shatter', s, 0.96 + Math.random() * 0.08)) return;
       const t = ctx.currentTime;
 
       noise(t, { dur: 0.5, type: 'highpass', freq: 1800, q: 0.4,
@@ -181,6 +257,8 @@
       if (!ready()) return;
       const s = Math.min(strength, 1.6) * Number(cfg('splash', 0.9));
       const big = Math.min(Math.max(strength, 0.2), 1.6);   // how heavy it was
+      // the recording: a heavier landing is louder and a little lower
+      if (play('splash', s, 1.12 - big * 0.12 + (Math.random() - 0.5) * 0.06)) return;
       const t = ctx.currentTime;
       const r = (a, b) => a + Math.random() * (b - a);
 
@@ -225,6 +303,15 @@
       }
     }
 
+    /* The dive: him going in after the break. A recording of its own, with
+       the ordinary splash standing in until it loads (or if it can't). */
+    function bigSplash() {
+      if (!ready()) return;
+      const s = Number(cfg('big_splash', 0.6));
+      if (play('big_splash', s, 0.97 + Math.random() * 0.06)) return;
+      splash(1.6);
+    }
+
     /* One bubble leaving his mouth: a short upward blip. */
     function bubble(strength = 1) {
       if (!ready()) return;
@@ -243,33 +330,64 @@
     }
 
     return {
-      tap, crack, shatter, splash, bubble,
+      tap, crack, crumble, woosh, ding, shatter, splash, bigSplash, bubble,
+      // start up now, while a click allows it, for a sound a moment later
+      warm: ready,
+      get volume() { return volume; },
+      set volume(v) { volume = clamp01(v); if (master) master.gain.value = volume; },
       get enabled() { return enabled; },
       set enabled(v) { enabled = v; if (!v && ctx) ctx.suspend(); }
     };
   })();
 
-  // A viewer's own choice is remembered, and wins over `sound.enabled`.
+  // A viewer's own choices are remembered, and win over `sound.enabled` and
+  // `sound.volume`.
   const soundKey = 'portfolio.sound';
+  const volumeKey = 'portfolio.volume';
   try {
     const saved = localStorage.getItem(soundKey);
     if (saved !== null) sound.enabled = saved === 'on';
+    const level = localStorage.getItem(volumeKey);
+    if (level !== null) sound.volume = Number(level);
   } catch (err) { /* no storage: the setting stands */ }
 
-  const btn = document.getElementById('sound-toggle');
-  if (btn) {
-    const paint = () => {
+  /* Sound by the gear and the mute button in Settings are one setting, drawn
+     on both. Moving the Volume slider while muted turns the sound back on. */
+  const toggles = Array.from(document.querySelectorAll('.sound-toggle'));
+  const slider = document.getElementById('sound-volume');
+  const sliderOut = document.getElementById('sound-volume-value');
+
+  const paint = () => {
+    toggles.forEach(btn => {
       // the icon follows aria-pressed (see 06-title.css)
       btn.setAttribute('aria-pressed', String(sound.enabled));
       btn.title = sound.enabled ? 'Sound on' : 'Sound off';
-    };
-    paint();
-    btn.addEventListener('click', () => {
-      sound.enabled = !sound.enabled;
-      paint();
-      try { localStorage.setItem(soundKey, sound.enabled ? 'on' : 'off'); } catch (err) { /* fine */ }
-      if (sound.enabled) sound.tap(0.8);
     });
+    if (slider) slider.value = String(Math.round(sound.volume * 100));
+    if (sliderOut) sliderOut.textContent = sound.enabled ? Math.round(sound.volume * 100) + '%' : 'Muted';
+  };
+
+  const setEnabled = on => {
+    sound.enabled = on;
+    paint();
+    try { localStorage.setItem(soundKey, on ? 'on' : 'off'); } catch (err) { /* fine */ }
+  };
+
+  paint();
+  toggles.forEach(btn => btn.addEventListener('click', () => {
+    setEnabled(!sound.enabled);
+    if (sound.enabled) sound.tap(0.8);
+  }));
+
+  if (slider) {
+    slider.addEventListener('input', () => {
+      sound.volume = Number(slider.value) / 100;
+      if (!sound.enabled) setEnabled(true);
+      else paint();
+      try { localStorage.setItem(volumeKey, String(sound.volume)); } catch (err) { /* fine */ }
+    });
+    // a tap at the new level, once it's let go
+    slider.addEventListener('change', () => { if (sound.enabled) sound.tap(0.8); });
   }
 
   // Hand the whole kit to anything else that wants it (the bowl and the fish).

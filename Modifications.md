@@ -1,4 +1,4 @@
-# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-40 on 2026-10-20, 41-53 on 2026-10-21, 54-55 on 2026-10-22)
+# Modifications (v3.4, 2026-10-18, 11-14 on 2026-10-19, 23-40 on 2026-10-20, 41-53 on 2026-10-21, 54-55 on 2026-10-22, 56-67 on 2026-10-29, 68-70 on 2026-10-30, 96-99 on 2026-11-01)
 
 Changes made on top of v3.4. Every edit is in src/; the generated index.html,
 styles.css and script.js were rebuilt with `python build.py` after each one.
@@ -839,3 +839,626 @@ Guide.md
     Files: src/content/site.yaml, Guide.md
     - Colophon "aka *Fish*." → "a.k.a. *Fish*.", so the bottom line reads
       "© 2026 Luka Miletić. a.k.a. Fish."
+
+
+56. Recorded break and splash sounds
+    Files: src/assets/js/05-sound.js, src/content/aquarium.yaml,
+           media/README.md, Guide.md
+    - The bowl breaking plays media/audio/sfx/glass-break.mp3 and the fish
+      hitting the water plays media/audio/sfx/splash.mp3, in place of the
+      synthesised shatter and splash.
+    - All sound effect files live in media/audio/sfx/. aquarium.yaml names
+      them under sound.files (shatter, splash); the shatter/splash volumes
+      there still apply.
+    - They're fetched and decoded the first time sound plays. Opened from
+      disk (file://, no fetch) they play through an <audio> element instead.
+    - Each play nudges the pitch slightly; a harder splash is louder and a
+      little lower.
+    - Until a file has loaded, or if it can't load, the old synthesised
+      sound plays. Tap, crack and bubbles are still synthesised.
+
+
+57. Big splash for the dive, at 60%
+    Files: src/assets/js/05-sound.js, 09-fish.js, 01-core.js,
+           src/content/aquarium.yaml, media/README.md, Guide.md
+    - The landing after the break (the dive) plays
+      media/audio/sfx/splash-big.mp3 instead of the ordinary splash. Every
+      other surface break keeps splash.mp3.
+    - Its volume is sound.big_splash: 0.6 in aquarium.yaml (60% of the
+      file's own level, before the master volume).
+    - Until it loads, or if it can't, the ordinary splash plays at full
+      strength instead.
+
+
+58. Sound on by default
+    Files: src/content/aquarium.yaml, Guide.md
+    - sound.enabled: false → true. The button starts in its "on" state.
+    - A viewer who already turned it off keeps that (localStorage
+      "portfolio.sound" still wins over the yaml).
+    - Browsers hold back audio until the viewer's first click or key press
+      on the page, so nothing plays before that.
+
+
+59. Big splash trimmed to the splash
+    Files: media/audio/sfx/splash-big.mp3, Guide.md
+    - The clip opened with 0.39s of near silence, so the sound landed late.
+      Cut it there (with a 5ms fade-in against a click); the splash now
+      starts at once. 3.19s → 2.80s, re-encoded at the same 128kbps.
+
+
+60. Big splash fades out
+    Files: media/audio/sfx/splash-big.mp3, Guide.md
+    - The end used to cut off. It now fades out in the file itself, from
+      1.0s after the splash to complete silence at 2.55s, exactly where
+      the recording itself stops (it used to stop dead there). The silent
+      tail after it is cut, so the clip is 2.55s.
+    - Made from the untrimmed original in one pass (the 0.39s trim and 5ms
+      fade-in from 59, then the fade-out), so it was only re-encoded once.
+
+
+61. He circles anything hovered, either way round
+    Files: src/assets/js/09-fish.js, src/content/aquarium.yaml, Guide.md
+    - Circling used to be only for a set list (gallery rows, contact rows,
+      skill groups, roles, headings, nav, two buttons). Now hovering any
+      element he can be seen behind makes him circle it: text, headings,
+      links, buttons, pictures, videos, list items, chips, the settings
+      panel, detail pages and the Game Mode view included.
+    - fish.circle_targets stays as the list of whole things, circled as one
+      even when the cursor is on something inside them. New
+      fish.circle_any is everything else, circled on its own. Open water
+      and the page background aren't in either, so there he still just
+      follows the cursor.
+    - Direction is random: clockwise or anticlockwise, picked each time a
+      new thing is hovered (it was always the same way before).
+
+
+62. The name and subtitle aren't circled
+    Files: src/assets/js/09-fish.js, src/content/aquarium.yaml, Guide.md
+    - New fish.circle_skip: ".title-copy h1, .title-copy .tagline,
+      .pond-name, .pond-tagline". Hovering the name or the subtitle under
+      it, on the opening screen or above the water after the dive, doesn't
+      make him circle it; there he just follows the cursor, as in open
+      water.
+
+
+63. Contribution slideshows change every 3–4s
+    Files: src/assets/js/03-media.js, src/content/aquarium.yaml, Guide.md
+    - On a professional project's page, a contribution whose media is a
+      folder of pictures now holds each picture 3–4s (new
+      hero.contribution_hold: [3, 4]) instead of 5–8s.
+    - Every other slideshow (hero panels, thumbnails, covers, hobby
+      features) keeps hero.hold, 5–8s. The 2s fade is unchanged.
+
+
+64. Game Mode: The Fishy Adventure (start screen and three dummy levels)
+    Files: src/assets/js/14-adventure.js (new), src/assets/js/13-game.js,
+           src/assets/js/07-water.js, src/templates/sections/game.html,
+           src/assets/css/11-game.css, src/content/site.yaml,
+           src/content/aquarium.yaml, build.py, Guide.md
+    - The "Under construction" view is replaced by a game with its own
+      canvas. Fish swims after the cursor; a click is a dash (Arrow keys /
+      WASD and Space too). He wears a hat per level.
+    - Start screen: "The Fishy Adventure" in big orange letters, the story
+      from TODO.md centred on a frosted pane, and a coral wall at the right
+      edge with a hole in the middle. Into the hole starts Level 1.
+    - Tunnel between levels, 3s: he faces right but drifts left while the
+      rock passes faster; "LEVEL N" above, the project title below.
+    - Levels: full screen with thin borders, entrance middle left, exit
+      middle right (barred until beaten). Levels 1–3 are dummies for Push
+      Puzzle Rescue Adventure, Apocalypse Express and Assassin's Creed –
+      Black Flag Resynced, in that order (game.levels in site.yaml, a list
+      separate from the portfolio's order): dash into the crate to break it.
+    - Beating a level opens the exit, fades the water off the project's
+      title page (cover + title), and opens a hole in the bottom border.
+      Down the hole is a 2s shaft (nose down, drifting up, the shaft passing
+      upwards faster, getting darker) into a scrollable details room: the
+      project's own professional detail page. "Swim back up" returns.
+    - After Level 3 the tunnel says "The end? / More levels coming soon"
+      and goes back to the start.
+    - The water darkens going down: lighter at the top of each screen, darker
+      in the shaft, darker again the further the details room is scrolled.
+    - The portfolio's water loop doesn't draw while Game Mode is open.
+    - build.py checks every game.levels project id exists.
+    - New settings: game.* in aquarium.yaml (fish size, swim and dash
+      speeds, tunnel/dive/reveal times, border, gap, crate size, hat
+      placement). New text: game.title, story, hint, start_hint, goal, done,
+      room_up, end_kicker, end_title, levels in site.yaml (heading and note
+      are gone).
+    - Tested headless in Chrome: start → tunnel → all three levels →
+      details room → back up → ending → start, and Escape from inside a
+      details room (the detail page goes back to the portfolio). No console
+      errors.
+
+
+65. Game Mode transitions slide, no fading
+    Files: src/assets/js/14-adventure.js, src/assets/css/11-game.css,
+           src/content/aquarium.yaml, Guide.md
+    - From the notes in TODO.md. The crossfade between places is gone, and
+      so are the fades on the start text, tunnel text and level text.
+    - A transition lays the place he's leaving, the tunnel and the next
+      place end to end and slides them past the screen, easing in and out
+      (slow away, fastest in the middle, slow to a stop), so he picks up
+      pace and slows down with it.
+    - The tunnel slides in from the right after the screen he left, so he
+      is seen going in. Its length is set so its far wall reaches the left
+      of the screen exactly when he does, with the next level filling the
+      screen behind it (new game.tunnel_length: 2.2 screen widths).
+    - The level and project text ride in on the tunnel's mouth, hold in the
+      middle, and leave with its far wall, clipped to the tunnel.
+    - The start's title and story, a level's goal text and title page, and
+      the details room slide with their place.
+    - The shafts to and from a details room work the same way, vertically
+      (new game.shaft_length: 1.6 screen heights). He turns nose down (or
+      up) over the first part and levels out at the end.
+    - The hat changes halfway along.
+
+
+66. Game Mode: organic rock, rock level walls, 5s tunnel, text layer
+    Files: src/assets/js/14-adventure.js, src/content/aquarium.yaml, Guide.md
+    - One rock renderer for the whole game: an uneven face (three layered
+      waves, fixed to the stone so a sliding face keeps its shape), rounded
+      lips where faces meet, light along the face fading darker inward,
+      pits and pebbles, and a soft shadow on the water.
+    - Start page: the coral wall is that rock, and the hole through it is a
+      lipped passage with the same rough faces, lit warm at its mouth (the
+      dashed ring is gone). Coral grows off the face.
+    - Levels: the thin glowing borders are now walls of the same rock,
+      game.border 14 → 30px (the collision edge too), with a little coral.
+      The bars sit in the openings in the rock.
+    - Transitions: the tunnel and the shafts use the start page's rock and
+      water, instead of a darker, level-tinted scheme. The shafts still
+      darken with depth.
+    - The level transition takes 5s (game.tunnel_time 3 → 5).
+    - The level and project text are their own layer: they slide in from
+      the right once the tunnel is coming in, settle in the middle, wait,
+      and slide out left with the tunnel's far wall. No longer clipped to
+      the tunnel.
+
+
+67. Game Mode: breaking rock, the way back, rock-walled details room
+    Files: src/assets/js/14-adventure.js, src/assets/js/13-game.js,
+           src/templates/sections/game.html, src/assets/css/11-game.css,
+           src/content/site.yaml, Guide.md
+    - The floor opening and the right opening are solid rock until the level
+      is beaten, then break open (right after 0.35s, floor after 0.8s): the
+      wall across the opening is cut into chunks along its face, they crack
+      apart for 0.32s, then tumble loose into the level and sink (the
+      floor's pop up and drop back through the hole), with a crack sound
+      and bubbles. The orange bars are gone.
+    - The left opening is always open and leads back: to the level before
+      (the tunnel run the other way round, him facing left, the text sliding
+      in from the left), or from Level 1 to the start ("Back to the start",
+      new game.back_kicker in site.yaml). The goal text says so.
+    - Details room: the same as a portfolio detail page (frosted water,
+      detail-bar, detail-close buttons, the article), inside a rock frame
+      with the shaft through its ceiling. "Back to the portfolio" moved into
+      its bar; the corner one hides while the room is on screen. Swimming up
+      into the shaft goes back up too.
+    - No light beams in the levels or the details room (the start keeps them).
+    - Tunnels and shafts: the water is the joined place's colour at each end
+      and dark through the middle.
+
+
+68. Game Mode: title pages on their own colour, no bar in the room
+    Files: src/assets/js/14-adventure.js, src/assets/js/13-game.js,
+           src/templates/sections/game.html, src/assets/css/11-game.css,
+           src/content/site.yaml, Guide.md
+    - Details room: the top bar (Swim back up, Back to the portfolio) is
+      gone; the way up is swimming into the shaft (an orange chevron points
+      at it) and the corner "Back to the portfolio" shows again. The shaft
+      ends in the room's frosted colour, and its mouth in the ceiling is
+      painted that colour, so the two meet without a step. game.room_up is
+      gone from site.yaml.
+    - He can't go through a wall on the way up or anywhere else: in every
+      tunnel and shaft he is kept inside the channel.
+    - A beaten level's title page: only the cover (the big level text is
+      gone), as large as fits under the title line, its edges fading into
+      the colour sampled from round its edges. That colour is also where
+      every tunnel and shaft joining the level starts.
+    - The title line reads LEVEL N · Project · Studio, larger
+      (1.05–1.6rem, bold caps); the hint under it keeps its size. It is
+      centred without a transform now, so it no longer jumps sideways
+      while sliding.
+    - Transitions slide in whole pixels (no hairline where places meet).
+
+
+69. Game Mode: Swim back up button, thinner picture fade
+    Files: src/assets/js/14-adventure.js, src/templates/sections/game.html,
+           src/assets/css/11-game.css, src/content/site.yaml, Guide.md
+    - The "↑ Swim back up" button is back in the details room, in the
+      mouth of the shaft on the line of the ceiling (game.room_up in
+      site.yaml again), sliding with the room. It replaces the chevron.
+    - Pressing it from anywhere in the room: he swims himself (cursor and
+      dash ignored) to just under the mouth, then straight up into the
+      shaft, so he never goes through the rock. Tested from the far left of
+      the room: every point of his path near the ceiling was within 14px of
+      the shaft's middle.
+    - The fade on the edges of a beaten level's picture is 18px instead of
+      14% of the picture.
+
+
+70. Game Mode: vignette title pages; the fish behaves the same in both detail views
+    Files: src/assets/js/14-adventure.js, src/assets/js/09-fish.js,
+           src/assets/js/07-water.js, src/assets/css/11-game.css, Guide.md
+    - A beaten level's title page: the cover now fills the level inside its
+      rock (cover-cropped) and is vignetted instead of framed: at most 20px
+      of solid edge colour, a 100px fade into the picture, wide rounded
+      corners. The mask is generated for the screen size; the edge colour is
+      read from the part of the picture that shows.
+    - Normal mode: the fish is no longer hidden while a project detail page
+      is open, and a click there is no longer ignored. He swims behind the
+      frosted page doing everything he does elsewhere, including circling
+      hovered text, list items and pictures.
+    - Game details room: the fish now uses the portfolio fish's free-swimming
+      rules with the same settings (the `fish` block): follow a moving
+      cursor, go straight to a click (with the occasional roll on turning
+      back), circle hovered text/list/picture elements in a random direction,
+      wander when idle, roll every so often. The Swim back up button still
+      comes first, and a cursor in the shaft's mouth takes him up it.
+    - Tested: in the room he circled a hovered paragraph; on a normal detail
+      page he came over to the hovered paragraph behind the page.
+
+
+71. Game Mode: the details room's scroll bar is a stone in the rock
+    Files: src/assets/js/14-adventure.js, src/templates/sections/game.html,
+           src/assets/css/11-game.css, Guide.md
+    - The browser's scroll bar is hidden in the room. In its place a groove
+      runs down the right rock wall with a cracked stone as the handle, sized
+      to the page as a scroll bar's handle is. The wall keeps its thickness.
+    - Drag the stone, press the groove to jump there, or use the wheel over
+      it; the wheel, keys and touch still scroll the page. The fish ignores
+      the pointer while it's on the bar. No groove when the page fits.
+    - Tested in Chrome at 1280x800: drag, drag to the end, press, wheel on the
+      bar and on the page all scrolled the room, with no script errors.
+
+
+72. Game Mode: the rest of TODO.md
+    Files: src/assets/js/14-adventure.js, Guide.md
+    - Hat: picked up in the tunnel. The new one floats there and drifts
+      towards him, drops onto his head 38% of the way through, and knocks the
+      old one off, which is left behind.
+    - Flip: going into a shaft in the middle of a turn no longer leaves him
+      squashed. The turn finishes on the way.
+    - Swim back up: the way up starts the moment it's pressed, and he darts
+      to the mouth in at most 0.45s, kept under the ceiling until he's there.
+      The old swim over first (the autopilot) is gone.
+    - The cut where a place meets a tunnel or shaft is gone: the place's rock
+      runs on 90px past the screen, faces straight, and the passage's rock
+      fades in over it.
+    - Openings: cracks spread through the wall for 1.1s, the pieces (cut from
+      a picture of the wall) rumble apart for 1.1s shrinking to 90–95%, then
+      the way opens and they sink slowly through the screen edge. The way is
+      only passable, and the chevrons only show, from then on. Wall pits and
+      coral no longer jump when an opening breaks.
+    - Tested in Chrome at 1280x800 on captured frames of each, with no script
+      errors. Timings were not watched at full speed, and no real sound was
+      heard.
+
+
+73. Game Mode: faster painting, whole contributions circled, quicker rocks
+    Files: src/assets/js/14-adventure.js, src/assets/js/09-fish.js,
+           src/assets/css/11-game.css, src/content/aquarium.yaml, Guide.md
+    - Lag: script time was small; nearly all of it was the browser painting.
+      Rock is now painted once and stamped each frame, instead of redrawn
+      every frame. The blur behind the room, the start's story, the buttons
+      and the corner buttons is gone from Game Mode (the panels are a little
+      more solid to make up for it), and the fish behind the room is frosted
+      on the canvas. Page sizes are read on change, not every frame. The
+      canvas is capped at game.max_pixels. The files weren't split: that
+      wouldn't have made it faster.
+    - Measured at 1920x1080 with software rendering, before and after, frames
+      per second: start 42/52, tunnel 45/43, level 41/55, breaking 41/54,
+      won level 53/60, room 22/46. Worst frame in the level 117ms/33ms, in
+      the room 133ms/33ms.
+    - A contribution is circled whole, text and picture, in the room and on a
+      normal detail page (fish.circle_whole). Tested in the room: he covered
+      x 94–1182 round a box 81–1198. Not tried on a normal detail page.
+    - Falling rocks follow an exponential curve and are gone about a second
+      after they start.
+
+
+74. Game Mode: a recorded sound for the rock giving way
+    Files: src/assets/js/05-sound.js, src/assets/js/14-adventure.js,
+           src/content/aquarium.yaml, media/README.md, Guide.md
+    - media/audio/sfx/crumbling.mp3 plays once per beaten level, from the
+      first crack, and replaces the synthesised cracks and taps of the
+      openings. Its level is sound.crumble. Without the file it falls back to
+      a synthesised crack.
+    - The crate smashing keeps its own sound.
+
+
+75. Game Mode: no first-visit stutter, feathered story, no sunbeams
+    Files: src/assets/js/14-adventure.js, src/assets/css/11-game.css,
+           src/assets/css/06-title.css, Guide.md
+    - Falling pieces: the ones from the middle of an opening fall away sooner
+      than those at its edges (FALL_MIDDLE, FALL_EDGE).
+    - The stutter in the tunnel the first time a level is reached: its rock
+      was being painted right then. Rock is now painted ahead while the
+      browser is idle: tunnels, shafts and every level on entering Game Mode,
+      a level's broken walls and room when it's beaten. Cover pictures are
+      decoded on entering, and a level's picture is only shown once beaten.
+      Measured at 1920x1080 with software rendering: the worst frame on a
+      first visit went from 117ms to 67ms and no longer falls at that point.
+    - The start's story has no panel any more: transparent, a blur feathered
+      out at the edges, like the portfolio's overview (a shared rule in
+      06-title.css). The blur showed no measurable cost once settled
+      (58-60fps with it, 50-53 without, so within the noise).
+    - The sunbeams are gone from the start, so `water` no longer draws any.
+
+
+76. Game Mode: rocks go from the middle, the story is circled, a true frost
+    Files: src/assets/js/14-adventure.js, src/assets/js/09-fish.js,
+           src/content/aquarium.yaml, Guide.md
+    - Crumbling: the pieces in the middle of an opening start falling as soon
+      as the cracks are done and the rumble starts; the further out, the later,
+      the outermost when the way opens. Falling, each tips 0.2-0.4 radians
+      towards the middle of the hole.
+    - The start's story is circled while the cursor is on it.
+    - The fish behind the details page: a real blur at the panes' strength
+      (--panel-blur) on the patch round him, in place of the stretched-up
+      small copy that looked pixelated. Where a browser has no canvas filter,
+      he's drawn many times over in rings instead. Bubbles aren't drawn behind
+      the page any more.
+
+
+77. Game Mode: a button to reset the level
+    Files: src/assets/js/14-adventure.js, src/templates/sections/game.html,
+           src/templates/partials/icons.html, src/assets/css/11-game.css,
+           src/content/site.yaml, Guide.md
+    - A round corner button on the left of Sound, shown only while in a level.
+      It starts the current level over: crate back, walls whole, the title
+      page gone and him at the way in. Other levels stay beaten.
+
+
+78. Game Mode: no freeze on the first break, reset through black
+    Files: src/assets/js/14-adventure.js, src/templates/sections/game.html,
+           src/assets/css/11-game.css, src/content/aquarium.yaml, Guide.md
+    - First break in a level: its title page (a big picture through a mask)
+      was shown for the first time right then, and its broken walls and room
+      were painted right then too. All of it is now painted ahead on entering
+      Game Mode, the title page onto a canvas of its own.
+    - Reset fades to black (game.reset_fade, 0.4s each way), puts the level
+      back while nothing can be seen, and fades in. He holds still meanwhile.
+
+
+79. Game Mode: sublevels
+    Files: src/assets/js/14-adventure.js, src/templates/sections/game.html,
+           src/content/site.yaml, Guide.md
+    - Each level has three dummy sublevels (game.levels[].sublevels), a crate
+      in a different place in each. Beating one opens the right wall only;
+      beating the last shows the title page and opens right and floor.
+    - Left from a finished level, or the first sublevel of the next, goes to
+      the title room of the level before, skipping its sublevels. Left within
+      an unfinished level goes to the sublevel before.
+    - The rooms of a level share its rock, so no more is painted ahead.
+
+
+80. Game Mode: from the start to a finished Level 1, a woosh on the swipe
+    Files: src/assets/js/14-adventure.js, src/assets/js/13-game.js,
+           src/assets/js/05-sound.js, src/content/aquarium.yaml,
+           media/audio/sfx/woosh-single.mp3, media/README.md, Guide.md
+    - From the start, a finished Level 1 now goes straight to its title room,
+      skipping 1.1 and 1.2.
+    - woosh-single.mp3 is the first woosh of woosh.mp3 (0.25s to 1.85s, a short
+      fade at the end). It plays on the swipe both ways, loudest as the band
+      covers the screen. woosh.mp3 itself is unchanged and no longer needed.
+
+
+81. Game Mode: a quieter woosh
+    Files: src/content/aquarium.yaml
+    - sound.woosh goes from 1.0 to 0.6.
+
+
+82. Game Mode: openings glow as they break
+    Files: src/assets/js/14-adventure.js, Guide.md
+    - A soft warm light at each opening, the same colour as the start's
+      passage: it comes up over the 2.2s of cracks and rumble, then dies away
+      over 1.6s once the way is open.
+
+
+83. Settings: volume slider and mute button; a quieter woosh still
+    Files: src/templates/base.html, src/assets/js/05-sound.js,
+           src/assets/css/06-title.css, src/content/aquarium.yaml, Guide.md
+    - Settings has a Volume slider and a mute button. The mute button and the
+      Sound button by the gear are one setting and always match. The volume is
+      remembered in the browser, and moving the slider while muted unmutes.
+    - sound.woosh goes from 0.6 to 0.3.
+
+
+84. Game Mode start room laid out; scroll bars styled
+    Files: src/templates/sections/game.html, src/assets/css/11-game.css,
+           src/assets/css/03-layout.css, src/assets/js/14-adventure.js,
+           src/content/site.yaml, Guide.md
+    - Start room: the title on one line (a little smaller on narrower screens);
+      under it the overview at its left edge, and at its right edge the hints,
+      larger, one instruction to a line, over the start hint, left edges in
+      line. game.hint is a list now. He starts mid-screen below them. Under
+      760px wide they stack and the title may wrap.
+    - Scroll bars across the site: no track, a pale rounded thumb, koi under
+      the cursor.
+
+
+85. Structure: scripts in folders, Game Mode's own content file, mechanics
+    Files: all of src/assets/js (moved), build.py, src/content/game.yaml (new),
+           src/content/site.yaml, src/content/aquarium.yaml,
+           src/templates/sections/game.html, src/assets/css/11-game.css,
+           src/assets/css/09-contact.css, Guide.md, README.md
+    - The 14 scripts are now 67 files in 8 numbered folders. script.js is still
+      one bundle. The long scripts are split at their sections, in `*.scope`
+      folders the build wraps in one function. The bundle's code was compared
+      line by line with the one before the split: 6250 lines, identical.
+    - game.yaml holds Game Mode's words, levels and (`settings`) numbers, out
+      of site.yaml and aquarium.yaml.
+    - Each level has a `mechanic`, shared by its sublevels; a mechanic is an
+      entry in `mechanics` in 07-mechanics.js. All are `crate` for now, and the
+      build refuses an unknown one.
+    - Each sublevel has its own `hint` under the level's name, replacing `goal`.
+    - An opening's glow keeps pulsing until he leaves the room, and a room he
+      comes back to doesn't glow again.
+    - The start's overview is justified.
+    - The contact note runs the width of the shell.
+
+
+86. Game Mode: an engine and mechanics, in a script of its own
+    Files: src/assets/game/ (moved from src/assets/js/08-game/2-adventure.scope),
+           src/assets/game/2-mechanics/crate.js (new),
+           src/assets/js/08-game/1-view.js, src/templates/sections/game.html,
+           build.py, src/content/game.yaml, Guide.md, README.md
+    - The game is built to its own game.js (2800 lines), fetched the first time
+      its button is hovered, focused or pressed. script.js is down to 4400 lines.
+    - The crate, its planks and its smashing live in 2-mechanics/crate.js and use
+      only the `game` object the engine hands to a mechanic. The planks now
+      belong to the room rather than the engine.
+    - A new mechanic is a new file there; the build finds it and refuses a level
+      naming one that doesn't exist. `python build.py --watch` now sees files in
+      folders, which it had stopped doing since the move to folders.
+    - Tested over http and opened from disk: bump, dash, planks, reset, sublevels,
+      title room, details room, leaving and coming back (fetched once).
+
+
+87. Game Mode: the opening's light stops as he enters the tunnel
+    Files: src/assets/game/1-engine.scope/18-level-break.js, Guide.md
+    - The pulsing light at an opening goes out over 0.3s as soon as he enters a
+      tunnel or shaft, instead of pulsing until he arrives in the next room.
+
+
+88. Game Mode: the buttons sit in the rock
+    Files: src/assets/css/11-game.css, src/assets/game/1-engine.scope/
+           (02-canvas, 16-start-room, 17-level-walls), Guide.md
+    - Back to the portfolio, Reset, Sound and Settings are now 26px tall and sit
+      along the top wall, tucked into its corners. Coral no longer grows there.
+
+
+89. Game Mode: rock buttons
+    Files: src/assets/css/11-game.css, Guide.md
+    - Back to the portfolio, Sound and Settings look like hollows in the rock of
+      the top wall.
+    - Reset is larger (52px), in the top right corner of the play area under
+      Sound and Settings, and looks like a round stone floating in the water,
+      bobbing gently. Swim back up is the same stone, longer.
+
+
+90. Game Mode: jagged buttons, a thicker top wall, a ding
+    Files: src/assets/css/11-game.css, src/assets/game/1-engine.scope,
+           src/assets/js/03-sound/sound.js, src/content/game.yaml,
+           src/content/aquarium.yaml, media/README.md, Guide.md
+    - Every game button has a jagged rock outline.
+    - The top wall is 5px thicker (game.border_top_extra), and its buttons 5px
+      taller. The details room and the fish's limits follow it.
+    - media/audio/sfx/ding.mp3 plays when a level's last sublevel is beaten, at
+      sound.ding (0.7).
+
+
+91. Game Mode: the ding comes with the openings
+    Files: src/assets/game/1-engine.scope/, Guide.md
+    - On a level's last sublevel, the ding plays as the openings start to break,
+      along with the crumbling, rather than as the crate breaks.
+
+
+92. Game Mode: the push puzzle, Level 1
+    Files: src/assets/game/2-mechanics/pushpuzzle.js (new),
+           src/assets/game/1-engine.scope/ (04-sizes, 05-state, 07-mechanics,
+           10-input, 22-tunnels, 23-frame, 24-api, 01-setup),
+           src/content/game.yaml, src/templates/sections/game.html,
+           src/assets/css/11-game.css, Game-PushPuzzle.md, Guide.md
+    - Level 1's three rooms are the puzzles in Game-PushPuzzle.md, on an 8 by 5
+      grid: hermit crabs, clams, algae, rock and a chest, with a move counter, stars,
+      Out of moves / Retry and a Results plate.
+    - A mechanic can now hold the fish and take the keys and clicks, and can
+      keep words on the page. The fish's size can change without changing the
+      openings.
+    - The level's title is a little smaller, to stay on one line at 1280 wide.
+      On phones the words sit under the reset stone rather than behind it.
+
+
+93. Game Mode: the push puzzle, second pass
+    Files: src/assets/game/2-mechanics/pushpuzzle.js,
+           src/assets/game/1-engine.scope/07-mechanics.js, src/content/game.yaml,
+           src/assets/css/11-game.css, Game-PushPuzzle.md, Guide.md
+    - The grid is 11 by 6 and fills most of the water, with three new puzzles.
+    - He goes with what he pushes, in one move. Anything that does nothing, like
+      a blocked crab, costs nothing.
+    - The floor is a dense gravel shore. Rock spaces are the walls' own stone,
+      fused with each other and with the walls.
+    - The level's name is in the top wall, the hint just under it.
+
+
+94. Game Mode: push puzzle, third pass, and the settings
+    Files: src/assets/game/ (2-mechanics/pushpuzzle.js and 1-engine.scope: 02-canvas,
+           05-state, 07-mechanics, 10-input, 12-details-room-fish, 16-start-room,
+           17-level-walls, 18-level-break, 22-tunnels, 23-frame, 24-api),
+           src/assets/js/07-controls/1-settings.js, src/content/game.yaml,
+           src/templates/base.html, src/templates/sections/game.html,
+           src/assets/css/11-game.css, Game-PushPuzzle.md, Guide.md
+    - The grid is 8 by 5 again, nearly as tall as the screen, the sides filled
+      with wall, with three new puzzles and small gaps between the gravel beds.
+    - All of a puzzle room's rock is one outline, so nothing shows a join.
+    - The start's light comes from the edge of the screen.
+    - Everything a puzzle room paints is painted ahead when Game Mode opens.
+    - The Results panel is large, lit from behind, with a total row, and
+      collapses to a small stone.
+    - In Game Mode the settings are a stone mid-screen with only Volume, and a
+      game on a clock waits while they're open.
+
+95. Local server: never cached
+    - `--serve` tells the browser not to keep a copy, so a reload always shows
+      the last build. Before, it could show an older page for a while.
+
+96. Game Mode: the frame rate on the way in, and the TODO list
+    Files: src/assets/game/1-engine.scope/ (01-setup, 02-canvas, 05-state,
+           07-mechanics, 08-places-water, 10-input, 11-swimming, 15-rock,
+           16-start-room, 17-level-walls, 18-level-break, 22-tunnels, 24-api),
+           src/assets/game/2-mechanics/pushpuzzle.js,
+           src/assets/js/08-game/1-view.js, src/assets/css/11-game.css,
+           src/content/game.yaml, Guide.md
+    - The stutter from the sweep on, and the seconds of it in the start room,
+      came from painting the whole game ahead as Game Mode opened, on canvases
+      that queue their drawing for the graphics card. The gravel alone is about
+      40,000 clipped shapes. The card stalled for over a second at a time, and
+      every frame on the screen waited behind it.
+    - Those pictures are now painted by the processor (softCanvas), and only
+      what can come up next is painted ahead (paintNear).
+    - What the first room needs is painted while the band covers the screen
+      (game.paint_under_sweep, 0.6s at most), and the band waits there until
+      the new view has been drawn. Opening again repaints nothing.
+    - Measured at 1920x1080 on an Intel Arc B580: the worst stall in the start
+      room went from about 2.7s to none, a steady 60 frames a second. The tunnel
+      and a puzzle room hold about 60 as well.
+    - The light in a tunnel's mouth comes from the edge of the screen and is
+      drawn past it, so it isn't cut off as he goes in (mouthLight). A level's
+      way back and way on are lit the same.
+    - After a key is used he stops following the mouse until it moves or clicks.
+    - The Results and Game Mode settings panels are real stone, painted with
+      the same rock as the walls (stoneBehind).
+    - The total row in the Results panel is bigger.
+
+97. Game Mode: Level 2 is under construction
+    Files: src/assets/game/2-mechanics/construction.js (new),
+           src/content/game.yaml, Guide.md
+    - Level 2's three crate rooms are replaced by one room: a big Under
+      Construction sign, scaffolding and cones, all of it scenery.
+    - A barricade stands in the room. Swimming only bumps it; a dash breaks it,
+      which beats the room, so the title page, the details room and Level 3
+      can all still be reached.
+    - The sign's words, the barricade's place and the hint are in game.yaml.
+      To bring the crates back, or use the room for another level, change that
+      level's `mechanic` and `sublevels`.
+
+98. Game Mode: only the sign in Level 2, and the stars' stone
+    Files: src/assets/game/2-mechanics/construction.js, pushpuzzle.js,
+           src/assets/game/1-engine.scope/ (06-places, 07-mechanics, 08-places-water,
+           15-rock, 22-tunnels), src/content/game.yaml, Guide.md
+    - The under-construction room is only the big sign now. The barricade,
+      scaffolding, cones and the sign's posts are gone.
+    - The sign also says "New games will come as soon as *Fish* is done with
+      them" (`note` in game.yaml).
+    - With nothing left to break, the room's ways on and down are open from the
+      start. It keeps its water, so the sign stays, and has no reset button.
+    - The stone under the stars earned in a push puzzle is the walls' own rock.
+
+99. Game Mode: the under-construction room is the last level
+    Files: src/content/game.yaml, src/templates/sections/game.html,
+           src/assets/game/1-engine.scope/22-tunnels.js, Guide.md
+    - Level 3 (Ubisoft Belgrade's crates) is out of the game; the project stays
+      in the portfolio. Right from Level 2, the tunnel leads back to the start page.
+    - The line at the top of the last level says so (game.done_last).

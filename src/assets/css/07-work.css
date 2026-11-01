@@ -129,7 +129,7 @@
 }
 
 /* The cover, over the whole thumbnail, faded up while the row is hovered
-   (03-media.js). */
+   (02-page/2-media.js). */
 .media-cover {
   position: absolute;
   inset: 0;

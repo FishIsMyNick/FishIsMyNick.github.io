@@ -1,0 +1,137 @@
+# ---------------------------------------------------------------------------
+#  Game Mode: The Fishy Adventure. Its words, its levels, and at the bottom
+#  (`settings`) its numbers.
+# ---------------------------------------------------------------------------
+
+label: Game Mode # under the joystick
+back: Back to the portfolio
+reset: Reset level # the button left of Sound, while in a level
+title: The Fishy Adventure
+# The story on the start screen. A blank line between paragraphs; *word*
+# is the accent, as everywhere else.
+story:
+  - On one fine and wet day, *Fish* was very busy building one of his games. He got so caught up in it that he completely forgot he has to put fresh air in his human-bowl. If he doesn't get home soon his human will surely suffocate. But he has to get through all the levels he's made so far, and these levels are not going to be easy. Poor little Jimmy... He's *Fish's* best friend in the whole world, and there isn't much air left... OH, THE PISCIANITY! Help him get through his game before his little Jimmy dies!
+  - While you're already here, feel free to enjoy the scenery for a moment if you like it. I'm sure little Jimmy can hang on for a few more minutes, just hope he doesn't break the glass and get up to the surface again. Getting him back down here is such a hassle... Welp, good luck!
+# Beside the story, one instruction to a line.
+hint:
+  - Swim with the mouse.
+  - Click to dash or use special ability.
+# Under those, in orange, one line each; an arrow goes after the last.
+start_hint:
+  - Swim into the hole
+  - in the coral to start
+# What's shown under the level's name once a room is solved. Until then
+# it's the room's own `hint`, in `levels`.
+room_up: Swim back up # the button in the mouth of a details room's shaft
+sub_done: The way on is open. Right for the next room, left to go back # a sublevel done
+done: The way on is open. Right for the next level, down for the details, left to go back # a whole level done
+done_last: The way on leads back to the start. Right to swim home, down for the details, left to go back # the last level
+# The stone plates of a push puzzle (the pushpuzzle mechanic).
+moves_label: Moves # the counter, bottom left
+out_of_moves: Out of moves!
+retry: Retry
+results: Results # the panel after a level's last puzzle, and its columns
+results_room: Room
+results_moves: Moves
+results_stars: Stars
+results_total: Total
+results_hide: Collapse
+# The order the levels are played in: not the order of the portfolio.
+# `project` is an id from professional.yaml (or hobby.yaml). `hat` is what
+# Fish wears there: hardhat, conductor or tricorn. `tint` colours the water.
+# A beaten level shows the project's cover, on the colour of its edges.
+#
+# `mechanic` is what the level is played with, and all its sublevels share it
+# (one file each, src/assets/game/2-mechanics/<name>.js): `crate`, `pushpuzzle` or
+# `construction`, for a level not built yet, open from the start: a `sign`, one
+# line to an item, and a `note` under it, where *word* is the accent.
+# `sublevels` are its rooms, played in order, 1.1, 1.2 and so on. Each has its
+# own `hint`, shown under the level's name, and whatever its mechanic needs:
+# a crate's `crate` is where it stands, [across, down] as shares of the screen.
+# Keep it clear of the openings in the middle of each wall.
+#
+# A pushpuzzle's room has `moves`, what the player starts with; `stars`, the
+# most moves used that still earn 3, 2 and 1 stars; and `field`, its rows from
+# the top, 8 by 5. S must be in the first column and G in the last, in the middle
+# row, where the openings are. O open, X rock, H hermit crab (pushed, he follows it; blocked, nothing happens),
+# C clam (pushed the same; blocked, it breaks), A algae (costs 2), S start, G chest. The
+# rules are in Game-PushPuzzle.md, where each puzzle's best solution is too.
+levels:
+  - project: brave-giant
+    hat: hardhat
+    tint: "#1d7f8c"
+    mechanic: pushpuzzle
+    sublevels:
+      - moves: 15
+        stars: [13, 14, 15]
+        hint: Arrow keys, or click the space next to him. Reach the chest in as few moves as you can
+        field:
+          - X X O O O O O O
+          - X O H H X X O O
+          - S H O O O O X G
+          - O O O H O O X X
+          - X O O O O O O O
+      - moves: 15
+        stars: [13, 14, 15]
+        hint: A clam that can't move breaks when it's pushed
+        field:
+          - O H O O O C O O
+          - O O X X C X X O
+          - S O C O O O X G
+          - O O O C O O O X
+          - O X X O O O O X
+      - moves: 18
+        stars: [16, 17, 18]
+        hint: Algae takes two moves to swim into
+        field:
+          - O O O O O O O X
+          - O H O H O O O X
+          - S O X C O X X G
+          - O C X A X X O O
+          - O O X A C O O O
+  - project: llamaware
+    hat: conductor
+    tint: "#5a6f3a"
+    mechanic: construction
+    sublevels:
+      - sign: [Under, Construction]
+        note: New games will come as soon as *Fish* is done with them
+# After the last level, the tunnel leads back to the start with these.
+end_kicker: The end?
+end_title: More levels coming soon
+# Back out of Level 1 the way he came, to the start: the tunnel says this
+# over the game's title.
+back_kicker: Back to the start
+
+# ------------------------------------------------------------- the numbers ---
+# The Game Mode button swaps the page for another view behind a band of
+# water that sweeps across the screen: left to right on the way in, back
+# right to left on the way out. The views change while it covers the screen.
+settings:
+  sweep_time: 1.1 # seconds for the band to cross the whole screen
+  sweep_angle: 10 # how far its edges lean, degrees
+
+  # The Fishy Adventure, in the Game Mode view.
+  fish_size: 0.15 # his length, as a share of the screen's shorter side
+  fish_min: 90 # ...but never shorter than this, pixels
+  fish_max: 170 # ...or longer
+  swim_speed: 520 # top speed after the cursor, pixels per second
+  swim_ease: 3.2 # how eagerly he catches the cursor up
+  dash_speed: 1250 # a click: pixels per second
+  dash_time: 0.32 # seconds a dash lasts
+  dash_cooldown: 0.4 # seconds before the next one
+  tunnel_time: 5 # the tunnel between levels, seconds
+  dive_time: 2 # the way down to a details room (and back up), seconds
+  tunnel_length: 2.2 # how long the tunnel is, in screen widths (1.2 or more)
+  shaft_length: 1.6 # the shaft down to a details room, in screen heights
+  border_top_extra: 5 # the top wall is this much thicker, for the buttons in it
+  border: 30 # how thick the rock round a level is, pixels
+  max_pixels: 3700000 # the most pixels the game's canvas paints on a sharp screen
+  paint_under_sweep: 0.6 # seconds the band may wait over the screen on the way in, painting what the first room needs
+  gap: 2.4 # height of the openings, in fish heights
+  crate_size: 0.15 # the crate, as a share of the screen's shorter side
+  reset_fade: 0.4 # the reset button: seconds out to black, and the same back in
+  reveal_time: 1.4 # seconds for a finished level's water to fade off its title page
+  hat_x: 0.78 # where the hat sits on him: across the drawing, nose side, 0–1
+  hat_y: 0.2 # ...and down it, 0–1
+  hat_size: 0.34 # the hat's width, as a share of his length

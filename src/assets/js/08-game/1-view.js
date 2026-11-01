@@ -2,7 +2,8 @@
    view, behind a band of water that sweeps across the screen. Left to right
    on the way in, right to left on the way out; the views change while the
    band covers the whole screen, so neither is ever seen half drawn. The
-   view itself is still under construction (sections/game.html). */
+   game in the view is src/assets/game, built to its own game.js, which is
+   fetched the first time it looks wanted; this starts and stops it. */
 
 (() => {
   'use strict';
@@ -18,6 +19,24 @@
   const isOpen = () => !layer.hidden;
   let running = false;
 
+  /* The game, on demand: someone who never plays never downloads it. A plain
+     script tag, so this works opened from disk as well. */
+  let loading = null;
+
+  function loadGame() {
+    if (Portfolio.game) return Promise.resolve();
+    if (!loading) {
+      loading = new Promise((done, fail) => {
+        const script = document.createElement('script');
+        script.src = layer.dataset.gameScript;
+        script.onload = done;
+        script.onerror = () => { loading = null; fail(new Error('Could not load ' + script.src)); };
+        document.head.appendChild(script);
+      });
+    }
+    return loading;
+  }
+
   function show(on) {
     layer.hidden = !on;
     document.body.classList.toggle('game-open', on);
@@ -27,6 +46,8 @@
       if (on) main.setAttribute('aria-hidden', 'true');
       else main.removeAttribute('aria-hidden');
     }
+    const game = Portfolio.game;
+    if (game) on ? game.enter() : game.leave();
   }
 
   /* The band is 160vw wide and leans by `sweep_angle`, so its edges stick
@@ -55,9 +76,20 @@
 
     sweep.classList.add('is-running');
     const half = time / 2;
+    // the woosh at its loudest as the band covers the screen
+    const sound = Portfolio.sound;
+    if (sound) {
+      sound.warm();
+      const peak = Number(get('sound.woosh_peak', 0.2)) * 1000;
+      setTimeout(() => sound.woosh(), Math.max(0, half - peak));
+    }
     sweep.animate([at(from), at(mid)], { duration: half, easing: 'cubic-bezier(.45, 0, .8, .45)', fill: 'forwards' })
       .finished.then(() => {
         swap();
+        // it stays over the screen until the new view has been drawn
+        return new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)));
+      })
+      .then(() => {
         return sweep.animate([at(mid), at(to)], { duration: half, easing: 'cubic-bezier(.2, .55, .55, 1)', fill: 'forwards' }).finished;
       })
       .finally(() => {
@@ -67,12 +99,21 @@
       });
   }
 
+  let opening = false;
+
   function open() {
-    if (running || isOpen()) return;
-    cross(true, () => {
-      show(true);
-      const title = document.getElementById('game-title');
-      if (title) title.focus({ preventScroll: true });
+    if (running || opening || isOpen()) return;
+    opening = true;
+    loadGame().then(() => {
+      opening = false;
+      cross(true, () => {
+        show(true);
+        const title = document.getElementById('game-title');
+        if (title) title.focus({ preventScroll: true });
+      });
+    }).catch(err => {
+      opening = false;
+      console.error(err);
     });
   }
 
@@ -85,6 +126,10 @@
   }
 
   toggle.addEventListener('click', open);
+  // a hover or a tab onto the button is enough to start fetching it
+  const ready = () => { loadGame().catch(() => {}); };
+  toggle.addEventListener('pointerenter', ready, { once: true });
+  toggle.addEventListener('focus', ready, { once: true });
   if (back) back.addEventListener('click', close);
 
   document.addEventListener('keydown', event => {

@@ -33,14 +33,18 @@
   /* A panel with more than one picture (a hero panel, or any media named as
      a folder) fades from each to the next. Each panel keeps its own clock
      and holds every picture for a fresh random time (`hero.hold` in
-     aquarium.yaml), so they never change together. The hero panels stop
-     once the glass is broken: they are gone by then. */
+     aquarium.yaml, or the shorter `hero.contribution_hold` on a professional
+     project's contributions), so they never change together. The hero
+     panels stop once the glass is broken: they are gone by then. */
   const { get, range, pick } = Aquarium;
   document.querySelectorAll('.slides').forEach(set => {
     const photos = [...set.querySelectorAll('.slide')];
     set.style.setProperty('--slide-fade', Math.max(0, Number(get('hero.fade', 2))) + 's');
     if (photos.length < 2 || Portfolio.reduceMotion.matches) return;
     const hero = !!set.closest('.showcase');
+    const hold = set.closest('.detail-contribution')
+      ? () => range('hero.contribution_hold', 3, 4)
+      : () => range('hero.hold', 7, 9);
     let on = 0;
     const next = () => {
       if (hero && document.body.classList.contains('is-breaking')) return;
@@ -49,9 +53,9 @@
         on = (on + 1) % photos.length;
         photos[on].classList.add('is-on');
       }
-      setTimeout(next, pick(range('hero.hold', 7, 9)) * 1000);
+      setTimeout(next, pick(hold()) * 1000);
     };
-    setTimeout(next, pick(range('hero.hold', 7, 9)) * 1000);
+    setTimeout(next, pick(hold()) * 1000);
   });
 
   document.querySelectorAll('.media').forEach(fig => {

@@ -1,20 +1,131 @@
-{# GAME MODE — the other view of the page, opened by the joystick under the
-   overview (sections/pond.html). It is laid over the water like a detail
-   page, and the page underneath is hidden while it is open. The band that
-   sweeps across the screen on the way in and out is the `.sweep` after it;
-   13-game.js runs both.
+{# GAME MODE — The Fishy Adventure. The other view of the page, opened by the
+   joystick under the overview (sections/pond.html) behind the band of water
+   that sweeps across the screen (the `.sweep` at the end). 08-game/1-view.js runs
+   the sweep; src/assets/game (game.js) runs the game.
 
-   Still being built: for now it only says so, and leads back. #}
+   Back to front:
+     .game-pages   each level's title page (the project's cover and name),
+                   under the water until the level is beaten
+     canvas        the water, the walls, the crate and Fish
+     .game-hud     the start screen's title and story, the tunnel's level
+                   text, the level's goal in the corner, a mechanic's plates
+     .game-room    a level's details room: the project's own detail page
+                   (details/professional.html), moved in while it's open
+   The levels and their order are game.levels in site.yaml. #}
 {% from "partials/icons.html" import icon %}
-<section class="game-layer" id="game-layer" aria-labelledby="game-title" hidden>
-  <div class="game-inner">
-    <span class="game-mark">{{ icon('joystick') }}</span>
-    <p class="game-kicker">{{ site.game.label }}</p>
-    <h2 class="game-title" id="game-title" tabindex="-1">{{ site.game.heading }}</h2>
-    <span class="game-tape" aria-hidden="true"></span>
-    <p class="game-note">{{ site.game.note }}</p>
-    <button type="button" class="game-back" id="game-back">{{ site.game.back }}</button>
+{% set projects = {} %}
+{% for p in professional + hobby %}{% set _ = projects.update({p.id: p}) %}{% endfor %}
+<section class="game-layer" id="game-layer" aria-labelledby="game-title" data-game-script="game.js" hidden>
+
+  <div class="game-pages" aria-hidden="true">
+    {% for level in site.game.levels %}
+    {% set p = projects[level.project] %}
+    {% set cover = p.get('cover') or p.get('thumbnail') or p.get('media') %}
+    {% set still = cover | still if cover is string and not cover.endswith('/') else none %}
+    <div class="game-page" data-level="{{ loop.index0 }}">
+      {% if still %}<img src="{{ still }}" alt="">{% endif %}
+    </div>
+    {% endfor %}
   </div>
+
+  <canvas class="game-canvas" id="game-canvas" aria-hidden="true"></canvas>
+
+  <div class="game-hud">
+    <div class="game-start" id="game-start">
+      <div class="game-start-block">
+        <h2 class="game-name" id="game-title" tabindex="-1">{{ site.game.title }}</h2>
+        <div class="game-start-row" id="game-start-row">
+          <div class="game-story">
+            {% for para in site.game.story %}
+            <p>{{ para | prose }}</p>
+            {% endfor %}
+          </div>
+          <div class="game-hints">
+            {% for line in site.game.hint %}
+            <p class="game-hint">{{ line }}</p>
+            {% endfor %}
+            <p class="game-start-hint">{{ site.game.start_hint | join('<br>') | safe }} <span class="game-nudge" aria-hidden="true">→</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-tunnel" id="game-tunnel" aria-live="polite">
+      <p class="game-tunnel-top" id="game-tunnel-top"></p>
+      <p class="game-tunnel-bottom" id="game-tunnel-bottom"></p>
+    </div>
+
+    <div class="game-goal" id="game-goal">
+      <p class="game-goal-level" id="game-goal-level"></p>
+      <p class="game-goal-text" id="game-goal-text"></p>
+    </div>
+
+    {# What a mechanic has to say on the page, slid with its room. For now only
+       pushpuzzle's: the moves left, running out of them, the results. #}
+    <div class="game-plates" id="game-plates">
+      <p class="game-plate game-moves" id="game-moves" hidden>{{ site.game.moves_label }} <b id="game-moves-left"></b></p>
+      <div class="game-plate game-out" id="game-out" role="alert" hidden>
+        <p>{{ site.game.out_of_moves }}</p>
+        <button type="button" class="game-retry" id="game-retry">{{ site.game.retry }}</button>
+      </div>
+      <div class="game-plate game-results" id="game-results" hidden>
+        <button type="button" class="game-results-hide" id="game-results-hide"
+                aria-label="{{ site.game.results_hide }}" title="{{ site.game.results_hide }}"><span aria-hidden="true">↙</span></button>
+        <h3 class="game-results-title">{{ site.game.results }}</h3>
+        <table class="game-results-table">
+          <thead>
+            <tr><th scope="col">{{ site.game.results_room }}</th><th scope="col">{{ site.game.results_moves }}</th><th scope="col">{{ site.game.results_stars }}</th></tr>
+          </thead>
+          <tbody id="game-results-rows"></tbody>
+          <tfoot>
+            <tr><th scope="row">{{ site.game.results_total }}</th><td id="game-results-moves"></td><td id="game-results-stars"></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <button type="button" class="game-results-show" id="game-results-show" hidden
+              aria-label="{{ site.game.results }}" title="{{ site.game.results }}"><i class="game-star is-got"></i></button>
+    </div>
+  </div>
+
+  {# The details room looks just like a detail page in the portfolio (the
+     same page on the same frosted water), inside the rock walls the canvas
+     draws round it. The way out is the shaft up through its ceiling: swim
+     into it, or press the button sitting in its mouth. #}
+  <div class="game-room" id="game-room" hidden>
+    <div class="shell detail-body" id="game-room-body"></div>
+  </div>
+  <div class="game-room-bar" id="game-room-bar" aria-hidden="true" hidden></div>
+  <button type="button" class="game-room-up" id="game-room-up" hidden><span aria-hidden="true">↑</span> {{ site.game.room_up }}</button>
+
+  <div class="game-fade" id="game-fade" aria-hidden="true"></div>
+  <button type="button" class="corner-button game-reset" id="game-reset" hidden
+          aria-label="{{ site.game.reset }}" title="{{ site.game.reset }}">{{ icon('reset') }}</button>
+
+  <button type="button" class="game-back" id="game-back">{{ site.game.back }}</button>
 </section>
+
+{# What the script needs to know about each level, in play order. #}
+{% set levels = [] %}
+{% for level in site.game.levels %}
+{% set _ = levels.append({
+  'project': level.project,
+  'title': projects[level.project].title,
+  'studio': projects[level.project].get('studio', ''),
+  'hat': level.get('hat', 'hardhat'),
+  'tint': level.get('tint', '#1d7f8c'),
+  'mechanic': level.get('mechanic', 'crate'),
+  'sublevels': level.get('sublevels', [{}])
+}) %}
+{% endfor %}
+<script type="application/json" id="game-data">{{ {
+  'levels': levels,
+  'done': site.game.done,
+  'done_last': site.game.done_last,
+  'sub_done': site.game.sub_done,
+  'end_kicker': site.game.end_kicker,
+  'end_title': site.game.end_title,
+  'back_kicker': site.game.back_kicker,
+  'title': site.game.title
+} | tojson }}</script>
 
 <div class="sweep" id="sweep" aria-hidden="true"></div>

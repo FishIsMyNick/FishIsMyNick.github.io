@@ -65,116 +65,746 @@
 
 /* ---------------------------------------------------------- the view -- */
 
-/* Laid over the water like a detail page, on the same glass. The page
-   underneath is hidden while it is open, so only the water shows through. */
+/* The Fishy Adventure (src/assets/game). The whole screen, back to front:
+   the level title pages, the canvas, the text over it, the details room.
+   The script writes which place he's in as data-scene, and the text for
+   each place shows only there. `--gap` is the height of the openings, for
+   setting the tunnel's text above and below its passage. */
 .game-layer {
   position: fixed;
   inset: 0;
   z-index: 55;
+  overflow: hidden;
+  background: var(--abyss);
+  color: var(--bone);
+  cursor: crosshair;
+  touch-action: none;
+}
+.game-layer[hidden] { display: none; }
+body.game-open { overflow: hidden; }
+body.game-open main { visibility: hidden; opacity: 0; }
+
+.game-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+/* ----------------------------------------------- level title pages -- */
+
+/* A beaten level's water fades off this: the project's cover filling the
+   level inside its rock, vignetted into a ground of the colour round its
+   edges (the mask and the colour come from src/assets/game, the colour is
+   carried on into the tunnels). Under the canvas, so he swims over it. */
+.game-page {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: none;
+  background: var(--deep);
+}
+.game-page.is-on { display: block; }
+.game-page img {
+  position: absolute;
+  inset: var(--rock, 30px);
+  width: calc(100% - 2 * var(--rock, 30px));
+  height: calc(100% - 2 * var(--rock, 30px));
+  object-fit: cover;
+  -webkit-mask-image: var(--vignette, none);
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: var(--vignette, none);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+/* The same, already painted with its fade by the script. */
+.game-page canvas {
+  position: absolute;
+  inset: var(--rock, 30px);
+  width: calc(100% - 2 * var(--rock, 30px));
+  height: calc(100% - 2 * var(--rock, 30px));
+}
+.game-page.is-baked img { display: none; }
+
+/* ------------------------------------------------------- the text -- */
+
+.game-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+/* Shown, and slid along with their place, by the script: nothing here
+   fades. Hidden until it says otherwise. */
+.game-hud > * { visibility: hidden; }
+
+/* The start: the name of the game on one line. The block is as wide as it
+   is, so under it the story lines up with its left edge and the hints with
+   its right. Room is kept below for him to start in. */
+.game-start {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3vh, 2rem);
+  padding: 4.5rem calc(var(--pad-x) + clamp(70px, 10vw, 150px)) 8rem;
+}
+.game-start-block {
+  display: grid;
+  gap: clamp(1rem, 3vh, 2rem);
+  width: max-content;
+  max-width: 100%;
+}
+/* takes its width from the title, adding none of its own */
+.game-start-row {
+  width: 0;
+  min-width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--feather) + 2rem);
+}
+
+.game-name {
+  font-family: var(--sans);
+  font-size: clamp(1.6rem, 5.6vw, 6.5rem);
+  white-space: nowrap;
+  font-weight: 800;
+  font-variation-settings: "wdth" 120, "wght" 800;
+  line-height: .95;
+  letter-spacing: -.01em;
+  text-align: center;
+  color: var(--koi);
+  text-shadow: 0 4px 0 var(--koi-deep), 0 10px 40px rgba(0, 12, 16, .55);
+}
+.game-name:focus { outline: none; }
+
+.game-story {
+  /* a frosted pane with no edge, like the portfolio's overview (06-title.css) */
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: calc(46rem + 2 * var(--feather));
+  padding: var(--feather);
+  margin: calc(-1 * var(--feather));
+  font-size: clamp(.95rem, 1.35vw, 1.1rem);
+  line-height: 1.6;
+  color: #dbeaee;
+  text-shadow: 0 1px 12px rgba(0, 18, 26, .45);
+  max-height: calc(52vh + 2 * var(--feather));
+  overflow: auto;
+  pointer-events: auto;
+}
+.game-story p { text-align: justify; text-align-last: left; hyphens: auto; -webkit-hyphens: auto; }
+.game-story p + p { margin-top: .9rem; }
+.game-hint {
+  font-family: var(--sans);
+  font-size: clamp(.95rem, 1.25vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--silt);
+}
+.game-hints {
+  flex: none;
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .5rem;
+}
+
+.game-start-hint {
+  margin-top: .6rem;
+  font-family: var(--sans);
+  font-size: clamp(.95rem, 1.25vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: #ffb35c;
+}
+/* only the arrow moves, so the words keep their edge */
+.game-nudge {
+  display: inline-block;
+  animation: game-nudge 1.6s ease-in-out infinite;
+}
+@keyframes game-nudge {
+  50% { transform: translateX(.4rem); opacity: .7; }
+}
+
+/* No room side by side: the title may wrap, one thing under another. */
+@media (max-width: 760px) {
+  .game-start-block { width: 100%; }
+  .game-name { white-space: normal; font-size: clamp(2rem, 9vw, 3rem); text-align: left; }
+  .game-start-row { flex-direction: column; gap: var(--feather); }
+  .game-story { max-height: 42vh; align-self: stretch; }
+}
+
+/* The tunnel: the level above the passage, the project under it. */
+.game-tunnel {
+  position: absolute;
+  inset: 0;
+}
+.game-tunnel p {
+  position: absolute;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  font-family: var(--sans);
+  font-weight: 800;
+  font-variation-settings: "wdth" 120, "wght" 800;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 4px 30px rgba(0, 10, 14, .7);
+}
+.game-tunnel-top {
+  bottom: calc(50% + var(--gap, 160px) * .55 + 1.5rem);
+  font-size: clamp(2.4rem, 7vw, 5.5rem);
+  color: var(--koi);
+}
+.game-tunnel-bottom {
+  top: calc(50% + var(--gap, 160px) * .55 + 1.5rem);
+  font-size: clamp(1.5rem, 4.4vw, 3.6rem);
+  color: var(--bone);
+}
+
+/* A level: which one in the rock of the top wall, between the buttons, and
+   what it wants in the water just under it. */
+.game-goal {
+  position: absolute;
+  top: 0;
+  left: 11rem;
+  right: 11rem;
+  text-align: center;
+  font-family: var(--sans);
+}
+/* LEVEL N · Project · Studio */
+.game-goal-level {
+  height: var(--rock-top, 35px);
+  overflow: hidden;
+  font-size: clamp(.8rem, 1.25vw, 1.05rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 112, "wght" 700;
+  line-height: var(--rock-top, 35px);
+  white-space: nowrap;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-shadow: 0 2px 16px rgba(0, 12, 16, .6);
+}
+.game-goal-text {
+  margin-top: .25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bone);
+  text-shadow: 0 1px 12px rgba(0, 18, 26, .6);
+}
+.game-goal.is-won .game-goal-text { color: #ffb35c; }
+
+/* A mechanic's words on the page: stone plates over the water, slid with the
+   room by the script. Nothing here takes the pointer but the button. */
+.game-plates {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.game-plate {
+  position: absolute;
+  isolation: isolate;
+  font-family: var(--sans);
+  color: var(--bone);
+  filter: drop-shadow(0 6px 6px rgba(0, 8, 12, .55));
+}
+.game-plate[hidden] { display: none; }
+.game-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 82% 70%, rgba(10, 2, 8, .35) 0 3%, transparent 4%),
+    radial-gradient(circle at 14% 62%, rgba(10, 2, 8, .3) 0 2%, transparent 3%),
+    radial-gradient(circle at 62% 18%, rgba(255, 214, 228, .1) 0 3%, transparent 4%),
+    radial-gradient(ellipse at 34% 20%, #7b5566 0%, #4a2f3d 42%, #33202c 72%, #1c0f18 100%);
+  clip-path: polygon(0 38%, 5px 14%, 14px 5%, 9% 0, 17% 7%, 28% 1%, 38% 8%, 49% 0, 60% 6%, 71% 1%, 82% 8%, 91% 1%, calc(100% - 11px) 8%, calc(100% - 4px) 22%, 100% 46%, calc(100% - 3px) 68%, calc(100% - 9px) 90%, 92% 100%, 81% 93%, 70% 99%, 59% 92%, 47% 100%, 35% 93%, 24% 99%, 13% 92%, 10px 98%, 4px 82%, 1px 62%);
+}
+
+/* The big panels are real stone, painted by the game with the same rock as the
+   walls (`stoneBehind`, 15-rock.js). Until then, the plain plate under it. */
+.stone-plate {
+  display: none;
+  position: absolute;
+  top: -34px;
+  left: -34px;
+  z-index: -1;
+  max-width: none;
+  pointer-events: none;
+}
+body.game-open .stone-plate { display: block; }
+.game-plate.has-stone::before,
+body.game-open .settings.has-stone::before { display: none; }
+
+/* The moves left, in the rock beside the grid. */
+.game-moves {
+  left: .7rem;
+  bottom: calc(var(--rock, 30px) + .75rem);
+  margin: 0;
+  padding: .6rem .7rem .55rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.game-moves b {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  color: #ffb35c;
+}
+/* Out: it flashes, pulses a few times and goes. */
+.game-moves.is-out { animation: game-moves-out 1.6s ease-in forwards; }
+.game-moves.is-out b { color: #ff6b5c; }
+@keyframes game-moves-out {
+  0%, 40%, 80% { transform: scale(1); filter: brightness(1) drop-shadow(0 6px 6px rgba(0, 8, 12, .55)); opacity: 1; }
+  20%, 60% { transform: scale(1.14); filter: brightness(1.7) drop-shadow(0 0 8px rgba(255, 107, 44, .95)); opacity: 1; }
+  100% { transform: scale(.94); opacity: 0; }
+}
+
+.game-out {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  padding: 1.5rem 2.75rem 1.6rem;
+  text-align: center;
+}
+.game-out p {
+  margin: 0 0 .9rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variation-settings: "wdth" 112, "wght" 700;
+}
+.game-retry {
+  padding: .5rem 1.4rem;
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  color: #ffb35c;
+  background: linear-gradient(180deg, #050204 0%, #120910 40%, #1e1119 100%);
+  border: 0;
+  border-radius: 14px 18px 15px 19px / 18px 14px 19px 15px;
+  box-shadow: 0 1px 0 rgba(255, 214, 228, .24);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color .2s ease, box-shadow .2s ease;
+}
+.game-retry:hover,
+.game-retry:focus-visible {
+  color: var(--koi);
+  outline: none;
+  box-shadow: 0 0 0 1.5px rgba(255, 107, 44, .95);
+}
+
+/* After a level's last puzzle: a big stone in the corner of the title room,
+   lit softly from behind, that tucks away into a small one. */
+.game-results {
+  left: calc(var(--rock, 30px) + 1rem);
+  bottom: calc(var(--rock, 30px) + 1rem);
+  width: max(40vw, min(24rem, 100vw - 5rem));
+  height: max(40vh, 17rem);
+  padding: clamp(1.1rem, 2.6vh, 1.9rem) clamp(1.4rem, 3vw, 2.6rem) clamp(1.1rem, 2.6vh, 1.8rem);
+  display: flex;
+  flex-direction: column;
+  filter: drop-shadow(0 0 10px rgba(255, 186, 120, .75)) drop-shadow(0 0 34px rgba(255, 186, 120, .7));
+}
+.game-results[hidden] { display: none; }
+.game-results-title {
+  margin: 0;
+  padding-bottom: clamp(.5rem, 1.4vh, .9rem);
+  border-bottom: 1px solid rgba(255, 214, 228, .22);
+  box-shadow: 0 1px 0 rgba(10, 2, 8, .5);
+  font-family: var(--sans);
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 118, "wght" 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #ffb35c;
+}
+.game-results-table {
+  flex: 1;
+  width: 100%;
+  margin-top: clamp(.35rem, 1vh, .7rem);
+  border-collapse: collapse;
+  font-size: clamp(.9rem, 1.3vw, 1.1rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.game-results-table th,
+.game-results-table td {
+  padding: .1rem .5rem;
+  text-align: center;
+  font-weight: inherit;
+}
+.game-results-table th:first-child { padding-left: 0; text-align: left; }
+.game-results-table td:last-child,
+.game-results-table thead th:last-child { padding-right: 0; text-align: right; }
+.game-results-table thead th {
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #c9a7b5;
+}
+.game-results-table tfoot th,
+.game-results-table tfoot td {
+  border-top: 1px solid rgba(255, 214, 228, .22);
+  font-size: clamp(1.35rem, 2.1vw, 1.8rem);
+  font-weight: 800;
+  color: #ffc94d;
+}
+.game-results-hide {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.4rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  color: #c9a7b5;
+  background: linear-gradient(180deg, #050204 0%, #120910 40%, #1e1119 100%);
+  border: 0;
+  border-radius: 48% 52% 46% 54% / 53% 47% 53% 47%;
+  box-shadow: 0 1px 0 rgba(255, 214, 228, .24);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.game-results-hide:hover,
+.game-results-hide:focus-visible,
+.game-results-show:hover,
+.game-results-show:focus-visible { color: var(--koi); outline: none; }
+
+/* Tucked away: a stone like the reset button, bottom left. */
+.game-results-show {
+  position: absolute;
+  left: calc(var(--rock, 30px) + .75rem);
+  bottom: calc(var(--rock, 30px) + .75rem);
+  isolation: isolate;
   display: grid;
   place-items: center;
-  padding: 4.5rem var(--pad-x) 3rem;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 6px 6px rgba(0, 8, 12, .55));
+  animation: game-float 4.5s ease-in-out infinite;
+}
+.game-results-show[hidden] { display: none; }
+.game-results-show::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 70% 68%, rgba(10, 2, 8, .35) 0 6%, transparent 7%),
+    radial-gradient(circle at 26% 62%, rgba(10, 2, 8, .3) 0 4%, transparent 5%),
+    radial-gradient(circle at 34% 26%, #7b5566 0%, #4a2f3d 38%, #33202c 68%, #1c0f18 100%);
+  clip-path: polygon(50% 0%, 63% 5%, 72% 2%, 84% 13%, 92% 14%, 97% 30%, 100% 44%, 95% 56%, 99% 68%, 90% 82%, 80% 87%, 72% 97%, 56% 94%, 44% 100%, 30% 95%, 20% 97%, 11% 84%, 3% 74%, 6% 60%, 0% 46%, 5% 32%, 3% 22%, 15% 11%, 26% 9%, 37% 2%);
+}
+.game-stars { display: inline-flex; gap: .15rem; vertical-align: middle; }
+.game-star {
+  width: 1.1rem;
+  height: 1.1rem;
+  background: rgba(10, 2, 8, .7);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+.game-star.is-got { background: #ffc94d; }
+
+/* ------------------------------------------------ the details room -- */
+
+/* The same as a detail page in the portfolio (10-detail.css): the same
+   frosted water, bar and page, only set inside the rock walls the canvas
+   draws round the screen (`--rock`, game.border). Nothing here but the
+   start's small story pane uses backdrop-filter over the game's canvas: it
+   would blur afresh every frame. What swims
+   behind the room is frosted on the canvas instead (`frosted` in
+   src/assets/game). */
+.game-room {
+  position: absolute;
+  inset: var(--rock-top, 35px) var(--rock, 30px) var(--rock, 30px);
+  z-index: 4;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: clamp(4rem, 8vw, 7rem);
   background:
     linear-gradient(
       180deg,
       rgba(4, 32, 40, calc(var(--panel-opacity) * (.9 + var(--depth) * .15))) 0%,
       rgba(2, 22, 28, calc(var(--panel-opacity) * (1 + var(--depth) * .2))) 100%
     );
-  backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
-  -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(1.1);
+  cursor: auto;
+  touch-action: pan-y;
+  scrollbar-width: none;
 }
-.game-layer[hidden] { display: none; }
-body.game-open { overflow: hidden; }
-body.game-open main { visibility: hidden; opacity: 0; }
+.game-room::-webkit-scrollbar { display: none; }
+.game-room[hidden] { display: none; }
 
-@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
-  .game-layer { background: rgba(3, 24, 30, .92); }
+/* The room's scroll bar: the canvas draws it into the right rock wall (a
+   groove and a stone), and this is the empty strip over it that takes the
+   pointer. Wheel, keys and touch scroll the room as usual. */
+.game-room-bar {
+  position: absolute;
+  top: var(--rock-top, 35px);
+  bottom: var(--rock, 30px);
+  right: 0;
+  width: var(--rock, 30px);
+  z-index: 5;
+  cursor: grab;
+  touch-action: none;
 }
+.game-room-bar.is-held { cursor: grabbing; }
+.game-room-bar[hidden] { display: none; }
 
-.game-inner {
-  max-width: 34rem;
-  display: flex;
-  flex-direction: column;
+/* ---------------------------------------------------------- buttons -- */
+
+/* In the mouth of the details room's shaft, over the rock of its ceiling:
+   the way back up. Slid with the room by the script (the transform is its
+   own, so it's centred with margins). */
+.game-room-up {
+  position: absolute;
+  top: calc(var(--rock-top, 35px) - 1.05rem);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  width: max-content;
+  margin-inline: auto;
+  display: inline-flex;
   align-items: center;
-  text-align: center;
-}
-
-.game-mark {
-  display: grid;
-  place-items: center;
-  width: 5.5rem;
-  height: 5.5rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--silt);
-}
-.game-mark .icon { width: 2.6rem; height: 2.6rem; }
-
-.game-kicker {
-  margin-top: 1.4rem;
+  gap: .5rem;
+  padding: .5rem 1.1rem;
+  border-radius: 18px 22px 19px 23px / 22px 18px 23px 19px;
   font-family: var(--sans);
-  font-size: .8rem;
+  font-size: .9rem;
   font-weight: 600;
-  font-variation-settings: "wdth" 110, "wght" 600;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--silt);
+  color: #ffb35c;
+  cursor: pointer;
+  transition: color .2s ease, box-shadow .2s ease;
+}
+/* The buttons sit in the rock: as tall as the top wall leaves room for, all
+   in one line along it, and tucked into its two corners. */
+body.game-open {
+  --game-button: calc(var(--rock-top, 35px) - 4px);
+  --game-inset: 2px;
+  --game-gap: 3px;
+}
+body.game-open .corner-controls {
+  top: var(--game-inset);
+  right: var(--game-inset);
+  gap: var(--game-gap);
+}
+body.game-open .corner-controls > .corner-button {
+  width: var(--game-button);
+  height: var(--game-button);
+}
+body.game-open .corner-controls > .corner-button .icon { width: .95rem; height: .95rem; }
+
+/* The rock look: each button's shape is a jagged outline on a ::before behind
+   its contents. A filter on the button draws what falls outside that outline,
+   which a box-shadow would not follow. */
+body.game-open .corner-controls > .corner-button,
+.game-back,
+.game-reset,
+.game-room-up {
+  isolation: isolate;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: color .2s ease, filter .2s ease;
+}
+body.game-open .corner-controls > .corner-button { position: relative; }
+body.game-open .corner-controls > .corner-button::before,
+.game-back::before,
+.game-reset::before,
+.game-room-up::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
 }
 
-.game-title {
-  margin-top: .35rem;
-  font-family: var(--sans);
-  font-size: clamp(2rem, 5vw, 3.25rem);
+/* Those in the wall are hollows broken into the rock: darker than the stone,
+   shadowed under their top edge, lit along their bottom one. */
+body.game-open .corner-controls > .corner-button,
+.game-back {
+  color: #c9a7b5;
+  filter: drop-shadow(0 1px 0 rgba(255, 214, 228, .24));
+}
+body.game-open .corner-controls > .corner-button::before,
+.game-back::before {
+  background: linear-gradient(180deg, #050204 0%, #120910 40%, #1e1119 100%);
+}
+body.game-open .corner-controls > .corner-button::before { clip-path: polygon(50% 0%, 63% 5%, 72% 2%, 84% 13%, 92% 14%, 97% 30%, 100% 44%, 95% 56%, 99% 68%, 90% 82%, 80% 87%, 72% 97%, 56% 94%, 44% 100%, 30% 95%, 20% 97%, 11% 84%, 3% 74%, 6% 60%, 0% 46%, 5% 32%, 3% 22%, 15% 11%, 26% 9%, 37% 2%); }
+body.game-open .corner-controls > .corner-button:nth-child(2)::before { transform: scaleX(-1) rotate(40deg); }
+.game-back::before { clip-path: polygon(0 38%, 5px 14%, 14px 5%, 9% 0, 17% 7%, 28% 1%, 38% 8%, 49% 0, 60% 6%, 71% 1%, 82% 8%, 91% 1%, calc(100% - 11px) 8%, calc(100% - 4px) 22%, 100% 46%, calc(100% - 3px) 68%, calc(100% - 9px) 90%, 92% 100%, 81% 93%, 70% 99%, 59% 92%, 47% 100%, 35% 93%, 24% 99%, 13% 92%, 10px 98%, 4px 82%, 1px 62%); }
+body.game-open .corner-controls > .corner-button:hover,
+body.game-open .corner-controls > .corner-button[aria-expanded="true"],
+body.game-open .corner-controls > .corner-button:focus-visible,
+.game-back:hover,
+.game-back:focus-visible {
+  color: var(--koi);
+  outline: none;
+  filter: drop-shadow(0 0 1.5px rgba(255, 107, 44, .95));
+}
+
+/* Those in the open are stones floating in the water, lit from above with a
+   few pits in them, a soft shadow under them. */
+.game-reset,
+.game-room-up {
+  filter: drop-shadow(0 6px 6px rgba(0, 8, 12, .55));
+}
+.game-reset::before,
+.game-room-up::before {
+  background:
+    radial-gradient(circle at 70% 68%, rgba(10, 2, 8, .35) 0 6%, transparent 7%),
+    radial-gradient(circle at 26% 62%, rgba(10, 2, 8, .3) 0 4%, transparent 5%),
+    radial-gradient(circle at 62% 24%, rgba(255, 214, 228, .1) 0 5%, transparent 6%),
+    radial-gradient(circle at 34% 26%, #7b5566 0%, #4a2f3d 38%, #33202c 68%, #1c0f18 100%);
+}
+.game-reset::before { clip-path: polygon(50% 0%, 63% 5%, 72% 2%, 84% 13%, 92% 14%, 97% 30%, 100% 44%, 95% 56%, 99% 68%, 90% 82%, 80% 87%, 72% 97%, 56% 94%, 44% 100%, 30% 95%, 20% 97%, 11% 84%, 3% 74%, 6% 60%, 0% 46%, 5% 32%, 3% 22%, 15% 11%, 26% 9%, 37% 2%); }
+.game-room-up::before { clip-path: polygon(0 38%, 5px 14%, 14px 5%, 9% 0, 17% 7%, 28% 1%, 38% 8%, 49% 0, 60% 6%, 71% 1%, 82% 8%, 91% 1%, calc(100% - 11px) 8%, calc(100% - 4px) 22%, 100% 46%, calc(100% - 3px) 68%, calc(100% - 9px) 90%, 92% 100%, 81% 93%, 70% 99%, 59% 92%, 47% 100%, 35% 93%, 24% 99%, 13% 92%, 10px 98%, 4px 82%, 1px 62%); }
+.game-reset:hover,
+.game-reset:focus-visible,
+.game-room-up:hover,
+.game-room-up:focus-visible {
+  color: var(--koi);
+  outline: none;
+  filter: drop-shadow(0 0 2px rgba(255, 107, 44, .95)) drop-shadow(0 6px 6px rgba(0, 8, 12, .55));
+}
+/* The settings in Game Mode: a stone in the middle of the screen, with only
+   what's to do with the game. */
+.settings-title { display: none; }
+body.game-open .settings {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: min(24rem, 100vw - 3rem);
+  padding: 1.5rem 2.25rem 1.6rem;
+  isolation: isolate;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  filter: drop-shadow(0 10px 14px rgba(0, 8, 12, .6));
+}
+body.game-open .settings::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 82% 70%, rgba(10, 2, 8, .35) 0 3%, transparent 4%),
+    radial-gradient(circle at 14% 62%, rgba(10, 2, 8, .3) 0 2%, transparent 3%),
+    radial-gradient(ellipse at 34% 20%, #7b5566 0%, #4a2f3d 42%, #33202c 72%, #1c0f18 100%);
+  clip-path: polygon(0 38%, 5px 14%, 14px 5%, 9% 0, 17% 7%, 28% 1%, 38% 8%, 49% 0, 60% 6%, 71% 1%, 82% 8%, 91% 1%, calc(100% - 11px) 8%, calc(100% - 4px) 22%, 100% 46%, calc(100% - 3px) 68%, calc(100% - 9px) 90%, 92% 100%, 81% 93%, 70% 99%, 59% 92%, 47% 100%, 35% 93%, 24% 99%, 13% 92%, 10px 98%, 4px 82%, 1px 62%);
+}
+body.game-open .settings-title {
+  display: block;
+  margin: 0 0 .5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   font-variation-settings: "wdth" 112, "wght" 700;
-  letter-spacing: -.02em;
-  line-height: 1.04;
-  color: var(--bone);
+  color: #ffb35c;
 }
-.game-title:focus { outline: none; }
+body.game-open .setting--page { display: none; }
+body.game-open .setting .corner-button { color: #c9a7b5; background: linear-gradient(180deg, #050204 0%, #120910 40%, #1e1119 100%); border: 0; }
+body.game-open .slider::-webkit-slider-runnable-track { background: rgba(255, 214, 228, .3); }
 
-/* A strip of warning tape under the heading, in the page's own pale
-   colours rather than a borrowed yellow. */
-.game-tape {
-  width: min(14rem, 60%);
-  height: .55rem;
-  margin-top: 1.1rem;
-  border-radius: 2px;
-  background: repeating-linear-gradient(-45deg,
-    rgba(236, 230, 218, .5) 0 .55rem, transparent .55rem 1.1rem);
-  opacity: .8;
+/* The black a reset goes through. */
+.game-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s ease;
 }
+.game-fade.is-on { opacity: 1; pointer-events: auto; }
 
-.game-note {
-  margin-top: 1.2rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #dbeaee;
+/* In line with the corner controls, on the left of Sound (06-title.css). */
+.game-reset {
+  position: absolute;
+  /* in the corner of the water, under Sound and Settings */
+  top: calc(var(--rock-top, 35px) + .75rem);
+  right: calc(var(--rock, 30px) + .75rem);
+  z-index: 5;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 48% 52% 46% 54% / 53% 47% 53% 47%;
+  color: #ecd9e0;
+  animation: game-float 4.5s ease-in-out infinite;
 }
+.game-reset[hidden] { display: none; }
+/* Beside a grid the rock is thick: the stone sits on it, clear of the spaces. */
+.has-plates .game-reset { right: .9rem; }
+.game-reset .icon { width: 1.5rem; height: 1.5rem; }
+@keyframes game-float {
+  50% { transform: translateY(-5px) rotate(3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-reset { animation: none; }
+}
+.game-room-up[hidden] { display: none; }
 
 .game-back {
-  margin-top: 1.8rem;
-  padding: .7rem 1.4rem;
-  background: rgba(2, 25, 31, .35);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  height: var(--game-button);
+  padding: 0 .85rem;
   font-family: var(--sans);
-  font-size: .95rem;
+  font-size: .78rem;
   font-weight: 600;
   font-variation-settings: "wdth" 105, "wght" 600;
-  color: var(--bone);
   cursor: pointer;
-  transition: color .2s ease, border-color .2s ease;
+  pointer-events: auto;
+  transition: color .2s ease, box-shadow .2s ease;
 }
-.game-back:hover,
-.game-back:focus-visible { color: var(--koi); border-color: var(--koi); outline: none; }
+.game-back {
+  position: absolute;
+  top: var(--game-inset);
+  left: var(--game-inset);
+  z-index: 5;
+}
+
+@media (max-width: 640px) {
+  .game-start { padding-right: calc(var(--pad-x) + 70px); }
+  .game-goal { top: 6.5rem; left: 1.5rem; right: 1.5rem; }   /* the top wall is all buttons here */
+  .game-goal-level { height: auto; line-height: 1.2; white-space: normal; }
+}
 
 /* --------------------------------------------------------- the sweep -- */
 
 /* A band of deep water, wider than the screen, with its edges leaning and
    lit like the foam on the surface. The script slides it across
-   (13-game.js) and sets the lean from game.sweep_angle; it changes the
+   (08-game/1-view.js) and sets the lean from game.sweep_angle; it changes the
    views while the band covers the whole screen. Over everything, the
    corner buttons too. */
 .sweep {

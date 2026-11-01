@@ -24,6 +24,7 @@ Project architecture:
 
     - Build: `python build.py` (once), `--watch` (rebuild on save), `--serve`
       (rebuild + server on localhost:8000). build.bat does the same on Windows.
+      The server tells the browser not to cache, so a reload shows the last build.
       The server answers Range requests (as a real host does), so videos
       stream and seek, and a browser dropping a download prints nothing.
       Needs jinja2 and pyyaml (requirements.txt).
@@ -47,7 +48,9 @@ Project architecture:
       A name ending in / is a folder (professional/brave-giant/contributions/ui/):
       every picture directly in it is shown, in filename order, each fading
       over the last at hero.fade / hero.hold (2s fade, held 5–8s), the same
-      as the hero panels. Works for any preview: thumbnail, cover,
+      as the hero panels. On a professional project's page the
+      contributions change faster: held 3–4s (hero.contribution_hold).
+      Works for any preview: thumbnail, cover,
       contribution media, feature media. Pictures only (an .mp4 in the
       folder is ignored); an empty folder is empty water, and the build
       lists it.
@@ -65,6 +68,9 @@ Project architecture:
     │  │                      nav, section headings, contact links, colophon
     │  ├─ aquarium.yaml       every number for the bowl, glass, fish, water,
     │  │                      depth, shoal, panels, motion and sound
+    │  ├─ game.yaml           Game Mode: its words, levels and sublevels, and
+    │  │                      `settings`, its numbers. Written game.x below:
+    │  │                      a word at the top level, a number in `settings`
     │  ├─ professional.yaml   professional projects (row + detail page)
     │  ├─ hobby.yaml          hobby projects (row + detail page)
     │  └─ experience.yaml     roles, and skill groups (chips or lines)
@@ -82,20 +88,27 @@ Project architecture:
        ├─ css/  01-tokens 02-reset 03-layout 04-topbar 05-bands 06-title
        │        07-work 08-experience 09-contact 10-detail 11-game
        │        12-responsive (keep last)
-       ├─ js/   01-core     settings from aquarium.yaml, shared state
-       │        02-nav      year, sticky top bar
-       │        03-media    previews: play on hover, empty-state fallback,
-       │                    photo slideshows, the cover on a hovered thumbnail
-       │        04-detail   detail pages: open, close, focus, one URL (#id) each
-       │        05-sound    all sounds synthesised (Web Audio), no audio files
-       │        06-depth    page depth → water colour
-       │        07-water    the canvas, the loop, water, surface, ripples, splash
-       │        08-shoal    the little fish
-       │        09-fish     him: swim, leap, jump, roll, circle, dash, off-frame
-       │        10-bowl     bowl, castle, cracks, break, page lock, hero dive
-       │        11-settings the gear and its panel (open/close only)
-       │        12-models   Gallery viewers: lazy load, pan, reset, animations
-       │        13-game     Game Mode: the sweep, opening and closing the view
+       ├─ js/   folders, in the order they're joined. A folder named *.scope
+       │        is one script in parts sharing its variables: the build wraps
+       │        all its files in one function, so they aren't stand-alone
+       │        01-core/core        settings from aquarium.yaml, shared state
+       │        02-page/            1-nav (year, sticky top bar), 2-media
+       │                            (previews, slideshows), 3-detail (detail
+       │                            pages: open, close, focus, one URL each)
+       │        03-sound/sound      recordings, the rest synthesised, volume
+       │        04-water/           1-depth (page depth → colour), 2-water.scope
+       │                            (canvas, loop, water, surface, ripples),
+       │                            3-shoal (the little fish)
+       │        05-fish.scope/      him: swim, leap, jump, roll, circle, dash
+       │        06-bowl.scope/      bowl, castle, cracks, break, page lock, dive
+       │        07-controls/        1-settings (the gear), 2-models (Gallery)
+       │        08-game/1-view      the sweep, opening and closing, fetching game.js
+       ├─ game/ The Fishy Adventure, built to its own game.js and fetched the
+       │        first time Game Mode is wanted (hovering or pressing its button)
+       │        1-engine.scope/     rooms, tunnels, rock, the fish, transitions
+       │        2-mechanics/        one file per level mechanic, using only what
+       │                            the engine hands it (07-mechanics.js in the
+       │                            engine lists it)
        ├─ img/  fish-left.png, fish-right.png (trimmed, transparent bg)
        └─ svg/  koi_fish.svg (old v3.3 drawing, unused)
 
@@ -252,7 +265,7 @@ Title:
     - Game Mode button: centred just below the Overview, coming in with it.
       A round frosted button (like the corner buttons, larger) with a
       joystick icon, and under it the label <small uppercase silt>Game Mode<>
-      (game.label in site.yaml). The label is part of the button. On hover
+      (label in game.yaml). The label is part of the button. On hover
       the ring, icon and label go orange. Opens Game Mode (see Game Mode).
     - Nav: My work | Experience & skills | Contact — one single bar the full
       width of the panels below, three equal cells, large heading-sized text,
@@ -346,11 +359,19 @@ The Fish:
       below the surface he stops at the surface. A click in the sky above the
       waterline is a jump (if he's near the surface he jumps straight away,
       otherwise he swims up first and then jumps).
-    - Hover: hovering a gallery row, showcase thumbnail, contact row, skill
-      group, role, section heading, nav cell, the sound toggle or the Game
-      Mode button makes him
-      circle it, in a wide, slow
-      orbit.
+    - Hover: hovering anything on the page makes him circle it, in a wide,
+      slow orbit, clockwise or anticlockwise at random (picked fresh for
+      each thing hovered). Whole things (fish.circle_targets: a gallery
+      row, showcase thumbnail, contact row, skill group, role, section
+      heading, nav cell, the sound toggle, the Game Mode button) are
+      circled as one even with the cursor on something inside them.
+      Anything else (fish.circle_any: text, headings, links, buttons,
+      pictures, videos, list items, chips, the settings panel, and the
+      same on detail pages and the Game Mode view) is circled on its own.
+      Open water isn't a thing, so there he just follows the cursor.
+      The name and the subtitle under it (on the opening screen and above
+      the water) are never circled (fish.circle_skip).
+      Only once he's free in the water, not in the Bowl or mid-leap.
     - Jumps out of the water on his own every so often (fish.jump_every,
       8–20s), with 0–1 flips — but never while he is following the cursor
       (cursor in the window and moved within fish.idle_after, 2.5s). Click
@@ -363,8 +384,8 @@ The Fish:
     - Scrolling drags him along with the page (mostly).
 
 Game Mode:
-    A different, more interactive view of the page, opened by the Game Mode
-    button under the Overview. For now it is under construction.
+    A game-shaped way through the portfolio, The Fishy Adventure, opened by
+    the Game Mode button under the Overview. Each project is a level.
     - Switching: a band of deep water, wider than the screen, with lit
       leaning edges like the surface foam, sweeps across the whole screen —
       left to right on the way in, right to left on the way out, its top
@@ -373,12 +394,247 @@ Game Mode:
       covers the screen. It goes over everything, the corner buttons too.
       game.sweep_time (1.1s, the whole crossing) and game.sweep_angle (10°)
       in aquarium.yaml. With reduced motion asked for, the views just swap.
-    - The view: laid over the water on the same glass as a detail page; the
-      page under it, and the top bar, are hidden and it can't scroll. The
-      water, shoal and fish keep going behind it. Centred: the joystick in a
-      ring, <small uppercase>Game Mode<>, <large bold>Under construction<>,
-      a strip of pale warning tape, a line of text, and a "Back to the
-      portfolio" button. All the words are `game:` in site.yaml.
+      The band waits over the screen until the new view has been drawn, so
+      its way out starts once there's something ready to uncover.
+    - The view: full screen, its own canvas (src/assets/game). The page under
+      it is hidden, and the portfolio's water stops drawing while it's open.
+      A "Back to the portfolio" button top left, always. The corner Sound
+      and Settings buttons stay over it. Every opening starts again from the
+      start screen.
+    - Controls: Fish swims after the cursor (stopping a little short of it),
+      a click is a dash at the cursor (game.dash_speed 1250, dash_time 0.32s,
+      dash_cooldown 0.4s). Arrow keys / WASD swim too, Space dashes. Touch:
+      a tap is a dash. A cursor in an open way out aims him through it. Once
+      a key has been used he stops following the cursor (and circling what
+      it's on) until the mouse moves or clicks again.
+    - Start screen: underwater, the specks of the portfolio water, no
+      sunbeams. <huge orange>The Fishy Adventure<> (game.title) across the top,
+      under its left edge the story (game.story, two paragraphs) on a feathered
+      frosted pane; on its right, up to the title's right edge, the hints:
+      game.hint, one instruction to a line, over the orange game.start_hint
+      (also a list of lines, its arrow nudging), their left edges in line. He starts in the middle of
+      the screen, below them. On the right edge,
+      a coral wall with a passage through its middle. The rock (shared by
+      everything in the game, src/assets/game `rockShape` / `drawRock`) is a
+      purple-brown with an uneven face, rounded lips where it opens, light
+      along the face and darker further in, pits and pebbles, and a soft
+      shadow on the water in front of it. Coral fans and branches grow off
+      the face; the mouth of the passage glows a pulsing warm light from the
+      edge of the screen (mouthLight), drawn past that edge too, so nothing
+      cuts it off as the place slides away. A level's way back is lit the
+      same, and so is its way on once it's open. He
+      can't go through the wall, only the passage; into it starts Level 1.
+    - Tunnel (game.tunnel_time, 5s): nothing fades. The place he's leaving,
+      a rock tunnel (game.tunnel_length, 2.2 screen widths) and the next
+      place are laid end to end and slid left past the screen, slow away,
+      quickest in the middle, slow to a stop. So the screen he left slides
+      off left and the tunnel's mouth slides in after it from the right,
+      its channel lined up with the opening he went through. He faces right
+      and swims, but drifts from the right edge to the left; the tunnel's
+      far wall reaches the left edge just as he does, with the next place
+      filling the screen behind it. The tunnel is the start's rock round the
+      start's water, so it looks the same as the start page. <huge orange
+      caps>Level N<> above the channel, <big caps>the project's title<>
+      under it, on a layer of their own: once the tunnel is coming in they
+      slide in from the right and settle in the middle (20%–42% of the way),
+      wait there, and slide out left with the tunnel's far wall. Everything
+      on a place (the start's title and story, a level's goal text and
+      title page, the room) slides with it. The new hat floats in the tunnel
+      and drifts towards him; 38% of the way through it drops onto his head
+      and knocks the old one off, which is left behind. On the way to the
+      start there is nothing to pick up, and the old one just comes off.
+      Rock joins: each place's rock runs 90px past the screen with its face
+      straight there, and the passage's rock fades in over it, so no line
+      shows where they meet.
+    - Levels: full screen, walled all round in the start's rock
+      (game.border, 30px thick), with a little coral on it. The opening
+      middle left is always open: back the way he came. Middle right and
+      the middle of the floor are solid rock until the level is beaten.
+      Water tinted per level (`tint`), lighter at the top, no light beams.
+      He wears the level's hat (`hat`: hardhat,
+      conductor, tricorn; drawn on his head at game.hat_x / hat_y /
+      hat_size). At the top centre, <large bold caps>LEVEL N.M · Project ·
+      Studio<> (LEVEL N on a title room), and under it, at its own small size, what the level wants.
+    - Sublevels: each level is three rooms (game.levels[].sublevels), Level
+      1.1, 1.2, 1.3, played the same way one after another. Beating one
+      opens only the right wall, on to the next. Beating the last finishes the
+      level: its room becomes the title room, with the title page and both the
+      right wall and the floor open, and is called just Level 1 from then on.
+    - Going back: in a level not finished yet, left is the sublevel before,
+      and from the first, the level before. A finished level is only its title
+      room: left from it, or from the next level's first sublevel, goes to the
+      title room of the level before. Going right into a finished level, or
+      into Level 1 from the start, goes to its title room too; into an unfinished one, to its first sublevel.
+      The reset button resets the room he's in, so on a title room it undoes
+      the last sublevel and the level is no longer finished.
+    - Push puzzle (Level 1, the `pushpuzzle` mechanic; rules and solutions in
+      Game-PushPuzzle.md, the puzzles in game.yaml): an 8 by 5 grid as tall as the
+      screen lets it (60px of rock above, for the hint, and below), on beds of
+      gravel with small gaps between them, its middle row on the openings. All
+      the room's rock, walls, thick sides and rock spaces, is traced as one
+      outline, so nothing shows a join; on a title room it fades off the plain
+      walls (the `rock`, `inset` and `under` hooks). The gravel is one picture
+      and each puzzle's rock two, painted ahead as the level comes near. Fish shrinks to fit a space and is
+      held to the grid: arrow keys, WASD (one press, one step, no repeat) or a
+      click on a neighbouring space. A step costs a move, the hit on the chest
+      too; algae costs 2 and can't be entered with 1 left. A crab or clam is
+      pushed a space if that's free, and he goes with it, for one move. If not,
+      a clam breaks (one move, he stays) and a crab shakes. Anything that does
+      nothing is free. Left from the middle row of the first column goes back,
+      free. Bottom left a stone plate counts the moves down. At 0 it flashes,
+      pulses and fades (1.6s), then "Out of moves!" and Retry, which does what
+      Reset does. Hitting the chest opens it, and the stars earned (`stars` in
+      game.yaml: the most moves used for 3, 2 and 1) fly into three frames on a
+      stone mid-screen. As they land the room is beaten and he swims free. They
+      go 1.6s later, and after the last puzzle the Results stone comes up bottom
+      left and stays on the title room: about 40% of the screen each way, softly
+      lit from behind, with each sublevel's fewest moves and best stars and a
+      total. Its top right button tucks it into a small stone bottom left. Best
+      stars last until Game Mode is entered afresh; going back or resetting clears only the attempt.
+    - Level 2 is the last level: right from it, the tunnel ("The end?", end_kicker
+      and end_title) leads back to the start page. game.done_last is its line.
+    - Level 2 is under construction (`construction`, one room): only a big sign
+      in the middle (`sign` and `note` in game.yaml). Nothing to beat: its ways
+      on and down are open from the start (`notBuilt`), it keeps its water
+      instead of going to the title page, and it has no reset button.
+    - Dummy sublevels (no level uses them just now): a wooden crate, placed by
+      `crate` in game.yaml. Swimming
+      into it just bumps it (it shakes); dashing into it smashes it to
+      planks (crack sound) and beats the room. Then the rock gives way,
+      the right side 0.35s after and, on a level's last room, the floor 0.8s
+      after. Cracks spread through
+      the solid wall from the middle of the opening for 1.1s until they have
+      cut out the pieces. The pieces then rumble softly for 1.1s, drawing
+      apart and shrinking (to 90–95%, never under 90%). Then the way is open,
+      and they fall out through the edge of the screen (the sound is
+      media/audio/sfx/crumbling.mp3, played once from the first crack, at
+      sound.crumble), slowly at first and
+      faster all the time (exponentially; FALL_MIDDLE and FALL_EDGE in
+      src/assets/game), tipping a little towards the middle of the hole. The middle ones start as
+      soon as the rumble does, the outermost as the way opens: the right
+      side's through the right, the floor's through the bottom. Orange chevrons point at both openings. The
+      water fades out (game.reveal_time, 1.4s) to show the project's title
+      page under it: its cover, filling the level inside its rock
+      (object-fit cover), vignetted into a ground of the colour round the
+      part of it that shows: at most 20px of solid colour, a 100px fade into
+      the picture, corners rounded off wide (radius 190px at the edge). The
+      mask is drawn once per screen size (src/assets/game `vignette`). A
+      page opened from disk can't read its pictures and keeps a deep teal. The hint turns orange: "The
+      way on is open…".
+    - Out the right: the tunnel to the next level. After the last one the
+      tunnel reads "The end? / More levels coming soon" and leads back to
+      the start screen.
+    - Out the left: back to the level before, through the same tunnel the
+      other way round: the places slide right, he faces left and drifts
+      right, the text slides in from the left and out to the right with the
+      tunnel. From Level 1 it leads back to the start ("Back to the start"
+      over the game's title), coming out of the coral's passage. Beaten
+      levels stay open for the rest of that visit.
+    - Tunnel colours: the water in a tunnel or shaft is the colour of the
+      place where it joins it at each end, and dark all through the middle,
+      so it blends into both: the water, or for a beaten level its title
+      page's ground (on every side with a tunnel), or for a details room its
+      frosted colour. He always goes down the middle of a passage, never
+      through its rock.
+    - Down the hole (game.dive_time, 2s): the same, upwards: the level
+      slides up off the screen, a shaft (game.shaft_length, 1.6 screen
+      heights) up after it, and the details room up behind that. He turns
+      nose down and drifts up the screen and arrives at the top of the room.
+    - Painting: rock doesn't move, so each piece (start, level by what's
+      broken open, room, tunnel, shaft, scroll stone) is painted once onto a
+      canvas of its own and stamped down each frame (bake, stampRock in
+      src/assets/game); they're dropped when the screen changes size. What's
+      coming next is painted ahead when the browser is idle (paintNear, on
+      arriving in a place and on a resize): from the start, the tunnel and
+      Level 1's first room; from a level, its other rooms, its walls in every
+      state, its details room and shaft, its title page (picture and fade
+      together on a canvas of their own, bakePage), and the next level's
+      first room. Never the whole game at once. All of these are painted by
+      the processor, not the graphics card (softCanvas): queued for the card,
+      thousands of clipped shapes (the gravel most of all) held up every
+      frame for seconds. On the way in, the first frame and what the first
+      room needs are painted while the band covers the screen, for up to
+      game.paint_under_sweep (0.6s). A level's picture is only shown once
+      it's beaten.
+      Only the start's story pane uses backdrop-filter over the game's canvas,
+      since it blurs afresh every frame: the fish behind the room is frosted on the canvas, with the
+      panes' blur on just the patch round him (`frosted`). The room's scroll sizes are read when they change, and the
+      page is only written to when something changed. game.max_pixels caps
+      the canvas on sharp screens.
+    - A contribution (text and picture) is circled as one, all the way round
+      (fish.circle_whole). So is the start's story.
+    - The swipe between the portfolio and Game Mode plays
+      media/audio/sfx/woosh-single.mp3 both ways, timed to be loudest as the
+      band covers the screen (sound.woosh, sound.woosh_peak).
+    - An opening glows softly while it breaks: a warm light that comes up
+      with the cracks and rumble and goes on pulsing until he enters a tunnel or
+      shaft, when it goes out over 0.3s (drawOpeningGlow). A room he comes back to doesn't glow again.
+    - Mechanics: each level names one (`mechanic` in game.yaml), and all its
+      sublevels share it, each with its own numbers and its own `hint`, shown
+      under the level's name until the room is solved. The name sits in the top
+      wall between the buttons and the hint just under it (on phones both under
+      the reset stone). A mechanic is one file,
+      src/assets/game/2-mechanics/<name>.js, picked up by the build, which
+      refuses a name with no file. It registers with
+      Portfolio.game.mechanic(name, game => ({ setup, solids, draw })) and
+      uses only `game`, the engine's small public face, listed in
+      1-engine.scope/07-mechanics.js. Optional hooks let it hold the fish and
+      take the input (holds, steer, press, tap) and keep words on the page in
+      .game-plates (plates). Level 1 uses `pushpuzzle`, Level 2 `construction`, the last level; `crate` is there for a level to use.
+    - The buttons look like rock. Back to the portfolio, Sound and Settings are
+      jagged hollows broken into the top wall, 4px less tall than it, in its
+      corners. The top wall is game.border_top_extra (5px) thicker than the
+      others to hold them. No coral grows there. Reset and Swim back up are
+      jagged stones floating in the water. The jagged outlines are clip-paths
+      on a ::before of each button (11-game.css).
+    - When the openings of a level's last sublevel start to break, 0.35s after
+      it's beaten, media/audio/sfx/ding.mp3 plays (sound.ding).
+    - Settings in Game Mode: a rock panel in the middle of the screen with only
+      Volume (.setting--page hides the rest). No input reaches the game while
+      it's open, and everything stops unless a mechanic has him on a turn-based
+      leash (Portfolio.game.settings).
+    - Reset (game.reset): a round floating stone, 52px, in the top right corner
+      of the water under Sound and Settings, only while in a level. The screen
+      fades to black (game.reset_fade, 0.4s each way) with him held still, and
+      fades back on the room started over, with him at the way in. Other rooms
+      keep what's been done in them.
+    - Details room scroll bar: no browser bar. A groove down the middle of
+      the right rock wall and a cracked stone that slides in it, both drawn on
+      the canvas (drawBar in src/assets/game); the wall stays game.border
+      thick. Drag the stone, press the groove, or use the wheel over it;
+      .game-room-bar is the empty strip that takes the pointer. Gone when the
+      page fits.
+    - Details room: looks like a detail page in the portfolio (the same
+      frosted water and the same page: the project's own article, moved in
+      while he's there and put back after), with no bar, set inside a frame
+      of the same rock, with the shaft up through the middle of its ceiling
+      (its mouth the room's frosted colour). In the mouth, on the line of
+      the ceiling, an orange-edged "↑ Swim back up" button (game.room_up),
+      sliding with the room. Pressing it starts the way up at once: he darts
+      across to the mouth (0.45s at most) as the room starts to go, kept
+      under the ceiling until he's there. The water darkens as it scrolls, and so does
+      the rock. He swims behind the page, and down here he is the
+      portfolio's fish, behaving exactly as behind a portfolio detail page,
+      from the same `fish` settings: follows a moving cursor (follow_gap,
+      follow_ease), swims straight to a click (dash_speed, dash_time,
+      sometimes rolling over to turn back), circles any hovered text, list
+      item or picture one way round or the other (circle_targets /
+      circle_any / circle_skip, circle_radius, circle_speed…), wanders when
+      the cursor is idle (idle_after, wander_range) and rolls now and then
+      (roll_every). Only his size is the game's. The corner "Back to the
+      portfolio" stays. Swimming up into the shaft, or the button, runs it
+      the other way (the room slides down, nose up, drifting down) back
+      into the level at its floor hole. The button doesn't take him through
+      the rock: he swims himself to just under the mouth first (the cursor
+      ignored meanwhile), then straight up into it.
+    - Content: game.title, story, hint, start_hint, sub_done, done, room_up,
+      moves_label, out_of_moves, retry, results, results_room, results_moves,
+      results_stars, results_total, results_hide,
+      end_kicker, end_title, back_kicker, and the levels in play order (game.levels:
+      project id, hat, tint, mechanic, sublevels) in game.yaml; sub_done is the line
+      after a sublevel, done after a whole level; the build checks each project id
+      exists. Numbers under `settings` in game.yaml.
+      Portfolio.game.peek() in the console shows where things stand.
     - Leaving: the Back button or Escape sweeps back to the page where it
       was left, with focus on the Game Mode button.
 
@@ -438,8 +694,11 @@ Description text:
 Detail pages:
     A full-screen layer over the page with a sticky "Back to my work" button
     (a plain pill, no dash in front of the text).
-    Each project has its own URL (#<id>); focus moves to the title. The fish,
-    the bowl, the page and the top bar are hidden behind it. Its background is
+    Each project has its own URL (#<id>); focus moves to the title. The bowl,
+    the page and the top bar are hidden behind it. The fish stays in the
+    water behind it, seen through the frosted page, and does all his usual
+    things there: follows the cursor, swims to a click, circles whatever
+    text, list item or picture is hovered, wanders, rolls. Its background is
     the same frosted panel as its shelf in My work: a professional page the
     colour of the professional shelf, a hobby page the hobby shelf's tint.
     Contribution blocks and Features rows alternate: picture left, then
@@ -541,17 +800,34 @@ Top bar:
     the right separated by hairlines.
 
 Sound:
-    Everything synthesised in the browser, no audio files: knuckle tap on glass,
-    crack, shatter, and a realistic water splash (a ringing bubble that rises in
-    pitch as it dies, smaller bubbles after it, a bright hit at the front, a thin
-    wash of droplets). The Sound button (a speaker icon: waves when on, a
+    The bowl breaking and the water splash are recordings:
+    media/audio/sfx/glass-break.mp3 and splash.mp3. The dive (him landing
+    after the break) has its own, splash-big.mp3 (trimmed to start right
+    at the splash, fading out from 1s to silence at its end, 2.55s), at 60% (sound.big_splash
+    in aquarium.yaml); the ordinary splash stands in until it loads. Every sound effect file
+    lives in media/audio/sfx/, named in aquarium.yaml under sound.files. They
+    are fetched the first time sound plays (never, if the viewer leaves sound
+    off); opened from disk (file://) they play through an <audio> element.
+    Each play nudges the pitch a little; a heavier splash is louder and a bit
+    lower. The knuckle tap, crack and bubbles are synthesised in the browser,
+    and so are the break and splash until their file has loaded or if it
+    fails to load. The Sound button (a speaker icon: waves when on, a
     cross when off) is always visible, fixed in the top right corner over
     everything (detail pages included), just left of the Settings gear; the
     top bar leaves room for both. Volumes in aquarium.yaml. Starts as
-    sound.enabled in aquarium.yaml (off by default; the button is drawn in
+    sound.enabled in aquarium.yaml (on by default; the button is drawn in
     that state from the start); a
     viewer's own click is remembered in their browser (localStorage
     "portfolio.sound") and wins over the yaml from then on.
+    Settings has a Volume slider (starts at sound.volume; remembered as
+    "portfolio.volume") and a mute button beside it. That button and the Sound
+    button are one setting, so both always show the same. Moving the slider
+    while muted turns the sound back on.
+
+Scroll bars:
+    Styled once for the whole site at the end of 03-layout.css: no track, a pale
+    rounded thumb that turns koi under the cursor. The Game Mode details room
+    hides its own for the stone in the wall.
 
 Settings:
     A gear button (icon only, in the line style of the contact marks) in the

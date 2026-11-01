@@ -13,7 +13,7 @@ meta_description: >-
 
 # The paragraph under your name. Shown once the fish is out of the bowl.
 intro: |
-  When a fish is bored it just keeps on swimming, but when *Fish* is bored he makes games. With all this ocean for inspiration, he has a lot of ideas, and he wants to make them all. He is a passionate gamer and game developer with strong expertise in C# and the Unity engine, and solid skills in C++ and Unreal Engine 4/5. He has a few well recieved games under his belt (which he leaves at home cause he's a fish, and fish don't wear belts) that he made with the help of ocean-dewlling friends he's met along the way.\n Using his tools he peers into the depths of the ocean and brings his ideas to life. He loves to experiment with other fish tools that he picks up along the way, but he is also intrigued by strange tools for different species like crabs, octopuses and even birds. He finds ways of using them to upgrade his own tools, learn, grow, and come closer to his ultimate goal:\n**To Become the World's Greatest *Game Developing Fish!* **
+  When a fish is bored it just keeps on swimming, but when *Fish* is bored he makes games. With all this ocean for inspiration, he has a lot of ideas, and he wants to make them all. He is a passionate gamer and game developer with strong expertise in C# and the Unity engine, and solid skills in C++ and Unreal Engine 4/5. With the help of some ocean-dewlling friends he's met along the way, he's got a few well recieved games under his belt (which he leaves at home cause he's a fish, and fish don't wear belts).\n He peers into the depths of the ocean and uses his fish tools to bring his ideas to life. He loves to experiment with other fish tools that he picks up along the way, adding them to his tool-kit, but he is also intrigued by strange tools for different species like crabs, octopuses and even birds. He finds ways of using them to upgrade his own tools, learn, grow, and come closer to his ultimate goal:\n**To Become the World's Greatest *Game Developing Fish!* **
 
 # ------------------------------------------------------------------ hero --
 # The opening screen: your name across the top, the bowl on the left, these
@@ -49,14 +49,10 @@ hero:
   bowl_note: Tap to break the glass
 
 # ------------------------------------------------------------- game mode --
-# The button under the overview, and the other view of the page it sweeps
-# across to. That view is still being built; until it is, it says so.
-game:
-  label: Game Mode # under the joystick
-  heading: Under construction
-  note: A more playful way through the portfolio is being built here. Come back soon to check it out :)
-  back: Back to the portfolio
-
+# The button under the overview, and the game it sweeps across to: The Fishy
+# Adventure. *Fish* swims after the cursor and a click is a dash. Each level
+# is a project; break what's in the way to open the exit (right) and the
+# hole down to the project's details room (bottom).
 # Nav links, used both under your name and in the sticky bar.
 nav:
   - { label: My work, href: "#work" }

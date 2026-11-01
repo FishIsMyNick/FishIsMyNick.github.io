@@ -26,7 +26,8 @@
 .pond-quote,
 .lede,
 .title-after-inner,
-.bowl-note {
+.bowl-note,
+.game-story {
   background: none;
   border: 0;
   backdrop-filter: blur(var(--panel-blur));
@@ -224,7 +225,7 @@ body.is-apex .showcase { opacity: 0; visibility: hidden; transform: translateY(-
 .showcase-link:focus-visible .media { border-color: rgba(255, 107, 44, .6); }
 .showcase-link:focus-visible { outline: 2px solid var(--koi); outline-offset: 3px; }
 
-/* The moment one is clicked (`is-picked`, set by 10-bowl.js): it grows a
+/* The moment one is clicked (`is-picked`, set by 06-bowl.scope): it grows a
    little and keeps its orange edge, and the other two fade back. Sizes and
    timing are hero.picked_* in aquarium.yaml. */
 .showcase-item {
@@ -488,6 +489,10 @@ body.is-titled .pond-quote { opacity: 0; visibility: hidden; }
 .setting + .setting { border-top: 1px solid var(--line-soft); }
 .setting--switch { align-items: center; justify-content: space-between; }
 .setting--range { flex-direction: column; gap: .6rem; }
+
+.setting-sound { display: flex; align-items: center; gap: .6rem; }
+.setting-sound .slider { flex: 1; min-width: 0; }
+.setting-sound .corner-button { flex: none; }
 
 .setting-text {
   display: flex;

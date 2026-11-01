@@ -8,7 +8,8 @@ src/templates, and writes one static page plus one stylesheet and one script:
     src/content/*.yaml   ─┐
     src/templates/**     ─┼─►  index.html
     src/assets/css/*.css ─┼─►  styles.css
-    src/assets/js/*.js   ─┴─►  script.js
+    src/assets/js/**/*.js ┼─►  script.js
+    src/assets/game/**/*.js ┴► game.js (fetched when Game Mode is wanted)
 
 Those three files, plus media/, are the whole site. Nothing else needs to be
 uploaded anywhere.
@@ -38,6 +39,8 @@ CONTENT = SRC / "content"
 TEMPLATES = SRC / "templates"
 CSS_DIR = SRC / "assets" / "css"
 JS_DIR = SRC / "assets" / "js"
+GAME_DIR = SRC / "assets" / "game"          # built to game.js, loaded on demand
+MECHANICS_DIR = GAME_DIR / "2-mechanics"    # one file per level mechanic
 SPRITE_DIR = SRC / "assets" / "img"
 
 # One drawing per direction, rather than one drawing mirrored. v3.4.
@@ -96,6 +99,12 @@ def load_content():
         "experience": read("experience.yaml"),
         "aquarium": read("aquarium.yaml"),
     }
+    # Game Mode has a file of its own; the rest of the build sees its words as
+    # site.game and its numbers as aquarium.game.
+    game = read("game.yaml")
+    data["aquarium"]["game"] = game.pop("settings", {})
+    data["site"]["game"] = game
+
     # The hero panels were called `showcase` before; either name works.
     hero = data["site"].get("hero") if isinstance(data["site"], dict) else None
     if isinstance(hero, dict) and "panels" not in hero and "showcase" in hero:
@@ -242,6 +251,20 @@ def validate(data):
             problems.append(
                 f"site.yaml: hero.panels item {i} ({item['label']}) names project "
                 f"'{item['project']}', which isn't an id in professional.yaml")
+
+    game = data["site"].get("game") or {}
+    known = {p.get("id") for kind in ("professional", "hobby")
+             for p in (data[kind] if isinstance(data[kind], list) else [])
+             if isinstance(p, dict)}
+    mechanics = {p.stem for p in MECHANICS_DIR.glob("*.js")}
+    for i, level in enumerate(game.get("levels") or []):
+        if not isinstance(level, dict) or level.get("project") not in known:
+            problems.append(f"game.yaml: levels item {i} needs a 'project' that is "
+                            "an id in professional.yaml or hobby.yaml")
+        elif level.get("mechanic", "crate") not in mechanics:
+            problems.append(f"game.yaml: levels item {i} has the mechanic "
+                            f"'{level['mechanic']}', but there is no "
+                            f"{MECHANICS_DIR.relative_to(ROOT).as_posix()}/{level['mechanic']}.js")
 
     aq = data["aquarium"]
     for block in ("bowl", "glass", "fish", "water", "depth", "shoal", "panels", "sound"):
@@ -597,15 +620,31 @@ def render_page(data):
 
 
 def bundle(directory, suffix, comment):
-    """Concatenate the parts of a stylesheet or script, in filename order.
-    The number prefixes are the order, which is why they exist."""
-    files = sorted(directory.glob(f"*{suffix}"))
+    """Concatenate the parts of a stylesheet or script, in path order: the
+    number prefixes are the order, which is why they exist. Files in a folder
+    named `*.scope` are the parts of one script, sharing its variables: they
+    go inside a single function, opened and closed here."""
+    files = sorted(directory.rglob(f"*{suffix}"), key=lambda p: p.relative_to(directory).parts)
     if not files:
         sys.exit(f"No {suffix} files in {directory.relative_to(ROOT)}")
+
+    def scope_of(path):
+        return next((p for p in path.parents if p.name.endswith(".scope")), None)
+
     chunks = [comment.format(GENERATED)]
+    open_scope = None
     for path in files:
-        chunks.append(f"{comment.format('src/' + str(path.relative_to(SRC)))}\n"
+        scope = scope_of(path)
+        if scope != open_scope:
+            if open_scope:
+                chunks.append("})();")
+            if scope:
+                chunks.append("(() => {\n  'use strict';")
+            open_scope = scope
+        chunks.append(f"{comment.format('src/' + path.relative_to(SRC).as_posix())}\n"
                       + path.read_text(encoding="utf-8").strip("\n"))
+    if open_scope:
+        chunks.append("})();")
     return "\n\n".join(chunks) + "\n", files
 
 
@@ -661,23 +700,25 @@ def build(quiet=False):
     css, css_files = bundle(CSS_DIR, ".css", "/* {} */")
     css += css_variables(data["aquarium"])
     js, js_files = bundle(JS_DIR, ".js", "/* {} */")
+    game_js, game_files = bundle(GAME_DIR, ".js", "/* {} */")
 
     # The page asks for each file by a name that changes whenever the file
     # does, so a browser never keeps showing a stylesheet or script it cached
     # from an earlier build.
     page = page.replace('href="styles.css"', f'href="styles.css?v={fingerprint(css)}"', 1)
     page = page.replace('src="script.js"', f'src="script.js?v={fingerprint(js)}"', 1)
+    page = page.replace('data-game-script="game.js"', f'data-game-script="game.js?v={fingerprint(game_js)}"', 1)
 
     changed = [
         name for name, text in (
-            ("index.html", page), ("styles.css", css), ("script.js", js))
+            ("index.html", page), ("styles.css", css), ("script.js", js), ("game.js", game_js))
         if write_if_changed(ROOT / name, text)
     ]
 
     if not quiet:
         projects = len(data["professional"]) + len(data["hobby"])
         print(f"Built index.html — {projects} projects, "
-              f"{len(css_files)} css parts, {len(js_files)} js parts.")
+              f"{len(css_files)} css parts, {len(js_files)} js parts, {len(game_files)} game parts.")
         sprites = load_sprites()
         print("Fish inlined from {}: {}".format(
             SPRITE_DIR.relative_to(ROOT),
@@ -722,8 +763,8 @@ def build(quiet=False):
 # --------------------------------------------------------------- watch --
 
 def sources():
-    for directory, pattern in ((CONTENT, "*.yaml"), (CSS_DIR, "*.css"), (JS_DIR, "*.js")):
-        yield from directory.glob(pattern)
+    for directory, pattern in ((CONTENT, "*.yaml"), (CSS_DIR, "*.css"), (JS_DIR, "*.js"), (GAME_DIR, "*.js")):
+        yield from directory.rglob(pattern)
     yield from TEMPLATES.rglob("*.html")
     # Whether a panel gets a clip, a picture or empty water is decided at
     # build time, so a file added to or renamed in media/ is a change too.
@@ -798,6 +839,8 @@ def make_server(port=8000):
 
         def end_headers(self):
             self.send_header("Accept-Ranges", "bytes")
+            # never keep a copy: a reload must show the last build
+            self.send_header("Cache-Control", "no-store")
             super().end_headers()
 
     class Server(ThreadingHTTPServer):
