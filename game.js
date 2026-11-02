@@ -3498,7 +3498,7 @@
     /* The ocean floor doesn't change, and is the same under every puzzle:
        painted once for a size. Each space is its own bed of gravel, pebble on
        pebble, the big ones first, with a little water between the beds. */
-    const PEBBLES = ['#8b8074', '#a3957f', '#6f675f', '#b9ad98', '#7c6a58', '#59524e', '#94806a', '#a8a39a', '#6c7478', '#9a7a5e'];
+    const PEBBLES = ['#6f8aa3', '#88a5bd', '#55708c', '#a3bccf', '#5f7f9f', '#435a75', '#7796b3', '#94aabb', '#4f7596', '#6a86ad'];
     const gravel = { canvas: null, key: '' };
 
     function bakeGravel(f, cell) {
@@ -3520,7 +3520,7 @@
           else g.rect(x, y, s, s);
         }
       }
-      g.fillStyle = '#463e38';
+      g.fillStyle = '#2f3f50';
       g.fill();
       g.clip();
       const area = f.cols * f.rows;
@@ -3532,7 +3532,7 @@
           const rx = lerp(lo, hi, hash(k + 2)) * cell;
           const ry = rx * lerp(0.62, 0.95, hash(k + 3));
           const tilt = hash(k + 4) * Math.PI;
-          g.fillStyle = 'rgba(20, 14, 12, .55)';
+          g.fillStyle = 'rgba(8, 16, 28, .55)';
           g.beginPath();
           g.ellipse(x + rx * 0.12, y + ry * 0.28, rx, ry, tilt, 0, Math.PI * 2);
           g.fill();
@@ -3540,7 +3540,7 @@
           g.beginPath();
           g.ellipse(x, y, rx, ry, tilt, 0, Math.PI * 2);
           g.fill();
-          g.fillStyle = 'rgba(255, 246, 228, .16)';
+          g.fillStyle = 'rgba(232, 244, 255, .16)';
           g.beginPath();
           g.ellipse(x - rx * 0.22, y - ry * 0.28, rx * 0.5, ry * 0.42, tilt, 0, Math.PI * 2);
           g.fill();

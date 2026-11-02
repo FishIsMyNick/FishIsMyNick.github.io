@@ -1462,3 +1462,8 @@ Guide.md
     - Level 3 (Ubisoft Belgrade's crates) is out of the game; the project stays
       in the portfolio. Right from Level 2, the tunnel leads back to the start page.
     - The line at the top of the last level says so (game.done_last).
+
+100. Game Mode: bluer pebbles in the push puzzle
+    Files: src/assets/game/2-mechanics/pushpuzzle.js, Guide.md
+    - The gravel's pebbles, the bed under them, their shadows and their
+      highlights went from warm browns to blues (`PEBBLES` in bakeGravel).

@@ -470,7 +470,7 @@ Game Mode:
     - Push puzzle (Level 1, the `pushpuzzle` mechanic; rules and solutions in
       Game-PushPuzzle.md, the puzzles in game.yaml): an 8 by 5 grid as tall as the
       screen lets it (60px of rock above, for the hint, and below), on beds of
-      gravel with small gaps between them, its middle row on the openings. All
+      blue gravel with small gaps between them, its middle row on the openings. All
       the room's rock, walls, thick sides and rock spaces, is traced as one
       outline, so nothing shows a join; on a title room it fades off the plain
       walls (the `rock`, `inset` and `under` hooks). The gravel is one picture
