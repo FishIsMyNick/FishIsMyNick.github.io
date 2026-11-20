@@ -14,7 +14,7 @@ story:
   - While you're already here, feel free to enjoy the scenery for a moment if you like it. I'm sure little Jimmy can hang on for a few more minutes, just hope he doesn't break the glass and get up to the surface again. Getting him back down here is such a hassle... Welp, good luck!
 # Beside the story, one instruction to a line.
 hint:
-  - Swim with the mouse or arrow keys.
+  - Swim with the mouse, WASD or arrow keys.
   - Left click or spacebar to dash or use special ability.
 # Under those, in orange, one line each; an arrow goes after the last.
 start_hint:
@@ -64,7 +64,7 @@ levels:
     sublevels:
       - moves: 15
         stars: [13, 14, 15]
-        hint: Use the arrow keys, or click on a space next to *Fish* to move and push obstacles. Reach the chest in as few moves as you can.
+        hint: Use WASD, arrow keys, or click on a space next to *Fish* to move and push obstacles. Reach the chest in as few moves as you can.
         field:
           - X X O O O O O O
           - X O H H X X O O
