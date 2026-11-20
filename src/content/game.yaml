@@ -14,8 +14,8 @@ story:
   - While you're already here, feel free to enjoy the scenery for a moment if you like it. I'm sure little Jimmy can hang on for a few more minutes, just hope he doesn't break the glass and get up to the surface again. Getting him back down here is such a hassle... Welp, good luck!
 # Beside the story, one instruction to a line.
 hint:
-  - Swim with the mouse.
-  - Click to dash or use special ability.
+  - Swim with the mouse or arrow keys.
+  - Left click or spacebar to dash or use special ability.
 # Under those, in orange, one line each; an arrow goes after the last.
 start_hint:
   - Swim into the hole
