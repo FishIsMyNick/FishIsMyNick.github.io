@@ -69,9 +69,7 @@
 
     // the body wave runs faster the harder he is working
     const speed = Math.hypot(fish.vx, fish.vy);
-    const base = Number(get('fish.stroke_rate', 1.5));
-    const extra = Number(get('fish.stroke_speedup', 0.5));
-    fish.phase += dt * Math.PI * 2 * (base + (speed / 220) * base * extra);
+    fish.phase += dt * Math.PI * 2 * Aquarium.strokeRate(speed);
 
     // turning over: the drawing is squashed through zero rather than snapped,
     // which reads as the fish swinging round towards you. A dash turns harder.

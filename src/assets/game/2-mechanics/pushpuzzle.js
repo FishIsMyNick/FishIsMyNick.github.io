@@ -278,8 +278,9 @@
       const g = game.gapH() / 2;
       const x1 = box.x0 + f.cols * box.cell, y1 = box.y0 + f.rows * box.cell;
       const sorted = list => [...new Set(list)].sort((a, b) => a - b);
-      const xs = [-80, w + 80];
-      const ys = [-80, h + 80, h / 2 - g, h / 2 + g];
+      const overlap = game.rockOverlap;
+      const xs = [-overlap, w + overlap];
+      const ys = [-overlap, h + overlap, h / 2 - g, h / 2 + g];
       for (let c = 0; c <= f.cols; c++) xs.push(box.x0 + c * box.cell);
       for (let r = 0; r <= f.rows; r++) ys.push(box.y0 + r * box.cell);
       const X = sorted(xs), Y = sorted(ys);
@@ -387,11 +388,15 @@
         const by = y + s * 0.4;
         const tall = s * (0.45 + hash(k) * 0.32);
         const sway = Math.sin(clock * 1.4 + hash(k + 1) * 6) * s * 0.09;
-        ctx.strokeStyle = i % 3 === 0 ? '#2f8a54' : i % 3 === 1 ? '#3fa864' : '#277548';
-        ctx.lineWidth = Math.max(2, s * 0.05);
+        const width = Math.max(2, s * 0.05);
         ctx.beginPath();
         ctx.moveTo(bx, by);
         ctx.quadraticCurveTo(bx - sway * 0.5, by - tall * 0.55, bx + sway, by - tall);
+        ctx.strokeStyle = '#102b24';
+        ctx.lineWidth = width + Math.max(2, s * 0.04);
+        ctx.stroke();
+        ctx.strokeStyle = i % 3 === 0 ? '#2f8a54' : i % 3 === 1 ? '#3fa864' : '#277548';
+        ctx.lineWidth = width;
         ctx.stroke();
       }
       ctx.restore();
@@ -445,38 +450,54 @@
     }
 
     function drawClam(ctx, s) {
-      const shell = (top, fill) => {
-        ctx.fillStyle = fill;
-        ctx.strokeStyle = '#6f3f5a';
-        ctx.lineWidth = Math.max(1.5, s * 0.025);
+      ctx.save();
+      ctx.scale(s, s);
+      ctx.rotate(-0.22);
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+
+      // An oyster's narrow hinge and broad, rounded lip.
+      const shell = new Path2D();
+      shell.moveTo(-0.36, 0.02);
+      shell.bezierCurveTo(-0.36, -0.07, -0.24, -0.15, -0.14, -0.20);
+      shell.bezierCurveTo(0.02, -0.29, 0.21, -0.28, 0.32, -0.19);
+      shell.bezierCurveTo(0.43, -0.09, 0.40, 0.07, 0.30, 0.16);
+      shell.bezierCurveTo(0.19, 0.26, 0.03, 0.24, -0.10, 0.19);
+      shell.bezierCurveTo(-0.24, 0.15, -0.36, 0.10, -0.36, 0.02);
+      shell.closePath();
+
+      ctx.translate(0, 0.08);
+      ctx.fillStyle = '#8a6677';
+      ctx.strokeStyle = '#513948';
+      ctx.lineWidth = 0.027;
+      ctx.fill(shell);
+      ctx.stroke(shell);
+      ctx.translate(0, -0.08);
+
+      const glaze = ctx.createLinearGradient(-0.18, -0.24, 0.19, 0.22);
+      glaze.addColorStop(0, '#f2dfcf');
+      glaze.addColorStop(0.47, '#c8aab6');
+      glaze.addColorStop(1, '#a68195');
+      ctx.fillStyle = glaze;
+      ctx.fill(shell);
+      ctx.stroke(shell);
+
+      // Curved growth bands follow the lip instead of radiating from the hinge.
+      ctx.lineWidth = 0.016;
+      for (const scale of [0.48, 0.66, 0.84]) {
+        ctx.save();
+        ctx.translate(-0.35, 0.02);
+        ctx.scale(scale, scale);
+        ctx.translate(0.35, -0.02);
         ctx.beginPath();
-        ctx.moveTo(-s * 0.34, s * 0.06);
-        for (let n = 1; n <= 7; n++) {
-          // scalloped along the edge that opens
-          const a = Math.PI - n / 7 * Math.PI;
-          const rad = s * (n % 2 ? 0.36 : 0.33);
-          ctx.lineTo(Math.cos(a) * rad, s * 0.06 - Math.sin(a) * rad * top);
-        }
-        ctx.lineTo(0, s * 0.06);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(-0.19, -0.15);
+        ctx.bezierCurveTo(0.12, -0.34, 0.39, -0.22, 0.35, -0.02);
+        ctx.bezierCurveTo(0.32, 0.15, 0.12, 0.26, -0.12, 0.16);
+        ctx.strokeStyle = '#79576c';
         ctx.stroke();
-        ctx.lineWidth = Math.max(1, s * 0.015);
-        ctx.strokeStyle = 'rgba(111, 63, 90, .6)';
-        for (const a of [0.5, 1.1, 1.57, 2.04, 2.64]) {
-          ctx.beginPath();
-          ctx.moveTo(0, s * 0.06);
-          ctx.lineTo(Math.cos(a) * s * 0.3, s * 0.06 - Math.sin(a) * s * 0.3 * top);
-          ctx.stroke();
-        }
-      };
-      shell(-0.45, '#c98aa8');
-      shell(1, '#eab2c8');
-      // a pearl, just showing
-      ctx.fillStyle = '#fff4ea';
-      ctx.beginPath();
-      ctx.arc(0, s * 0.09, s * 0.04, 0, Math.PI * 2);
-      ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
     }
 
     function drawChest(ctx, s, open) {
@@ -620,8 +641,8 @@
         ctx.globalAlpha *= clamp(1.6 - age, 0, 1);
         ctx.translate(s.x, s.y);
         ctx.rotate(s.rot);
-        ctx.fillStyle = '#eab2c8';
-        ctx.strokeStyle = '#6f3f5a';
+        ctx.fillStyle = '#c8aab6';
+        ctx.strokeStyle = '#513948';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(-s.s, s.s * 0.5);

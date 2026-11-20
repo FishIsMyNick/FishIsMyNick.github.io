@@ -200,8 +200,9 @@ fish:
   # pushed along them, nose to tail.
   wiggle: 0.55 # how far the body swings, overall
   wave_length: 1.2 # waves along the body at once
-  stroke_rate: 1.5 # tail beats per second
-  stroke_speedup: 0.5 # how much faster he beats when he's moving fast
+  idle_stroke_rate: 0.2 # tail beats per second while still
+  stroke_rate: 3 # tail beats per second at 220 pixels per second
+  stroke_speedup: 0.5 # fraction of the cruising rate added per 220 px/s above cruising
   head_steady: 0.26 # fraction of the body, from the nose, that stays rigid
 
   glow: 0.3 # how much he lights the water around him

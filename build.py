@@ -589,6 +589,7 @@ def render_page(data):
     env.filters["accent"] = emphasis      # the name v3.1 used
     env.filters["prose"] = prose
     env.filters["plain"] = plain
+    env.filters["marks"] = marks
     # A missing file still gets a path, so the panel shows as empty water
     # until the picture is added.
     # A link given as a bare url shows its site's name: www.ign.com/… -> ign.com

@@ -28,7 +28,7 @@
     const side = hurry && Math.abs(off) > 4 ? Math.sign(off) : fish.flip >= 0 ? 1 : -1;
     move = {
       kind, from: here, to, dur, at: clock,
-      across, size, length: size * long, dir,
+      across, size, length: Math.round(size * long), dir,
       p0: { x: fish.x, y: fish.y },
       p1: entry(to, how),
       c0: waterOf(here, ends[0]),

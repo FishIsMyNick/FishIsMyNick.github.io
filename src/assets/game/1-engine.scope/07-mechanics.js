@@ -104,6 +104,7 @@
     resetRoom: () => fadeReset(),
     kept,                             // emptied when the game starts over
     subsOf,
+    rockOverlap: OVERLAP,
     border: () => border(),
     borderTop: () => borderTop(),
     fullLen: () => fullLen(),

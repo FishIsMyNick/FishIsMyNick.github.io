@@ -18,8 +18,8 @@
     const key = place.kind === 'level' ? place.i : -1;
     if (near.has(key)) return;
     near.add(key);
-    const tunnel = view.w * Math.max(1.2, num('tunnel_length', 2.2));
-    const shaft = view.h * Math.max(1.2, num('shaft_length', 1.6));
+    const tunnel = Math.round(view.w * Math.max(1.2, num('tunnel_length', 2.2)));
+    const shaft = Math.round(view.h * Math.max(1.2, num('shaft_length', 1.6)));
     const roomsOf = (i, from, to) => subsOf(i).slice(from, to).flatMap((sub, k) => {
       const m = mechanicOf(i);
       return m.ahead ? m.ahead(i, from + k, sub) : [];

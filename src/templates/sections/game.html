@@ -44,7 +44,7 @@
             {% for line in site.game.hint %}
             <p class="game-hint">{{ line }}</p>
             {% endfor %}
-            <p class="game-start-hint">{{ site.game.start_hint | join('<br>') | safe }} <span class="game-nudge" aria-hidden="true">→</span></p>
+            <p class="game-start-hint">{% for line in site.game.start_hint %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %} <span class="game-nudge" aria-hidden="true">→</span></p>
           </div>
         </div>
       </div>
@@ -107,6 +107,10 @@
 {# What the script needs to know about each level, in play order. #}
 {% set levels = [] %}
 {% for level in site.game.levels %}
+{% set sublevels = [] %}
+{% for sub in level.get('sublevels', [{}]) %}
+{% set _ = sublevels.append(dict(sub, hint_html=sub.get('hint', '') | marks)) %}
+{% endfor %}
 {% set _ = levels.append({
   'project': level.project,
   'title': projects[level.project].title,
@@ -114,14 +118,14 @@
   'hat': level.get('hat', 'hardhat'),
   'tint': level.get('tint', '#1d7f8c'),
   'mechanic': level.get('mechanic', 'crate'),
-  'sublevels': level.get('sublevels', [{}])
+  'sublevels': sublevels
 }) %}
 {% endfor %}
 <script type="application/json" id="game-data">{{ {
   'levels': levels,
-  'done': site.game.done,
-  'done_last': site.game.done_last,
-  'sub_done': site.game.sub_done,
+  'done_html': site.game.done | marks,
+  'done_last_html': site.game.done_last | marks,
+  'sub_done_html': site.game.sub_done | marks,
   'end_kicker': site.game.end_kicker,
   'end_title': site.game.end_title,
   'back_kicker': site.game.back_kicker,

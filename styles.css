@@ -2240,17 +2240,17 @@ body.game-open .settings.has-stone::before { display: none; }
   left: .7rem;
   bottom: calc(var(--rock, 30px) + .75rem);
   margin: 0;
-  padding: .6rem .7rem .55rem;
+  padding: .97em 1.13em .89em;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: .62rem;
+  font-size: clamp(1rem, 5vw, 1.86rem);
   font-weight: 600;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 .game-moves b {
-  font-size: 1.5rem;
+  font-size: 2.42em;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
@@ -2565,6 +2565,7 @@ body.game-open .corner-controls > .corner-button:focus-visible,
   filter: drop-shadow(0 6px 6px rgba(0, 8, 12, .55));
 }
 .game-reset::before,
+.game-moves::before,
 .game-room-up::before {
   background:
     radial-gradient(circle at 70% 68%, rgba(10, 2, 8, .35) 0 6%, transparent 7%),
@@ -2572,7 +2573,8 @@ body.game-open .corner-controls > .corner-button:focus-visible,
     radial-gradient(circle at 62% 24%, rgba(255, 214, 228, .1) 0 5%, transparent 6%),
     radial-gradient(circle at 34% 26%, #7b5566 0%, #4a2f3d 38%, #33202c 68%, #1c0f18 100%);
 }
-.game-reset::before { clip-path: polygon(50% 0%, 63% 5%, 72% 2%, 84% 13%, 92% 14%, 97% 30%, 100% 44%, 95% 56%, 99% 68%, 90% 82%, 80% 87%, 72% 97%, 56% 94%, 44% 100%, 30% 95%, 20% 97%, 11% 84%, 3% 74%, 6% 60%, 0% 46%, 5% 32%, 3% 22%, 15% 11%, 26% 9%, 37% 2%); }
+.game-reset::before,
+.game-moves::before { clip-path: polygon(50% 0%, 63% 5%, 72% 2%, 84% 13%, 92% 14%, 97% 30%, 100% 44%, 95% 56%, 99% 68%, 90% 82%, 80% 87%, 72% 97%, 56% 94%, 44% 100%, 30% 95%, 20% 97%, 11% 84%, 3% 74%, 6% 60%, 0% 46%, 5% 32%, 3% 22%, 15% 11%, 26% 9%, 37% 2%); }
 .game-room-up::before { clip-path: polygon(0 38%, 5px 14%, 14px 5%, 9% 0, 17% 7%, 28% 1%, 38% 8%, 49% 0, 60% 6%, 71% 1%, 82% 8%, 91% 1%, calc(100% - 11px) 8%, calc(100% - 4px) 22%, 100% 46%, calc(100% - 3px) 68%, calc(100% - 9px) 90%, 92% 100%, 81% 93%, 70% 99%, 59% 92%, 47% 100%, 35% 93%, 24% 99%, 13% 92%, 10px 98%, 4px 82%, 1px 62%); }
 .game-reset:hover,
 .game-reset:focus-visible,

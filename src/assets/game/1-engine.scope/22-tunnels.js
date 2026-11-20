@@ -198,6 +198,7 @@
      start's title and story, a level's goal and title page, the room. */
   const startEl = $('game-start');
   const goalEl = $('game-goal');
+  let shownGoalHtml = null;
   const tunnelEl = $('game-tunnel');
   const platesEl = $('game-plates');
 
@@ -236,9 +237,13 @@
       const lv = levels[i] || {};
       const head = [roomName(i, lvl.place.lv.n), lv.title, lv.studio].filter(Boolean).join(' · ');
       const room = lvl.place.lv;
-      const text = room.titled ? (i === levels.length - 1 ? data.done_last : data.done) : room.won ? data.sub_done : subsOf(i)[room.n].hint || '';
+      const html = room.titled ? (i === levels.length - 1 ? data.done_last_html : data.done_html) : room.won ? data.sub_done_html : subsOf(i)[room.n].hint_html;
       if (hud.goalLevel.textContent !== head) hud.goalLevel.textContent = head;
-      if (hud.goalText.textContent !== text) hud.goalText.textContent = text;
+      // These strings are escaped and formatted by build.py before serialization.
+      if (shownGoalHtml !== html) {
+        hud.goalText.innerHTML = html;
+        shownGoalHtml = html;
+      }
       goalEl.classList.toggle('is-won', lvl.place.lv.won);
     }
     pages.forEach((page, i) => {
@@ -337,7 +342,7 @@
       fish.y = wantY + m.pushed;
     }
     const pace = Math.abs(step) / Math.max(dt, 0.001);
-    fish.phase += dt * Math.PI * 2 * (1.5 + Math.min(pace / 600, 3));
+    fish.phase += dt * Math.PI * 2 * Aquarium.strokeRate(pace);
     if (m.across) {
       // facing the way he's going: right, or left on the way back
       fish.facing = m.dir;

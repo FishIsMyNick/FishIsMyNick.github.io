@@ -191,7 +191,7 @@
     const speed = Math.hypot(fish.vx, fish.vy);
     const flipRate = dt / 0.12;
     fish.flip = fish.facing > 0 ? Math.min(1, fish.flip + flipRate) : Math.max(-1, fish.flip - flipRate);
-    fish.phase += dt * Math.PI * 2 * 1.5 * (1 + Math.min(speed / 500, 2) * 0.8);
+    fish.phase += dt * Math.PI * 2 * Aquarium.strokeRate(speed);
     const pitch = clamp(Math.atan2(fish.vy, Math.max(Math.abs(fish.vx), 60)) * 0.6, -0.8, 0.8);
     const rot = pitch * (fish.flip >= 0 ? 1 : -1) + (scene === 'room' ? rollAngle() : 0);
     drawFree.rot = rot;

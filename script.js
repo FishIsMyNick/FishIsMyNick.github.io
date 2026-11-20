@@ -119,7 +119,15 @@ window.Aquarium = (() => {
       : 1;
   }
 
-  return { config, get, range, state, motion, clamp, lerp, rand, pick, rgb, mix, css };
+  function strokeRate(speed) {
+    const idle = Number(get('fish.idle_stroke_rate', 0.2));
+    const cruise = Number(get('fish.stroke_rate', 3));
+    const extra = Number(get('fish.stroke_speedup', 0.5));
+    const pace = clamp(speed / 220, 0, 3);
+    return lerp(idle, cruise, Math.min(pace, 1)) + cruise * extra * Math.max(0, pace - 1);
+  }
+
+  return { config, get, range, state, motion, strokeRate, clamp, lerp, rand, pick, rgb, mix, css };
 })();
 
 /* src/assets/js/02-page/1-nav.js */
@@ -2601,9 +2609,7 @@ window.Aquarium = (() => {
 
     // the body wave runs faster the harder he is working
     const speed = Math.hypot(fish.vx, fish.vy);
-    const base = Number(get('fish.stroke_rate', 1.5));
-    const extra = Number(get('fish.stroke_speedup', 0.5));
-    fish.phase += dt * Math.PI * 2 * (base + (speed / 220) * base * extra);
+    fish.phase += dt * Math.PI * 2 * Aquarium.strokeRate(speed);
 
     // turning over: the drawing is squashed through zero rather than snapped,
     // which reads as the fish swinging round towards you. A dash turns harder.

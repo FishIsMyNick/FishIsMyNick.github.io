@@ -64,7 +64,7 @@ levels:
     sublevels:
       - moves: 15
         stars: [13, 14, 15]
-        hint: Arrow keys, or click the space next to him. Reach the chest in as few moves as you can
+        hint: Use the arrow keys, or click on a space next to *Fish* to move and push obstacles. Reach the chest in as few moves as you can.
         field:
           - X X O O O O O O
           - X O H H X X O O
@@ -73,7 +73,7 @@ levels:
           - X O O O O O O O
       - moves: 15
         stars: [13, 14, 15]
-        hint: A clam that can't move breaks when it's pushed
+        hint: A clam can be pushed, but it will break if the space behind it is occupied or blocked.
         field:
           - O H O O O C O O
           - O O X X C X X O
@@ -82,7 +82,7 @@ levels:
           - O X X O O O O X
       - moves: 18
         stars: [16, 17, 18]
-        hint: Algae takes two moves to swim into
+        hint: Algae takes two moves to swim into.
         field:
           - O O O O O O O X
           - O H O H O O O X

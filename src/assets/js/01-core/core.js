@@ -116,5 +116,13 @@ window.Aquarium = (() => {
       : 1;
   }
 
-  return { config, get, range, state, motion, clamp, lerp, rand, pick, rgb, mix, css };
+  function strokeRate(speed) {
+    const idle = Number(get('fish.idle_stroke_rate', 0.2));
+    const cruise = Number(get('fish.stroke_rate', 3));
+    const extra = Number(get('fish.stroke_speedup', 0.5));
+    const pace = clamp(speed / 220, 0, 3);
+    return lerp(idle, cruise, Math.min(pace, 1)) + cruise * extra * Math.max(0, pace - 1);
+  }
+
+  return { config, get, range, state, motion, strokeRate, clamp, lerp, rand, pick, rgb, mix, css };
 })();
