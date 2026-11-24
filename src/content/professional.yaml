@@ -41,9 +41,7 @@
 # ============================================================================
 
 - id: ubisoft-belgrade
-  # EDIT: the game's title, if you can name it publicly. Until then this
-  # placeholder is what the row says.
-  title: Assassin's Creed – Black Flag Resynced
+  title: Assassin's Creed Black Flag Resynced
   studio: Ubisoft Belgrade
   category: AAA
   logo: logos/ubisoft

@@ -7,7 +7,7 @@
     dashEnd: -9              // when the last dash ran out
   };
 
-  const pointer = { x: 0, y: 0, inside: false, moved: -9, keyed: false };
+  const pointer = { x: 0, y: 0, inside: false, down: null, moved: -9, keyed: false };
   const keys = new Set();
 
   /* Where he is: { kind: 'start' }, { kind: 'level', i, lv } or

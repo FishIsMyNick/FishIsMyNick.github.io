@@ -10,9 +10,9 @@
 
      kind: tunnel (sideways), dive (down to a room), rise (back up from one).
      `to` is the place it ends in. */
-  function begin(kind, to, top, bottom, back = false, hurry = false) {
+  function begin(kind, to, top, bottom, back = false, hurry = false, fork = null) {
     const reduce = Portfolio.reduceMotion.matches ? 0.4 : 1;
-    const dur = Math.max(0.3, (kind === 'tunnel' ? num('tunnel_time', 5) : num('dive_time', 2)) * reduce);
+    const dur = Math.max(0.3, (kind === 'tunnel' ? num('tunnel_time', 5) : num('dive_time', 2)) * reduce * (fork ? 1.5 : 1));
     const across = kind === 'tunnel';
     const size = across ? view.w : view.h;
     const long = Math.max(1.2, num(across ? 'tunnel_length' : 'shaft_length', across ? 2.2 : 1.6));
@@ -26,13 +26,16 @@
     // in a hurry, he's already turning towards the middle
     const off = view.w / 2 - fish.x;
     const side = hurry && Math.abs(off) > 4 ? Math.sign(off) : fish.flip >= 0 ? 1 : -1;
+    const p1 = entry(to, how);
+    const handoff = across && to.kind === 'level' ? mechanicOf(to.i).entrySpeed?.(to.lv) || 0 : 0;
     move = {
-      kind, from: here, to, dur, at: clock,
+      kind, fork, from: here, to, dur, at: clock,
       across, size, length: Math.round(size * long), dir,
       p0: { x: fish.x, y: fish.y },
-      p1: entry(to, how),
+      p1, handoff,
       c0: waterOf(here, ends[0]),
       c1: waterOf(to, ends[1]),
+      crossColors: across ? [here, to].map(place => ['top', 'bottom'].map(edge => waterOf(place, edge))) : null,
       side,
       // the way his nose points: along the tunnel, or down or up the shaft
       rot0: drawFree.rot || 0,
@@ -59,7 +62,7 @@
     move = null;
     fish.x = m.p1.x;
     fish.y = m.p1.y;
-    fish.vx = 0;
+    fish.vx = m.handoff;
     fish.vy = m.kind === 'rise' ? -60 : 0;
     if (m.from.kind === 'room') emptyRoom();
     arrive(m.to);

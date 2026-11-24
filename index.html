@@ -14,8 +14,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Newsreader:opsz,wght@6..72,300..500&display=swap" rel="stylesheet">
 <script>(function(h){if('scrollRestoration' in history)history.scrollRestoration='manual';h.classList.add('has-js','is-booting');setTimeout(function(){h.classList.remove('is-booting');if(!window.Aquarium)h.classList.remove('has-js')},4000)})(document.documentElement);</script>
-<link rel="stylesheet" href="styles.css?v=69b9afa134">
-<script src="script.js?v=c8c115151c" defer></script>
+<link rel="stylesheet" href="styles.css?v=de030580d9">
+<script src="script.js?v=3cca5aa6c0" defer></script>
 </head>
 <body>
 
@@ -425,7 +425,7 @@
     <ul class="showcase" aria-label="Professional work">
       <li class="showcase-item showcase-item--1">
         <a class="showcase-link" href="#pro-aaa" data-group="pro-aaa" data-project="ubisoft-belgrade"
-           aria-label="AAA: Assassin&#39;s Creed – Black Flag Resynced • Ubisoft Belgrade">
+           aria-label="AAA: Assassin&#39;s Creed Black Flag Resynced • Ubisoft Belgrade">
           <figure class="media">
             <div class="slides">
   <img class="slide is-on" src="media/hero/aaa/ac_bfr.avif" alt="">
@@ -541,7 +541,7 @@
   </div>
 </figure>
   <div class="entry-body">
-    <h4><a class="entry-link" href="#ubisoft-belgrade" data-project="ubisoft-belgrade">Assassin&#39;s Creed – Black Flag Resynced<span class="entry-studio"> • Ubisoft Belgrade</span></a></h4>
+    <h4><a class="entry-link" href="#ubisoft-belgrade" data-project="ubisoft-belgrade">Assassin&#39;s Creed Black Flag Resynced<span class="entry-studio"> • Ubisoft Belgrade</span></a></h4>
     <p class="entry-role">UI programmer</p>
     <p>UI programming in AAA production. Helped give this classic a well-deserved and well-received remaster.</p>
     <ul class="tags">
@@ -830,7 +830,7 @@
 
 <article class="detail detail--brief" id="detail-ubisoft-belgrade" data-project="ubisoft-belgrade" hidden>
   <div class="detail-head">
-    <h2 class="detail-title" tabindex="-1">Assassin&#39;s Creed – Black Flag Resynced<span class="detail-studio"> Ubisoft Belgrade</span></h2>
+    <h2 class="detail-title" tabindex="-1">Assassin&#39;s Creed Black Flag Resynced<span class="detail-studio"> Ubisoft Belgrade</span></h2>
     <figure class="media">
   <video muted loop playsinline preload="none" poster="media/professional/ubisoft-belgrade/cover.png">
 <source src="media/professional/ubisoft-belgrade/cover.mp4" type="video/mp4"></video>
@@ -1694,13 +1694,15 @@
 </div>
 
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
-<section class="game-layer" id="game-layer" aria-labelledby="game-title" data-game-script="game.js?v=798f74da71" hidden>
+<section class="game-layer" id="game-layer" aria-labelledby="game-title" data-game-script="game.js?v=d3cc1a5d81" hidden>
 
   <div class="game-pages" aria-hidden="true">
     <div class="game-page" data-level="0">
 <img src="media/professional/brave-giant/cover.jpg" alt="">    </div>
     <div class="game-page" data-level="1">
 <img src="media/professional/llamaware/cover.png" alt="">    </div>
+    <div class="game-page" data-level="2">
+<img src="media/professional/ubisoft-belgrade/cover.png" alt="">    </div>
   </div>
 
   <canvas class="game-canvas" id="game-canvas" aria-hidden="true"></canvas>
@@ -1755,6 +1757,26 @@
       </div>
       <button type="button" class="game-results-show" id="game-results-show" hidden
               aria-label="Results" title="Results"><i class="game-star is-got"></i></button>
+      <div class="game-plate game-results game-stream-results" id="game-stream-results" hidden>
+        <button type="button" class="game-results-hide" id="game-stream-hide"
+                aria-label="Collapse" title="Collapse"><span aria-hidden="true">↙</span></button>
+        <h3 class="game-results-title"></h3>
+        <table class="game-results-table">
+          <tbody>
+            <tr><th scope="row">Time played</th><td></td></tr>
+            <tr><th scope="row">Enemies killed</th><td></td></tr>
+            <tr><th scope="row">Damage done</th><td></td></tr>
+            <tr><th scope="row">Damage taken</th><td></td></tr>
+            <tr><th scope="row">Difficulty multiplyer</th><td></td></tr>
+          </tbody>
+          <tfoot>
+            <tr><th scope="row">Total</th><td></td></tr>
+          </tfoot>
+        </table>
+        <button class="game-retry" id="game-stream-retry" type="button" hidden>Retry</button>
+      </div>
+      <button type="button" class="game-results-show game-stream-results" id="game-stream-show" hidden
+              aria-label="Results" title="Results"><i class="game-star is-got"></i></button>
     </div>
   </div>
 
@@ -1774,7 +1796,7 @@
   <button type="button" class="game-back" id="game-back">Back to the portfolio</button>
 </section>
 
-<script type="application/json" id="game-data">{"back_kicker": "Back to the start", "done_html": "The way on is open. Right for the next level, down for the details, left to go back", "done_last_html": "The way on leads back to the start. Right to swim home, down for the details, left to go back", "end_kicker": "The end?", "end_title": "More levels coming soon", "levels": [{"hat": "hardhat", "mechanic": "pushpuzzle", "project": "brave-giant", "studio": "Brave Giant", "sublevels": [{"field": ["X X O O O O O O", "X O H H X X O O", "S H O O O O X G", "O O O H O O X X", "X O O O O O O O"], "hint": "Use WASD, arrow keys, or click on a space next to *Fish* to move and push obstacles. Reach the chest in as few moves as you can.", "hint_html": "Use WASD, arrow keys, or click on a space next to \u003cspan class=\"accent\"\u003eFish\u003c/span\u003e to move and push obstacles. Reach the chest in as few moves as you can.", "moves": 15, "stars": [13, 14, 15]}, {"field": ["O H O O O C O O", "O O X X C X X O", "S O C O O O X G", "O O O C O O O X", "O X X O O O O X"], "hint": "A clam can be pushed, but it will break if the space behind it is occupied or blocked.", "hint_html": "A clam can be pushed, but it will break if the space behind it is occupied or blocked.", "moves": 15, "stars": [13, 14, 15]}, {"field": ["O O O O O O O X", "O H O H O O O X", "S O X C O X X G", "O C X A X X O O", "O O X A C O O O"], "hint": "Algae takes two moves to swim into.", "hint_html": "Algae takes two moves to swim into.", "moves": 18, "stars": [16, 17, 18]}], "tint": "#1d7f8c", "title": "Push Puzzle Rescue Adventure"}, {"hat": "conductor", "mechanic": "construction", "project": "llamaware", "studio": "Llamaware", "sublevels": [{"hint_html": "", "note": "New games will come as soon as *Fish* is done with them", "sign": ["Under", "Construction"]}], "tint": "#5a6f3a", "title": "Apocalypse Express"}], "sub_done_html": "The way on is open. Right for the next room, left to go back", "title": "The Fishy Adventure"}</script>
+<script type="application/json" id="game-data">{"back_kicker": "Back to the start", "done_html": "The way on is open. Right for the next level, down for the details, left to go back", "done_last_html": "The way on leads back to the start. Right to swim home, down for the details, left to go back", "end_kicker": "The end?", "end_title": "More levels coming soon", "levels": [{"hat": "hardhat", "mechanic": "pushpuzzle", "number": 1, "project": "brave-giant", "studio": "Brave Giant", "sublevels": [{"field": ["X X O O O O O O", "X O H H X X O O", "S H O O O O X G", "O O O H O O X X", "X O O O O O O O"], "hint": "Use WASD, arrow keys, or click on a space next to *Fish* to move and push obstacles. Reach the chest in as few moves as you can.", "hint_html": "Use WASD, arrow keys, or click on a space next to \u003cspan class=\"accent\"\u003eFish\u003c/span\u003e to move and push obstacles. Reach the chest in as few moves as you can.", "moves": 15, "stars": [13, 14, 15]}, {"field": ["O H O O O C O O", "O O X X C X X O", "S O C O O O X G", "O O O C O O O X", "O X X O O O O X"], "hint": "A clam can be pushed, but it will break if the space behind it is occupied or blocked.", "hint_html": "A clam can be pushed, but it will break if the space behind it is occupied or blocked.", "moves": 15, "stars": [13, 14, 15]}, {"field": ["O O O O O O O X", "O H O H O O O X", "S O X C O X X G", "O C X A X X O O", "O O X A C O O O"], "hint": "Algae takes two moves to swim into.", "hint_html": "Algae takes two moves to swim into.", "moves": 18, "stars": [16, 17, 18]}], "tint": "#1d7f8c", "title": "Push Puzzle Rescue Adventure"}, {"hat": "conductor", "mechanic": "apoc-express", "number": 2, "project": "llamaware", "studio": "Llamaware", "sublevels": [{"hint": "Dash through a rock to choose difficulty, then swim into a stream.", "hint_html": "Dash through a rock to choose difficulty, then swim into a stream.", "stage_seconds": [30, 40, 50]}], "tint": "#5a6f3a", "title": "Apocalypse Express"}, {"hat": "tricorn", "mechanic": "construction", "number": 3, "project": "ubisoft-belgrade", "studio": "Ubisoft Belgrade", "sublevels": [{"hint_html": "", "note": "New games will come as soon as *Fish* is done with them", "sign": ["Under", "Construction"]}], "tint": "#365f79", "title": "Assassin\u0027s Creed Black Flag Resynced"}], "sub_done_html": "The way on is open. Right for the next room, left to go back", "title": "The Fishy Adventure"}</script>
 
 <div class="sweep" id="sweep" aria-hidden="true"></div>
 

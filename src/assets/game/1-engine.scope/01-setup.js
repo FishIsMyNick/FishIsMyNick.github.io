@@ -126,7 +126,11 @@
     g.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) / 2, sw, sh, 0, 0, pw, ph);
     g.globalCompositeOperation = 'destination-in';
     g.drawImage(pageMask, 0, 0, pw, ph);
-    paintNow(c);
+    try { paintNow(c); }
+    catch (err) {
+      // Local file previews can draw the cover even if pixel reads are blocked.
+      if (err.name !== 'SecurityError') throw err;
+    }
     page.classList.add('is-baked');
   }
 

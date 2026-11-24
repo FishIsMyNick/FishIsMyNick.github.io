@@ -13,16 +13,26 @@
   layer.addEventListener('pointerleave', () => { pointer.inside = false; });
 
   layer.addEventListener('pointerdown', event => {
-    if (!running || inSettings || event.button > 0) return;
+    if (!running || inSettings || event.button !== 0) return;
     if (event.target.closest && event.target.closest(interactive)) return;
     pointer.x = event.clientX;
     pointer.y = event.clientY;
     pointer.inside = true;
     pointer.keyed = false;
     const held = holder();
-    if (held) { held.tap(level, event.clientX, event.clientY); return; }
-    dash(event.clientX, event.clientY);
+    if (held) {
+      if (held.continuous) pointer.down = event.pointerId;
+      held.tap(level, event.clientX, event.clientY);
+      return;
+    }
+    dash(event.clientX, event.clientY, true);
   });
+
+  function releasePointer(event) {
+    if (event.pointerId === pointer.down) pointer.down = null;
+  }
+  window.addEventListener('pointerup', releasePointer);
+  window.addEventListener('pointercancel', releasePointer);
 
   const KEYS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1],
                  a: [-1, 0], d: [1, 0], w: [0, -1], s: [0, 1] };
@@ -34,10 +44,10 @@
     if (KEYS[k]) pointer.keyed = true;   // he stops following the mouse until it moves
     const held = holder();
     if (held) {
-      // one press, one step: every step costs, so holding a key doesn't repeat
       if (KEYS[k]) {
         event.preventDefault();
-        if (!event.repeat) held.press(level, KEYS[k][0], KEYS[k][1]);
+        if (held.continuous) keys.add(k);
+        else if (!event.repeat) held.press(level, KEYS[k][0], KEYS[k][1]);
       }
       return;
     }
@@ -53,6 +63,8 @@
     keys.delete(event.key.length === 1 ? event.key.toLowerCase() : event.key);
   });
 
+  window.addEventListener('blur', () => { keys.clear(); pointer.down = null; });
+
   function keyDir() {
     let x = 0, y = 0;
     for (const k of keys) { x += KEYS[k][0]; y += KEYS[k][1]; }
@@ -60,15 +72,17 @@
     return [x / d, y / d];
   }
 
-  function dash(tx, ty) {
+  function dash(tx, ty, aimed = false) {
     if (scene === 'room') { swimTo(tx, ty); return; }
     if (move || fish.cool > 0) return;
     if (scene !== 'start' && scene !== 'level' && scene !== 'room') return;
+    const exitAim = scene === 'level' && !level.won && mechanicOf(level.i).aimExit?.(level, tx, ty);
+    if (exitAim) [tx, ty] = exitAim;
     let dx = tx - fish.x, dy = ty - fish.y;
     const d = Math.hypot(dx, dy);
     if (d < 4) { dx = fish.facing; dy = 0; } else { dx /= d; dy /= d; }
     const speed = num('dash_speed', 1250);
-    fish.dash = { vx: dx * speed, vy: dy * speed, left: num('dash_time', 0.32) };
+    fish.dash = { vx: dx * speed, vy: dy * speed, left: num('dash_time', 0.32), tx, ty, aimed };
     fish.cool = num('dash_cooldown', 0.4);
     if (Math.abs(dx) > 0.2) fish.facing = Math.sign(dx);
     for (let i = 0; i < 5; i++) puff(fish.x - dx * halfW(), fish.y - dy * halfW(), 1);

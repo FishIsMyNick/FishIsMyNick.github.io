@@ -8,7 +8,8 @@
      coordinates, so its shape goes by with it. Its ends are cut flat: the
      walls of the places either side carry on from them. Deeper (`depth`)
      the water and the stone both darken. */
-  function passage(across, a, b, wide, pos, depth, c0, c1, dir) {
+  function passage(move, a, b, wide) {
+    const { across, dir, c0, c1, crossColors } = move;
     const { w, h } = view;
     const lo = Math.max(a, 0), hi = Math.min(b, across ? w : h);
     if (hi <= lo) return;
@@ -21,7 +22,6 @@
     // everything goes by with the passage
     const L = b - a;
     const mid = across ? h / 2 : w / 2;
-    const cross = across ? h : w;
     const at = (along, side) => across ? [along, side] : [side, along];
     ctx.translate(across ? a : 0, across ? 0 : a);
 
@@ -29,14 +29,36 @@
     // and dark all through the middle
     const near = dir > 0 ? c0 : c1, farEnd = dir > 0 ? c1 : c0;
     const night = css(mix(colorAt(1), '#000000', 0.35));
-    const g = across ? ctx.createLinearGradient(0, 0, L, 0) : ctx.createLinearGradient(0, 0, 0, L);
-    g.addColorStop(0, css(near));
-    g.addColorStop(0.28, night);
-    g.addColorStop(0.72, night);
-    g.addColorStop(1, css(farEnd));
-    ctx.fillStyle = g;
-    if (across) ctx.fillRect(0, 0, L, h);
-    else ctx.fillRect(0, 0, w, L);
+    if (across) {
+      // Carry the full vertical water gradient across the join, even when
+      // the room has already revealed its cover.
+      if (!move.waterTexture) {
+        const [left, right] = dir > 0 ? crossColors : [...crossColors].reverse();
+        const rows = Math.min(64, h);
+        const width = 256;
+        move.waterTexture = paintOn(width, rows, () => {
+          for (let i = 0; i < rows; i++) {
+            const f = (i + 0.5) / rows;
+            const g = ctx.createLinearGradient(0, 0, width, 0);
+            g.addColorStop(0, css(mix(...left, f)));
+            g.addColorStop(0.28, night);
+            g.addColorStop(0.72, night);
+            g.addColorStop(1, css(mix(...right, f)));
+            ctx.fillStyle = g;
+            ctx.fillRect(0, i, width, 1);
+          }
+        }, softCanvas(), 1);
+      }
+      ctx.drawImage(move.waterTexture, 0, 0, L, h);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, 0, L);
+      g.addColorStop(0, css(near));
+      g.addColorStop(0.28, night);
+      g.addColorStop(0.72, night);
+      g.addColorStop(1, css(farEnd));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, L);
+    }
 
     // specks in the water
     for (let i = 0; i < L / 22; i++) {
@@ -54,32 +76,33 @@
      where they meet. Their faces run straight there, so they lie together.
      All tunnels are the same rock, and so are all shafts, painted the once
      (at no more than one to one: it goes by fast). */
-  function passageRock(across, a, b, wide) {
+  function passageRock(across, a, b, wide, pad = 0) {
     const { w, h } = view;
     const lo = Math.max(a, 0), hi = Math.min(b, across ? w : h);
     if (hi <= lo) return;
     const L = b - a;
-    const rock = bakePassage(across, L, wide);
+    const rock = bakePassage(across, L, wide, pad);
     ctx.save();
     ctx.beginPath();
-    if (across) ctx.rect(lo, 0, hi - lo, h);
+    if (across) ctx.rect(lo, -pad, hi - lo, h + 2 * pad);
     else ctx.rect(0, lo, w, hi - lo);
     ctx.clip();
-    if (across) ctx.drawImage(rock, a, 0, L, h);
+    if (across) ctx.drawImage(rock, a, -pad, L, h + 2 * pad);
     else ctx.drawImage(rock, 0, a, w, L);
     ctx.restore();
   }
 
-  function bakePassage(across, L, wide) {
+  function bakePassage(across, L, wide, pad = 0) {
     const { w, h } = view;
     const mid = across ? h / 2 : w / 2;
     const cross = across ? h : w;
     const at = (along, side) => across ? [along, side] : [side, along];
-    const far = 120;
+    const far = 120 + pad;
     const amp = clamp(wide * 0.07, 6, 14);
     const span = [OVERLAP, L - OVERLAP];
     const dark = across ? 0 : 0.4;
-    return bake(`passage${across}:${Math.round(L)}:${Math.round(wide)}`, across ? L : w, across ? h : L, () => {
+    return bake(`passage${across}:${Math.round(L)}:${Math.round(wide)}:${pad}`, across ? L : w, across ? h + 2 * pad : L, () => {
+      if (pad) ctx.translate(0, pad);
       const one = rockShape(
         [at(-far, -far), at(L + far, -far), at(L + far, mid - wide / 2), at(-far, mid - wide / 2)],
         [false, false, true, false], amp, 9.4, span);
@@ -88,14 +111,15 @@
         [false, false, true, false], amp, 12.9, span);
       drawRock(one, 9, dark);
       drawRock(two, 12, dark);
-      // rub out its ends
+      // Fade only the incoming rock over the room's opaque overhang.
+      // Fading both layers exposes the water through the solid wall.
       ctx.globalCompositeOperation = 'destination-out';
       for (const [e0, e1] of [[0, OVERLAP], [L, L - OVERLAP]]) {
         const fade = across ? ctx.createLinearGradient(e0, 0, e1, 0) : ctx.createLinearGradient(0, e0, 0, e1);
         fade.addColorStop(0, 'rgba(0, 0, 0, 1)');
         fade.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = fade;
-        if (across) ctx.fillRect(Math.min(e0, e1), 0, OVERLAP, h);
+        if (across) ctx.fillRect(Math.min(e0, e1), -pad, OVERLAP, h + 2 * pad);
         else ctx.fillRect(0, Math.min(e0, e1), w, OVERLAP);
       }
     }, Math.min(view.dpr, 1));
@@ -179,6 +203,15 @@
       const fade = showsPage(lv)
         ? 1 - clamp((clock - lv.wonAt - 0.3) / Math.max(0.1, num('reveal_time', 1.4)), 0, 1)
         : 1;
+      if (move?.across && showsPage(lv)) {
+        const page = pages[place.i];
+        ctx.fillStyle = css(coverGround(place.i));
+        ctx.fillRect(0, 0, w, h);
+        bakePage(place.i);
+        const cover = page?.querySelector('canvas');
+        const borderSize = border();
+        if (cover) ctx.drawImage(cover, borderSize, borderSize, w - borderSize * 2, h - borderSize * 2);
+      }
       water(0.05, 0.3, tintOf(place.i), fade);
       frameOf(lv);
       mechanicOf(place.i).draw(lv, dt);
@@ -227,17 +260,23 @@
     put(startEl, !!start, start && start.ox, start && start.oy);
 
     const lvl = find('level');
-    put(goalEl, !!lvl, lvl && lvl.ox, lvl && lvl.oy);
+    const hideGoal = lvl && mechanicOf(lvl.place.i).hideGoal;
+    put(goalEl, !!lvl && !(hideGoal && hideGoal(lvl.place.lv)), lvl && lvl.ox, lvl && lvl.oy);
     const talks = lvl && mechanicOf(lvl.place.i).plates;
     put(platesEl, !!talks, lvl && lvl.ox, lvl && lvl.oy);
     layer.classList.toggle('has-plates', !!talks);
+    const mechanic = lvl && mechanicOf(lvl.place.i);
+    platesEl.dataset.mechanic = lvl ? levels[lvl.place.i].mechanic : '';
+    const shooter = !move && !!mechanic && !!mechanic.crosshair?.(lvl.place.lv);
+    layer.classList.toggle('game-shooter', shooter);
+    goalEl.classList.toggle('game-shooter-goal', !!mechanic && !!mechanic.goal?.(lvl.place.lv));
     if (talks) talks(lvl.place.lv);
     if (lvl) {
       const i = lvl.place.i;
       const lv = levels[i] || {};
       const head = [roomName(i, lvl.place.lv.n), lv.title, lv.studio].filter(Boolean).join(' · ');
       const room = lvl.place.lv;
-      const html = room.titled ? (i === levels.length - 1 ? data.done_last_html : data.done_html) : room.won ? data.sub_done_html : subsOf(i)[room.n].hint_html;
+      const html = mechanic.goal?.(room) ?? (room.titled ? (i === levels.length - 1 ? data.done_last_html : data.done_html) : room.won ? data.sub_done_html : subsOf(i)[room.n].hint_html);
       if (hud.goalLevel.textContent !== head) hud.goalLevel.textContent = head;
       // These strings are escaped and formatted by build.py before serialization.
       if (shownGoalHtml !== html) {
@@ -273,6 +312,44 @@
   const easeInOut = u => (1 - Math.cos(Math.PI * clamp(u, 0, 1))) / 2;
   const smooth = u => { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); };
 
+  // Reuse the regular tunnel's water and rock for both branches. Clip them
+  // at their shared wall while the unused branch bends away from Fish.
+  function forkStart(m) {
+    return Math.acos(1 - 2 * m.size / (m.size + m.length)) / Math.PI;
+  }
+
+  function forkBend(m, u) {
+    const start = forkStart(m);
+    return smooth((u - start) / Math.max(0.04, 1 - 2 * start));
+  }
+
+  function forkPassage(m, u, a, paint) {
+    if (!m.fork) { paint(); return; }
+    const { w, h } = view;
+    const bend = forkBend(m, u);
+    const main = m.fork.chosen * h * (1 - bend);
+    const side = Math.sign(m.fork.other - m.fork.chosen);
+    const branch = m.fork.other * h + side * h * bend;
+    const slope = side * bend * 0.18;
+    const at = x => branch + slope * (x - a);
+    const paintSide = (offset, direction, tilt) => {
+      const edge = x => h / 2 + (main + at(x)) / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(0, edge(0));
+      ctx.lineTo(w, edge(w));
+      ctx.lineTo(w, direction > 0 ? 2 * h : -h);
+      ctx.lineTo(0, direction > 0 ? 2 * h : -h);
+      ctx.closePath();
+      ctx.clip();
+      ctx.transform(1, tilt, 0, 1, 0, offset - tilt * a);
+      paint();
+      ctx.restore();
+    };
+    paintSide(main, -side, 0);
+    paintSide(branch, side, slope);
+  }
+
   function drawMove(dt) {
     const m = move;
     const u = clamp((clock - m.at) / m.dur, 0, 1);
@@ -295,12 +372,11 @@
     const b = a + m.length;
 
     // the passage's water, the places, then its rock over the ends of theirs
-    const depth = m.across ? 0.15 : lerp(0.3, 0.5, m.dir > 0 ? u : 1 - u);
-    const wide = m.across ? gapH() : holeW();
-    passage(m.across, a, b, wide, slid, depth, m.c0, m.c1, m.dir);
+    const wide = m.fork?.width || (m.across ? gapH() : holeW());
+    passage(m, a, b, wide);
     drawPlace(m.from, ...along(fromAt), dt);
     drawPlace(m.to, ...along(toAt), dt);
-    passageRock(m.across, a, b, wide);
+    forkPassage(m, u, a, () => passageRock(m.across, a, b, wide, m.fork ? h : 0));
     layout([{ place: m.from, ox: along(fromAt)[0], oy: along(fromAt)[1] },
             { place: m.to, ox: along(toAt)[0], oy: along(toAt)[1] }]);
 
@@ -308,7 +384,7 @@
     // the tunnel is coming in they slide in from its side and settle in
     // the middle, wait there, and leave the other way with its far end
     if (m.across) {
-      const from = 0.2, to = 0.42;
+      const from = m.fork ? forkStart(m) : 0.2, to = from + 0.22;
       const settle = 1 - Math.pow(1 - clamp((u - from) / (to - from), 0, 1), 3);
       const leave = m.dir > 0 ? Math.min(0, b - w) : Math.max(0, a);
       const tx = u < to ? m.dir * w * (1 - settle) : leave;
@@ -323,12 +399,20 @@
     // him: from where he went in to where he comes out, picking up speed
     // and losing it with everything else, his nose turned along the way
     fish.x = lerp(m.p0.x, m.p1.x, e);
+    if (m.handoff) {
+      const left = (1 - u) * m.dur;
+      const blend = smooth(1 - left / 0.34);
+      fish.x = lerp(fish.x, m.p1.x - m.handoff * left, blend);
+    }
     const wantY = lerp(m.p0.y, m.p1.y, e);
     fish.y = wantY;
     // always down the middle of the passage, never through its rock (he
     // lies along it, so his height is what has to fit across it)
-    const play = Math.max(0, (m.across ? gapH() : holeW()) / 2 - halfH() - 4);
-    if (m.across) fish.y = clamp(fish.y, h / 2 - play, h / 2 + play);
+    const play = Math.max(0, wide / 2 - halfH() - 4);
+    if (m.fork) {
+      const mid = h / 2 + m.fork.chosen * h * (1 - forkBend(m, u));
+      fish.y = clamp(wantY, mid - play, mid + play);
+    } else if (m.across) fish.y = clamp(fish.y, h / 2 - play, h / 2 + play);
     else if (m.hurry && clock - m.at < m.hurry) {
       // the button: he darts across to the mouth, kept under the ceiling
       // as it comes down until he's there

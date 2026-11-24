@@ -6,6 +6,7 @@
   document.addEventListener('click', event => {
     // the bowl answers its own taps; everything else you can press is doing
     // something of its own
+    if (document.body.matches('.game-open, .detail-open')) return;
     if (event.target.closest('a, button, input, textarea, select, summary, label, .settings')) return;
 
     state.lastClick = { x: event.clientX, y: event.clientY, at: clock };

@@ -4,12 +4,12 @@
      into strips with a wave run down them, nose steady. `rot` and `flip`
      as there: `flip`'s sign is which drawing, its size how far through a
      turn. And on his head, the level's hat. */
-  function drawFish(x, y, rot, flip, len, hat, lift = 0) {
+  function drawFish(x, y, rot, flip, len, hat, lift = 0, effort = 1) {
     const side = flip >= 0 ? 'right' : 'left';
     const sheet = sheets[side];
     if (!sheet) return;
     const h = len * shape[side];
-    const wiggle = 0.55 * h * 0.14;
+    const wiggle = 0.55 * h * 0.14 * effort;
     const steady = 0.26;
 
     ctx.save();
@@ -107,12 +107,20 @@
     return { hat: pick.fresh, lift: spot.lift * (1 - drop * drop) };
   }
 
-  /* Three hats, each drawn sitting on (0, 0) and facing +x. */
+  /* Hats, each drawn sitting on (0, 0) and facing +x. */
   function drawHat(kind, s) {
     ctx.save();
     ctx.lineJoin = 'round';
     ctx.lineWidth = Math.max(1.5, s * 0.05);
-    if (kind === 'conductor') {
+    if (kind === 'halo') {
+      ctx.strokeStyle = '#ffdf75';
+      ctx.shadowColor = '#ffc953';
+      ctx.shadowBlur = s * 0.35;
+      ctx.lineWidth = Math.max(1.5, s * 0.1);
+      ctx.beginPath();
+      ctx.ellipse(0, -s * 0.48, s * 0.57, s * 0.18, 0.12, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (kind === 'conductor') {
       // a train conductor's cap: navy, a gold band, a black peak
       ctx.fillStyle = '#1f2f5c';
       ctx.strokeStyle = '#0e1630';
@@ -183,7 +191,8 @@
 
   function hatOf(place) {
     if (!place || place.kind === 'start') return null;
-    return levels[place.i] ? levels[place.i].hat : null;
+    const m = mechanicOf(place.i);
+    return place.kind === 'level' && m.hat ? m.hat(place.lv) : levels[place.i]?.hat;
   }
 
   /* Him, free: turning the way he's going, his nose following his climb. */
@@ -191,13 +200,23 @@
     const speed = Math.hypot(fish.vx, fish.vy);
     const flipRate = dt / 0.12;
     fish.flip = fish.facing > 0 ? Math.min(1, fish.flip + flipRate) : Math.max(-1, fish.flip - flipRate);
-    fish.phase += dt * Math.PI * 2 * Aquarium.strokeRate(speed);
+    const mechanic = scene === 'level' && mechanicOf(level.i);
+    const strokeRate = mechanic && mechanic.strokeRate?.(level);
+    fish.phase += dt * Math.PI * 2 * (strokeRate || Aquarium.strokeRate(speed));
     const pitch = clamp(Math.atan2(fish.vy, Math.max(Math.abs(fish.vx), 60)) * 0.6, -0.8, 0.8);
-    const rot = pitch * (fish.flip >= 0 ? 1 : -1) + (scene === 'room' ? rollAngle() : 0);
+    const angle = mechanic && mechanic.angle ? mechanic.angle(level) : 0;
+    const rot = angle + pitch * (fish.flip >= 0 ? 1 : -1) + (scene === 'room' ? rollAngle() : 0);
     drawFree.rot = rot;
     if (Math.random() < dt * 0.6) puff(fish.x + fish.facing * fishLen() * 0.45, fish.y - fishTall() * 0.1, 0.7);
     frosted(scene === 'room' ? roomRect(0, 0) : null, soft => {
       if (!soft) drawBubbles(dt);
-      drawFish(fish.x, fish.y, rot, fish.flip, fishLen(), hatOf(here));
+      ctx.save();
+      const effect = mechanic && mechanic.fishEffect?.(level);
+      if (effect) {
+        ctx.globalAlpha *= effect.alpha;
+        if (effect.flash) ctx.filter = 'brightness(2.4) saturate(.45)';
+      }
+      drawFish(fish.x, fish.y, rot, fish.flip, fishLen(), hatOf(here), 0, strokeRate ? 1 + strokeRate / 13 : 1);
+      ctx.restore();
     });
   }

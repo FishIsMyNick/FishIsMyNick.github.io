@@ -1470,14 +1470,19 @@ window.Aquarium = (() => {
         + Math.sin(x / (length * 0.37) * Math.PI * 2 - t * speed * 1.5 + phase) * amp * 0.35
         + splashLift(x, t) * take;
 
-      // a band of brighter water just under the front one
+      // Trace both edges past the viewport so the line and band end offscreen.
+      const step = splashes.length ? 7 : 20;
+      const right = Math.ceil(w / step) * step + step;
+      const trace = () => {
+        ctx.beginPath();
+        ctx.moveTo(-step, at(-step));
+        for (let x = 0; x <= right; x += step) ctx.lineTo(x, at(x));
+      };
       ctx.save();
       if (i === 0) {
-        ctx.beginPath();
-        ctx.moveTo(0, at(0));
-        for (let x = 0; x <= w; x += 20) ctx.lineTo(x, at(x));
-        ctx.lineTo(w, at(w) + 30);
-        ctx.lineTo(0, at(0) + 30);
+        trace();
+        ctx.lineTo(right, at(right) + 30);
+        ctx.lineTo(-step, at(-step) + 30);
         ctx.closePath();
         const band = ctx.createLinearGradient(0, surf + drop - amp, 0, surf + drop + 30);
         band.addColorStop(0, `rgba(222, 250, 255, ${0.26 * strength})`);
@@ -1485,13 +1490,7 @@ window.Aquarium = (() => {
         ctx.fillStyle = band;
         ctx.fill();
       }
-
-      // and the line itself. A splash is drawn at a finer step than the swell:
-      // the wave group is short, and at 20px it would come out as corners.
-      const step = splashes.length ? 7 : 20;
-      ctx.beginPath();
-      ctx.moveTo(0, at(0));
-      for (let x = 0; x <= w; x += step) ctx.lineTo(x, at(x));
+      trace();
       ctx.strokeStyle = `rgba(233, 253, 255, ${0.5 * strength})`;
       ctx.lineWidth = 1.5 - far * 0.6;
       ctx.stroke();
@@ -1710,6 +1709,7 @@ window.Aquarium = (() => {
   document.addEventListener('click', event => {
     // the bowl answers its own taps; everything else you can press is doing
     // something of its own
+    if (document.body.matches('.game-open, .detail-open')) return;
     if (event.target.closest('a, button, input, textarea, select, summary, label, .settings')) return;
 
     state.lastClick = { x: event.clientX, y: event.clientY, at: clock };
@@ -2746,7 +2746,7 @@ window.Aquarium = (() => {
     if (!goal && fish.dash) {
       const d = fish.dash;
       const away = Math.hypot(d.x - fish.x, d.y - fish.y);
-      if (t > d.until || away < Number(get('fish.dash_arrive', 26))) {
+      if (t > d.until || (fish.mode !== 'bowl' && away < Number(get('fish.dash_arrive', 26)))) {
         fish.dash = null;
         fish.nextThink = t;
       } else {
@@ -2754,7 +2754,7 @@ window.Aquarium = (() => {
         // He is held off the surface by less on a dash than he holds himself
         // off it otherwise, so he arrives at it instead of stopping short.
         const skim = state.surfaceY + length() * Number(get('fish.dash_surface_gap', 0.05));
-        goal = {
+        goal = fish.mode === 'bowl' ? d : {
           x: clamp(d.x, b.left, b.right),
           y: clamp(d.y, Math.min(skim, b.top), b.bottom)
         };
@@ -2825,9 +2825,18 @@ window.Aquarium = (() => {
     /* He keeps to his water. The ceiling gives way on a dash: whatever is
        holding him off the surface the rest of the time, a click he is on his
        way to is somewhere he gets to. */
-    const ceiling = fish.dash
+    const ceiling = fish.dash && fish.mode !== 'bowl'
       ? Math.min(b.top, state.surfaceY + length() * Number(get('fish.dash_surface_gap', 0.05)))
       : b.top;
+
+    const glassHit = fish.mode === 'bowl' && fish.dash &&
+      (fish.x < b.left || fish.x > b.right || fish.y < ceiling || fish.y > b.bottom);
+    if (glassHit) {
+      fish.dash = null;
+      fish.hold = null;
+      fish.nextThink = t;
+      Portfolio.sound.tap(0.85);
+    }
 
     if (fish.x < b.left)   { fish.x = b.left;   fish.vx = Math.abs(fish.vx) * 0.4; }
     if (fish.x > b.right)  { fish.x = b.right;  fish.vx = -Math.abs(fish.vx) * 0.4; }
@@ -4156,9 +4165,11 @@ window.Aquarium = (() => {
   // Escape closes the panel first; the detail page's own Escape waits for
   // the next press.
   document.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || !open()) return;
+    const playing = document.body.classList.contains('game-open');
+    if (event.key !== 'Escape' || (!playing && !open())) return;
     event.stopImmediatePropagation();
-    show(false);
+    if (event.repeat) return;
+    show(playing && !open());
     btn.focus();
   }, true);
 })();
@@ -4440,7 +4451,4 @@ window.Aquarium = (() => {
   toggle.addEventListener('focus', ready, { once: true });
   if (back) back.addEventListener('click', close);
 
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && isOpen()) close();
-  });
 })();

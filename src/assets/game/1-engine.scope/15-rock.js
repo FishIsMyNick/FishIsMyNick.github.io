@@ -225,9 +225,8 @@
   const STONE_PAD = 34;
   const stones = new Map();
 
-  function plateShape(pw, ph, seed) {
+  function plateShape(pw, ph, seed, amp = 7) {
     const R = Math.min(34, pw / 4, ph / 4);
-    const amp = 7;
     const corners = [[pw - R, R, -Math.PI / 2], [pw - R, ph - R, 0], [R, ph - R, Math.PI / 2], [R, R, Math.PI]];
     const pts = [];
     corners.forEach(([cx, cy, from], n) => {
@@ -268,10 +267,10 @@
 
   /* The same stone as a picture, for the canvas: `pw` by `ph`, with STONE_PAD
      more all round for its shadow. */
-  function plateOf(pw, ph, seed) {
-    return bake(`plate${Math.round(pw)}:${Math.round(ph)}:${seed}`, pw + STONE_PAD * 2, ph + STONE_PAD * 2, () => {
+  function plateOf(pw, ph, seed, roughness = 7) {
+    return bake(`plate${Math.round(pw)}:${Math.round(ph)}:${seed}:${roughness}`, pw + STONE_PAD * 2, ph + STONE_PAD * 2, () => {
       ctx.translate(STONE_PAD, STONE_PAD);
-      drawRock(plateShape(pw, ph, seed), seed);
+      drawRock(plateShape(pw, ph, seed, roughness), seed);
     });
   }
 

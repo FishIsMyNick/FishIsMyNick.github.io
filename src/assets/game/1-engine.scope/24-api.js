@@ -158,11 +158,11 @@
       frame(performance.now());
     },
 
-    /* The settings panel opened or closed. A game on a clock waits for it; one
-       that goes by turns has nothing to wait for. */
+    /* Pause the current scene while the settings panel is open. */
     settings(open) {
       inSettings = open;
-      paused = open && running && !holder();
+      paused = open && running;
+      if (open) { keys.clear(); pointer.down = null; }
       if (open) stoneBehind($('settings'), 23);
     },
 
@@ -182,5 +182,6 @@
       setFade(false, 0);
       emptyRoom();
       keys.clear();
+      pointer.down = null;
     }
   };

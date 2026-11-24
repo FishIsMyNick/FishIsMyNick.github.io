@@ -10,6 +10,7 @@
       fish.vy = fish.dash.vy;
       fish.dash.left -= dt;
       if (fish.dash.left <= 0) {
+        fish.lastDash = fish.dash;
         fish.dash = null;
         fish.dashEnd = clock;
         fish.vx *= 0.35; fish.vy *= 0.35;

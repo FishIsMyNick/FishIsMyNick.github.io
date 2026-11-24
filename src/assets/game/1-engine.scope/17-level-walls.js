@@ -98,11 +98,15 @@
     // the way back is always lit, and the way on once it's open: while it's
     // breaking it has a light of its own (drawOpeningGlow)
     const reach = wallsOf(lv).x + g * 1.6;
-    mouthLight(0, cy, reach);
+    if (lv.won || !m.hideLeftMouth?.(lv)) mouthLight(0, cy, reach);
     if (right && lv.glowAt.right === undefined) mouthLight(w, cy, reach);
 
     // one seed for all of it, so the pits stay put when the wall is cut up
+    const offset = !lv.titled && m.rockOffset?.(lv);
+    ctx.save();
+    if (offset) ctx.translate(offset, 0);
     stampBaked(bakeLevel(lv));
+    ctx.restore();
     // a little coral here and there, kept out of the openings. It grows on
     // the whole wall, so it doesn't move when the openings break
     const clear = (x, y) => (Math.abs(y - cy) < g + 30 && (x < b * 3 || x > w - b * 3))

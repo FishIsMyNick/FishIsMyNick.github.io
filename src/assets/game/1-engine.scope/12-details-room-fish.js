@@ -210,6 +210,9 @@
     const band = Math.max(b * 4, 60);
     if (scene === 'start' && x > w - wallW() && Math.abs(y - h / 2) < g) return [w + fishLen(), h / 2];
     if (scene === 'level') {
+      const m = mechanicOf(level.i);
+      const target = !level.won && m.aimExit?.(level, x, y);
+      if (target) return target;
       if (x < band && Math.abs(y - h / 2) < g) return [-fishLen(), h / 2];
       if (level.opened.right && x > w - band && Math.abs(y - h / 2) < g) return [w + fishLen(), h / 2];
       if (level.opened.bottom && y > h - band && Math.abs(x - w / 2) < holeW() / 2) return [w / 2, h + fishLen()];
@@ -241,7 +244,10 @@
       side(-far, -far, w + far, inner.top);        // top
       side(-far, -far, b, h / 2 - g);              // left, open: the way back
       side(-far, h / 2 + g, b, h + far);
-      if (level.opened.right) {                    // right, once it's broken open
+      const right = !level.won && mechanicOf(level.i).rightWall?.(level);
+      if (right) {
+        for (const box of right) side(box.l, box.t, box.r, box.b);
+      } else if (level.opened.right) {                    // right, once it's broken open
         side(w - b, -far, w + far, h / 2 - g);
         side(w - b, h / 2 + g, w + far, h + far);
       } else side(w - b, -far, w + far, h + far);
@@ -265,13 +271,13 @@
   function collide() {
     const hw = halfW(), hh = halfH();
     // a dash that has only just run out still counts: he's still going fast
-    const hard = fish.dash || clock - fish.dashEnd < 0.15;
+    const dash = fish.dash || (clock - fish.dashEnd < 0.15 ? fish.lastDash : null);
     for (const r of walls()) {
       const ox = Math.min(fish.x + hw, r.r) - Math.max(fish.x - hw, r.l);
       const oy = Math.min(fish.y + hh, r.b) - Math.max(fish.y - hh, r.t);
       if (ox <= 0 || oy <= 0) continue;
 
-      if (r.thing && r.thing.touch(hard)) continue;
+      if (r.thing && r.thing.touch(!!dash, dash)) continue;
 
       if (ox < oy) {
         fish.x += fish.x < (r.l + r.r) / 2 ? -ox : ox;
@@ -298,7 +304,7 @@
      level's title room. */
   function roomName(i, n) {
     const titled = beaten[i] && n === lastSub(i);
-    return 'Level ' + (i + 1) + (titled ? '' : '.' + (n + 1));
+    return 'Level ' + levels[i].number + (titled || mechanicOf(i).wholeLevel ? '' : '.' + (n + 1));
   }
 
   function enterLevel(i, n, back = false) {
@@ -333,6 +339,8 @@
     } else if (scene === 'level') {
       // he follows the cursor only so close, so it's enough to be into the
       // opening: the walls keep him out of it everywhere else
+      const m = mechanicOf(level.i);
+      if (!level.won && m.exit?.(level)) return;
       if (fish.x - halfW() * 0.6 < border()) {
         goBack();
       } else if (level.opened.right && fish.x + halfW() * 0.6 > w - border()) {

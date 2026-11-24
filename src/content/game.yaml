@@ -58,6 +58,7 @@ results_hide: Collapse
 # rules are in Game-PushPuzzle.md, where each puzzle's best solution is too.
 levels:
   - project: brave-giant
+    number: 1
     hat: hardhat
     tint: "#1d7f8c"
     mechanic: pushpuzzle
@@ -90,8 +91,16 @@ levels:
           - O C X A X X O O
           - O O X A C O O O
   - project: llamaware
+    number: 2
     hat: conductor
     tint: "#5a6f3a"
+    mechanic: apoc-express
+    sublevels:
+      - hint: Dash through a rock to choose difficulty, then swim into a stream.
+        stage_seconds: [30, 40, 50]
+  - project: ubisoft-belgrade
+    hat: tricorn
+    tint: "#365f79"
     mechanic: construction
     sublevels:
       - sign: [Under, Construction]

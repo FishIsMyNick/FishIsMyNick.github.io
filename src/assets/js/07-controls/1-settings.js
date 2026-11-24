@@ -30,9 +30,11 @@
   // Escape closes the panel first; the detail page's own Escape waits for
   // the next press.
   document.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || !open()) return;
+    const playing = document.body.classList.contains('game-open');
+    if (event.key !== 'Escape' || (!playing && !open())) return;
     event.stopImmediatePropagation();
-    show(false);
+    if (event.repeat) return;
+    show(playing && !open());
     btn.focus();
   }, true);
 })();

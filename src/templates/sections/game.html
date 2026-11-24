@@ -11,7 +11,7 @@
                    text, the level's goal in the corner, a mechanic's plates
      .game-room    a level's details room: the project's own detail page
                    (details/professional.html), moved in while it's open
-   The levels and their order are game.levels in site.yaml. #}
+   The levels and their order are defined in game.yaml. #}
 {% from "partials/icons.html" import icon %}
 {% set projects = {} %}
 {% for p in professional + hobby %}{% set _ = projects.update({p.id: p}) %}{% endfor %}
@@ -84,6 +84,26 @@
       </div>
       <button type="button" class="game-results-show" id="game-results-show" hidden
               aria-label="{{ site.game.results }}" title="{{ site.game.results }}"><i class="game-star is-got"></i></button>
+      <div class="game-plate game-results game-stream-results" id="game-stream-results" hidden>
+        <button type="button" class="game-results-hide" id="game-stream-hide"
+                aria-label="{{ site.game.results_hide }}" title="{{ site.game.results_hide }}"><span aria-hidden="true">↙</span></button>
+        <h3 class="game-results-title"></h3>
+        <table class="game-results-table">
+          <tbody>
+            <tr><th scope="row">Time played</th><td></td></tr>
+            <tr><th scope="row">Enemies killed</th><td></td></tr>
+            <tr><th scope="row">Damage done</th><td></td></tr>
+            <tr><th scope="row">Damage taken</th><td></td></tr>
+            <tr><th scope="row">Difficulty multiplyer</th><td></td></tr>
+          </tbody>
+          <tfoot>
+            <tr><th scope="row">Total</th><td></td></tr>
+          </tfoot>
+        </table>
+        <button class="game-retry" id="game-stream-retry" type="button" hidden>{{ site.game.retry }}</button>
+      </div>
+      <button type="button" class="game-results-show game-stream-results" id="game-stream-show" hidden
+              aria-label="{{ site.game.results }}" title="{{ site.game.results }}"><i class="game-star is-got"></i></button>
     </div>
   </div>
 
@@ -113,6 +133,7 @@
 {% endfor %}
 {% set _ = levels.append({
   'project': level.project,
+  'number': level.get('number', loop.index),
   'title': projects[level.project].title,
   'studio': projects[level.project].get('studio', ''),
   'hat': level.get('hat', 'hardhat'),

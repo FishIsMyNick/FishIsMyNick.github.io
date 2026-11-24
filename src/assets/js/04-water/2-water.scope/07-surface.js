@@ -68,14 +68,19 @@
         + Math.sin(x / (length * 0.37) * Math.PI * 2 - t * speed * 1.5 + phase) * amp * 0.35
         + splashLift(x, t) * take;
 
-      // a band of brighter water just under the front one
+      // Trace both edges past the viewport so the line and band end offscreen.
+      const step = splashes.length ? 7 : 20;
+      const right = Math.ceil(w / step) * step + step;
+      const trace = () => {
+        ctx.beginPath();
+        ctx.moveTo(-step, at(-step));
+        for (let x = 0; x <= right; x += step) ctx.lineTo(x, at(x));
+      };
       ctx.save();
       if (i === 0) {
-        ctx.beginPath();
-        ctx.moveTo(0, at(0));
-        for (let x = 0; x <= w; x += 20) ctx.lineTo(x, at(x));
-        ctx.lineTo(w, at(w) + 30);
-        ctx.lineTo(0, at(0) + 30);
+        trace();
+        ctx.lineTo(right, at(right) + 30);
+        ctx.lineTo(-step, at(-step) + 30);
         ctx.closePath();
         const band = ctx.createLinearGradient(0, surf + drop - amp, 0, surf + drop + 30);
         band.addColorStop(0, `rgba(222, 250, 255, ${0.26 * strength})`);
@@ -83,13 +88,7 @@
         ctx.fillStyle = band;
         ctx.fill();
       }
-
-      // and the line itself. A splash is drawn at a finer step than the swell:
-      // the wave group is short, and at 20px it would come out as corners.
-      const step = splashes.length ? 7 : 20;
-      ctx.beginPath();
-      ctx.moveTo(0, at(0));
-      for (let x = 0; x <= w; x += step) ctx.lineTo(x, at(x));
+      trace();
       ctx.strokeStyle = `rgba(233, 253, 255, ${0.5 * strength})`;
       ctx.lineWidth = 1.5 - far * 0.6;
       ctx.stroke();

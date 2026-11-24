@@ -206,7 +206,7 @@
     if (!goal && fish.dash) {
       const d = fish.dash;
       const away = Math.hypot(d.x - fish.x, d.y - fish.y);
-      if (t > d.until || away < Number(get('fish.dash_arrive', 26))) {
+      if (t > d.until || (fish.mode !== 'bowl' && away < Number(get('fish.dash_arrive', 26)))) {
         fish.dash = null;
         fish.nextThink = t;
       } else {
@@ -214,7 +214,7 @@
         // He is held off the surface by less on a dash than he holds himself
         // off it otherwise, so he arrives at it instead of stopping short.
         const skim = state.surfaceY + length() * Number(get('fish.dash_surface_gap', 0.05));
-        goal = {
+        goal = fish.mode === 'bowl' ? d : {
           x: clamp(d.x, b.left, b.right),
           y: clamp(d.y, Math.min(skim, b.top), b.bottom)
         };
@@ -285,9 +285,18 @@
     /* He keeps to his water. The ceiling gives way on a dash: whatever is
        holding him off the surface the rest of the time, a click he is on his
        way to is somewhere he gets to. */
-    const ceiling = fish.dash
+    const ceiling = fish.dash && fish.mode !== 'bowl'
       ? Math.min(b.top, state.surfaceY + length() * Number(get('fish.dash_surface_gap', 0.05)))
       : b.top;
+
+    const glassHit = fish.mode === 'bowl' && fish.dash &&
+      (fish.x < b.left || fish.x > b.right || fish.y < ceiling || fish.y > b.bottom);
+    if (glassHit) {
+      fish.dash = null;
+      fish.hold = null;
+      fish.nextThink = t;
+      Portfolio.sound.tap(0.85);
+    }
 
     if (fish.x < b.left)   { fish.x = b.left;   fish.vx = Math.abs(fish.vx) * 0.4; }
     if (fish.x > b.right)  { fish.x = b.right;  fish.vx = -Math.abs(fish.vx) * 0.4; }

@@ -2717,6 +2717,21 @@ body.game-open .slider::-webkit-slider-runnable-track { background: rgba(255, 21
 }
 .sweep.is-running { visibility: visible; }
 
+
+.game-shooter { cursor: none; }
+.game-shooter-goal .game-goal-text { font-size: .88rem; }
+
+.game-plates[data-mechanic="apoc-express"] > :not(.game-stream-results),
+.game-plates:not([data-mechanic="apoc-express"]) > .game-stream-results {
+  display: none;
+}
+.game-stream-results:has(.game-retry:not([hidden])) {
+  left: 50%;
+  bottom: 50%;
+  transform: translate(-50%, 50%);
+}
+.game-stream-results .game-retry { align-self: flex-start; }
+
 /* src/assets/css/12-responsive.css */
 /* Breakpoints and motion preferences. Keep this last. */
 

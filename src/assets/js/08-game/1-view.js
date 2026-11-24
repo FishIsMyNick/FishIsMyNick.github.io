@@ -132,7 +132,4 @@
   toggle.addEventListener('focus', ready, { once: true });
   if (back) back.addEventListener('click', close);
 
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && isOpen()) close();
-  });
 })();

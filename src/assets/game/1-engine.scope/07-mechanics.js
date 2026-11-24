@@ -17,6 +17,14 @@
        steer(room, dt)   where he should be: { x, y, len, facing, rate }
        press(room, dx, dy)  an arrow key or WASD
        tap(room, x, y)   a click or a touch
+       continuous        held movement keys are passed to steer as a direction
+       angle(room)       additional rotation for the free fish renderer
+       hideGoal(room)    replace the default goal with mechanic-specific UI
+       hat(room)         override the worn hat, including null
+       rightWall(room)   replace the right collision wall with these boxes
+       aimExit(room,x,y) redirect the cursor through a custom opening
+       exit(room)        handle a custom exit, returning true if it takes over
+       rockOffset(room)  horizontal offset of the custom rock
 
      And it may have words on the page, in .game-plates (sections/game.html),
      which slides with the room:
@@ -56,7 +64,7 @@
   }
 
   function holdFish(to, dt) {
-    const k = 1 - Math.exp(-(to.rate || 14) * dt);
+    const k = to.positioned ? 1 : 1 - Math.exp(-(to.rate || 14) * dt);
     const dx = (to.x - fish.x) * k, dy = (to.y - fish.y) * k;
     fish.x += dx;
     fish.y += dy;
@@ -91,8 +99,12 @@
   }
 
   const engineForMechanics = {
+    get platePad() { return STONE_PAD; },
     get ctx() { return ctx; },        // always ask: it isn't always the same one
     get clock() { return clock; },
+    get aim() { return { x: pointer.x, y: pointer.y, inside: pointer.inside, firing: pointer.down !== null }; },
+    get nose() { return fishLen() * 0.49; },
+    mouthLight: (x, y, reach) => mouthLight(x, y, reach),
     get fish() { return { x: fish.x, y: fish.y, vx: fish.vx, vy: fish.vy }; },
     get view() { return { w: view.w, h: view.h, dpr: view.dpr }; },
     num, clamp, lerp, rand,
@@ -100,8 +112,20 @@
     puff: (x, y, size) => puff(x, y, size),
     slowFish(k) { fish.vx *= k; fish.vy *= k; },
     beatRoom: () => beatRoom(),
+    warmPassage(width, pad) {
+      const length = Math.round(view.w * Math.max(1.2, num('tunnel_length', 2.2)));
+      bakePassage(true, length, width, pad);
+    },
+    prepareRoom: () => paintNear(here),
+    breakRightWall: room => startBreak(room, 'right'),
+    levelNumber: i => levels[i].number,
+    nextStream(room, stream, title, fork) {
+      const lv = { ...makeLevel(room.i, room.n), stream };
+      begin('tunnel', { kind: 'level', i: room.i, lv }, title, levels[room.i].title, false, false, fork);
+    },
     goBack: () => goBack(),
     resetRoom: () => fadeReset(),
+    fade: (on, seconds) => setFade(on, seconds),
     kept,                             // emptied when the game starts over
     subsOf,
     rockOverlap: OVERLAP,
@@ -111,7 +135,7 @@
     gapH: () => gapH(),
     softCanvas: () => softCanvas(),
     stoneBehind: (el, seed) => stoneBehind(el, seed),
-    plate: (pw, ph, seed) => plateOf(pw, ph, seed),
+    plate: plateOf,
     paintNow: c => paintNow(c),
     rockAhead: (key, outlines, i) => { bakeOutlines(key, outlines, i); }
   };

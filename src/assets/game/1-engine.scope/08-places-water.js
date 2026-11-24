@@ -12,6 +12,10 @@
     return { x: b + halfW() + 8, y: h / 2 };
   }
 
+  function coverGround(i) {
+    return edges[i] || Aquarium.rgb(getComputedStyle(layer).getPropertyValue('--deep').trim());
+  }
+
   /* The colour of a place's water at the end a passage joins it: `mid` for
      a tunnel (the openings are halfway up), `top` and `bottom` for the
      shafts. */
@@ -19,7 +23,7 @@
     const f = where === 'top' ? 0 : where === 'bottom' ? 1 : 0.5;
     if (place.kind === 'start') return colorAt(lerp(0, 0.22, f));
     // a beaten level is its title page by now: the picture's ground
-    if (place.kind === 'level' && showsPage(place.lv)) return edges[place.i] || Aquarium.rgb('#06202a');
+    if (place.kind === 'level' && showsPage(place.lv)) return coverGround(place.i);
     if (place.kind === 'room') return roomTop();
     const tint = tintOf(place.i);
     const [d0, d1] = place.kind === 'room' ? [roomDepth() - 0.05, roomDepth() + 0.08] : [0.05, 0.3];
@@ -70,7 +74,7 @@
     level = to.kind === 'level' ? to.lv : null;
     if (to.kind !== 'start') current = to.i;
     setScene(to.kind);
-    paintNear(to);
+    if (!level || !mechanicOf(level.i).deferPaintNear?.(level)) paintNear(to);
   }
 
   /* The details room: the project's own detail page, borrowed from the
