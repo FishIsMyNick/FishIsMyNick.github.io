@@ -195,6 +195,30 @@
     return place.kind === 'level' && m.hat ? m.hat(place.lv) : levels[place.i]?.hat;
   }
 
+  const sweatDrop = new Path2D('M 0 -1.15 Q 1.3 0.25 0.55 0.72 Q 0 1.1 -0.55 0.72 Q -1.3 0.25 0 -1.15 Z');
+
+  function visualFishScale(place) {
+    return place?.kind === 'level' ? (mechanicOf(place.i).fishScale?.(place.lv) ?? 1) : 1;
+  }
+
+  function drawSweat(len) {
+    ctx.save();
+    ctx.translate(fish.x, fish.y);
+    ctx.scale(fish.facing, 1);
+    for (let i = 0; i < 3; i++) {
+      const age = (clock * 2.8 + i / 3) % 1;
+      ctx.save();
+      ctx.translate(len * (0.30 + (i - 1) * age * 0.20), len * (-0.26 + age * 0.42));
+      ctx.scale(len * 0.065, len * 0.065);
+      ctx.rotate((1 - i) * 0.65);
+      ctx.globalAlpha *= Math.sin(age * Math.PI);
+      ctx.fillStyle = '#9eeaff';
+      ctx.fill(sweatDrop);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
   /* Him, free: turning the way he's going, his nose following his climb. */
   function drawFree(dt) {
     const speed = Math.hypot(fish.vx, fish.vy);
@@ -212,11 +236,21 @@
       if (!soft) drawBubbles(dt);
       ctx.save();
       const effect = mechanic && mechanic.fishEffect?.(level);
-      if (effect) {
-        ctx.globalAlpha *= effect.alpha;
-        if (effect.flash) ctx.filter = 'brightness(2.4) saturate(.45)';
-      }
-      drawFish(fish.x, fish.y, rot, fish.flip, fishLen(), hatOf(here), 0, strokeRate ? 1 + strokeRate / 13 : 1);
+      if (effect) ctx.globalAlpha *= effect.alpha;
+      const len = fishLen() * visualFishScale(here);
+      const hat = hatOf(here);
+      const effort = (strokeRate ? 1 + strokeRate / 13 : 1) * (effect?.nervous ? 1.8 : 1);
+      ctx.save();
+      if (effect?.green) ctx.filter = 'brightness(0) saturate(100%) invert(81%) sepia(65%) saturate(670%) hue-rotate(64deg)';
+      else if (effect?.flash) ctx.filter = 'brightness(2.4) saturate(.45)';
+      drawFish(fish.x, fish.y, rot, fish.flip, len, hat, 0, effort);
       ctx.restore();
+      if (effect?.silhouette) {
+        ctx.globalAlpha *= 0.5;
+        ctx.filter = 'brightness(0) saturate(100%) invert(89%) sepia(40%) saturate(550%) hue-rotate(88deg)';
+        drawFish(fish.x, fish.y, rot, fish.flip, len * 1.24, hat, 0, effort);
+      }
+      ctx.restore();
+      if (effect?.nervous) drawSweat(len);
     });
   }

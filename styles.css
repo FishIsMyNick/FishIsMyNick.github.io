@@ -2732,6 +2732,56 @@ body.game-open .slider::-webkit-slider-runnable-track { background: rgba(255, 21
 }
 .game-stream-results .game-retry { align-self: flex-start; }
 
+.test-build-number {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 2147483647;
+  padding: .25rem .5rem;
+  background: #091b24;
+  color: #fff;
+  font: 600 .75rem/1.3 system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.game-review-controls {
+  position: absolute;
+  z-index: 5;
+  inset: auto 1rem 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .35rem;
+  cursor: auto;
+  pointer-events: none;
+}
+
+.game-review-controls:not([hidden]),
+.game-review-controls [data-review-world]:not([hidden]) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+.game-review-controls :is(button, select) {
+  pointer-events: auto;
+  background: #193a49;
+  color: #fff;
+  border: 1px solid #8cbac8;
+  border-radius: .35rem;
+  padding: .25rem .5rem;
+}
+
+.game-review-controls label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
 /* src/assets/css/12-responsive.css */
 /* Breakpoints and motion preferences. Keep this last. */
 

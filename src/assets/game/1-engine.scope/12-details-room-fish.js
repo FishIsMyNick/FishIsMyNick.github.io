@@ -294,9 +294,10 @@
   function beatRoom() {
     level.won = true;
     level.wonAt = clock;
+    if (level.review) return;
     if (!cleared[current]) cleared[current] = [];
     cleared[current][level.n] = true;
-    beaten[current] = subsOf(current).every((sub, n) => isCleared(current, n));
+    beaten[current] = subsOf(current).every((sub, n) => sub.review || isCleared(current, n));
     level.titled = beaten[current] && level.n === lastSub(current);
   }
 
@@ -304,10 +305,13 @@
      level's title room. */
   function roomName(i, n) {
     const titled = beaten[i] && n === lastSub(i);
-    return 'Level ' + levels[i].number + (titled || mechanicOf(i).wholeLevel ? '' : '.' + (n + 1));
+    const levelName = 'Level ' + levels[i].number;
+    if (isReview(i, n)) return levelName + '.0';
+    return levelName + (titled || mechanicOf(i).wholeLevel ? '' : '.' + (n + (isReview(i, 0) ? 0 : 1)));
   }
 
   function enterLevel(i, n, back = false) {
+    if (isReview(i, n)) reviewScenario = 0;
     begin('tunnel', { kind: 'level', i, n, lv: makeLevel(i, n) }, roomName(i, n), levels[i].title, back);
   }
 

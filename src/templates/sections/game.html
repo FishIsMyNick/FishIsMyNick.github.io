@@ -117,6 +117,10 @@
   <div class="game-room-bar" id="game-room-bar" aria-hidden="true" hidden></div>
   <button type="button" class="game-room-up" id="game-room-up" hidden><span aria-hidden="true">↑</span> {{ site.game.room_up }}</button>
 
+  {% if test_build is defined %}
+  {% include "sections/game-review.html" %}
+  {% endif %}
+
   <div class="game-fade" id="game-fade" aria-hidden="true"></div>
   <button type="button" class="corner-button game-reset" id="game-reset" hidden
           aria-label="{{ site.game.reset }}" title="{{ site.game.reset }}">{{ icon('reset') }}</button>

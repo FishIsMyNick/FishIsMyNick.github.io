@@ -195,10 +195,12 @@
       const stars = starsFor(p);
       p.state = 'won';
       p.win = { at: game.clock, stars, landed: 0 };
-      const key = keyOf(room.i, room.n);
-      const best = game.kept[key];
-      game.kept[key] = { stars: Math.max(best ? best.stars : 0, stars),
-                         used: Math.min(best ? best.used : p.used, p.used) };
+      if (!room.review) {
+        const key = keyOf(room.i, room.n);
+        const best = game.kept[key];
+        game.kept[key] = { stars: Math.max(best ? best.stars : 0, stars),
+                           used: Math.min(best ? best.used : p.used, p.used) };
+      }
       const box = fit(p.field);
       const [x, y] = at(box, p.field.chest.r, p.field.chest.c);
       for (let i = 0; i < 8; i++) game.puff(x + rand(-16, 16), y + rand(-16, 16), 0.8);
@@ -675,7 +677,8 @@
 
     function fillResults(i) {
       const subs = game.subsOf(i);
-      const bests = subs.map((sub, n) => game.kept[keyOf(i, n)] || { stars: 0, used: 0 });
+      const first = subs[0].review ? 1 : 0;
+      const bests = subs.slice(first).map((sub, n) => game.kept[keyOf(i, n + first)] || { stars: 0, used: 0 });
       const stamp = i + ':' + JSON.stringify(bests);
       if (page.rows.dataset.stamp === stamp) return;
       page.rows.dataset.stamp = stamp;
@@ -684,13 +687,13 @@
         const row = page.rows.insertRow();
         const name = document.createElement('th');
         name.scope = 'row';
-        name.textContent = `Level ${i + 1}.${n + 1}`;
+        name.textContent = `Level ${game.levelNumber(i)}.${n + 1}`;
         row.appendChild(name);
         row.insertCell().textContent = best.used || '–';
         row.insertCell().appendChild(starsRow(best.stars));
       });
       page.totalMoves.textContent = bests.reduce((sum, b) => sum + b.used, 0);
-      page.totalStars.textContent = bests.reduce((sum, b) => sum + b.stars, 0) + ' / ' + subs.length * 3;
+      page.totalStars.textContent = bests.reduce((sum, b) => sum + b.stars, 0) + ' / ' + bests.length * 3;
     }
 
     return {
@@ -710,7 +713,7 @@
       solids: () => [],
 
       rock(room, open) {
-        return room.puzzle ? rockFor(room.i, room.n, room.puzzle.field, open) : null;
+        return room.puzzle ? rockFor(room.i, room.review ? 'review-' + room.reviewScenario : room.n, room.puzzle.field, open) : null;
       },
 
       inset(room) {

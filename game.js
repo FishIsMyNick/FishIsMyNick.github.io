@@ -393,6 +393,8 @@
   // -------------------------------------------------------------- places --
 
   const subsOf = i => (levels[i] && levels[i].sublevels) || [{}];
+  const isReview = (i, n) => !!subsOf(i)[n]?.review;
+  let reviewScenario = 0;
   const lastSub = i => subsOf(i).length - 1;
   const isCleared = (i, n) => !!(cleared[i] && cleared[i][n]);
 
@@ -401,15 +403,17 @@
      done is its last room with the title page, and the floor open as well. */
   function makeLevel(i, n = lastSub(i)) {
     // a level not built yet has nothing to beat: it's open from the start
-    if (mechanicOf(i).notBuilt) {
+    const review = isReview(i, n);
+    if (mechanicOf(i).notBuilt && !review) {
       cleared[i] = subsOf(i).map(() => true);
       beaten[i] = true;
     }
-    const done = isCleared(i, n);
-    const titled = !!beaten[i] && n === lastSub(i);
+    const done = review ? !!mechanicOf(i).notBuilt : isCleared(i, n);
+    const titled = !review && !!beaten[i] && n === lastSub(i);
     const lv = {
       i,
       n,
+      review,
       won: done,
       titled,
       wonAt: done ? -99 : 0,
@@ -421,7 +425,13 @@
       glowAt: {},        // when each opening began to glow
       debris: []
     };
-    if (!done) mechanicOf(i).setup(lv, subsOf(i)[n]);
+    if (!done) {
+      const scenarios = subsOf(i);
+      const puzzle = levels[i].mechanic === 'pushpuzzle';
+      const sub = review && puzzle ? scenarios[reviewScenario + 1] : scenarios[n];
+      if (review) lv.reviewScenario = reviewScenario;
+      mechanicOf(i).setup(lv, sub);
+    }
     return lv;
   }
 
@@ -549,7 +559,7 @@
     levelNumber: i => levels[i].number,
     nextStream(room, stream, title, fork) {
       const lv = { ...makeLevel(room.i, room.n), stream };
-      begin('tunnel', { kind: 'level', i: room.i, lv }, title, levels[room.i].title, false, false, fork);
+      begin('tunnel', { kind: 'level', i: room.i, lv }, room.review ? roomName(room.i, room.n) : title, levels[room.i].title, false, false, fork);
     },
     goBack: () => goBack(),
     resetRoom: () => fadeReset(),
@@ -1186,9 +1196,10 @@
   function beatRoom() {
     level.won = true;
     level.wonAt = clock;
+    if (level.review) return;
     if (!cleared[current]) cleared[current] = [];
     cleared[current][level.n] = true;
-    beaten[current] = subsOf(current).every((sub, n) => isCleared(current, n));
+    beaten[current] = subsOf(current).every((sub, n) => sub.review || isCleared(current, n));
     level.titled = beaten[current] && level.n === lastSub(current);
   }
 
@@ -1196,10 +1207,13 @@
      level's title room. */
   function roomName(i, n) {
     const titled = beaten[i] && n === lastSub(i);
-    return 'Level ' + levels[i].number + (titled || mechanicOf(i).wholeLevel ? '' : '.' + (n + 1));
+    const levelName = 'Level ' + levels[i].number;
+    if (isReview(i, n)) return levelName + '.0';
+    return levelName + (titled || mechanicOf(i).wholeLevel ? '' : '.' + (n + (isReview(i, 0) ? 0 : 1)));
   }
 
   function enterLevel(i, n, back = false) {
+    if (isReview(i, n)) reviewScenario = 0;
     begin('tunnel', { kind: 'level', i, n, lv: makeLevel(i, n) }, roomName(i, n), levels[i].title, back);
   }
 
@@ -2462,6 +2476,30 @@
     return place.kind === 'level' && m.hat ? m.hat(place.lv) : levels[place.i]?.hat;
   }
 
+  const sweatDrop = new Path2D('M 0 -1.15 Q 1.3 0.25 0.55 0.72 Q 0 1.1 -0.55 0.72 Q -1.3 0.25 0 -1.15 Z');
+
+  function visualFishScale(place) {
+    return place?.kind === 'level' ? (mechanicOf(place.i).fishScale?.(place.lv) ?? 1) : 1;
+  }
+
+  function drawSweat(len) {
+    ctx.save();
+    ctx.translate(fish.x, fish.y);
+    ctx.scale(fish.facing, 1);
+    for (let i = 0; i < 3; i++) {
+      const age = (clock * 2.8 + i / 3) % 1;
+      ctx.save();
+      ctx.translate(len * (0.30 + (i - 1) * age * 0.20), len * (-0.26 + age * 0.42));
+      ctx.scale(len * 0.065, len * 0.065);
+      ctx.rotate((1 - i) * 0.65);
+      ctx.globalAlpha *= Math.sin(age * Math.PI);
+      ctx.fillStyle = '#9eeaff';
+      ctx.fill(sweatDrop);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
   /* Him, free: turning the way he's going, his nose following his climb. */
   function drawFree(dt) {
     const speed = Math.hypot(fish.vx, fish.vy);
@@ -2479,12 +2517,22 @@
       if (!soft) drawBubbles(dt);
       ctx.save();
       const effect = mechanic && mechanic.fishEffect?.(level);
-      if (effect) {
-        ctx.globalAlpha *= effect.alpha;
-        if (effect.flash) ctx.filter = 'brightness(2.4) saturate(.45)';
-      }
-      drawFish(fish.x, fish.y, rot, fish.flip, fishLen(), hatOf(here), 0, strokeRate ? 1 + strokeRate / 13 : 1);
+      if (effect) ctx.globalAlpha *= effect.alpha;
+      const len = fishLen() * visualFishScale(here);
+      const hat = hatOf(here);
+      const effort = (strokeRate ? 1 + strokeRate / 13 : 1) * (effect?.nervous ? 1.8 : 1);
+      ctx.save();
+      if (effect?.green) ctx.filter = 'brightness(0) saturate(100%) invert(81%) sepia(65%) saturate(670%) hue-rotate(64deg)';
+      else if (effect?.flash) ctx.filter = 'brightness(2.4) saturate(.45)';
+      drawFish(fish.x, fish.y, rot, fish.flip, len, hat, 0, effort);
       ctx.restore();
+      if (effect?.silhouette) {
+        ctx.globalAlpha *= 0.5;
+        ctx.filter = 'brightness(0) saturate(100%) invert(89%) sepia(40%) saturate(550%) hue-rotate(88deg)';
+        drawFish(fish.x, fish.y, rot, fish.flip, len * 1.24, hat, 0, effort);
+      }
+      ctx.restore();
+      if (effect?.nervous) drawSweat(len);
     });
   }
 
@@ -2938,7 +2986,8 @@
     const roomAt = m.from.kind === 'room' ? fromAt : m.to.kind === 'room' ? toAt : null;
     frosted(roomAt === null ? null : roomRect(...along(roomAt)), soft => {
       if (!soft) drawBubbles(dt);
-      drawFish(fish.x, fish.y, rot, fish.flip, len, worn.hat, worn.lift);
+      const scale = lerp(visualFishScale(m.from), visualFishScale(m.to), smooth(u));
+      drawFish(fish.x, fish.y, rot, fish.flip, len * scale, worn.hat, worn.lift);
     });
 
     if (u >= 1) finish();
@@ -2949,6 +2998,7 @@
 
   function frame(now) {
     if (!running) return;
+    updateReviewControls();
     if (paused) {
       last = 0;
       raf = requestAnimationFrame(frame);
@@ -2958,7 +3008,7 @@
     last = now;
     clock += dt;
 
-    let wantLen = 0;
+    let wantLen = level && mechanicOf(level.i).freeFishLength?.(level);
     const held = holder();
     if (held) {
       const to = held.steer(level, dt, held.continuous ? keyDir() : undefined);
@@ -3042,8 +3092,10 @@
      in. Other levels keep what's been done in them. */
   function resetLevel() {
     const n = level.n;
-    beaten[current] = false;
-    if (cleared[current]) cleared[current][n] = false;
+    if (!level.review) {
+      beaten[current] = false;
+      if (cleared[current]) cleared[current][n] = false;
+    }
     bubbles.length = 0;
     const to = { kind: 'level', i: current, n, lv: makeLevel(current, n) };
     arrive(to);
@@ -3171,11 +3223,62 @@
       fading = false;
       inSettings = paused = false;
       setFade(false, 0);
+      updateReviewControls();
       emptyRoom();
       keys.clear();
       pointer.down = null;
     }
   };
+
+/* src/assets/game/1-engine.scope/25-review.js */
+  const reviewControls = $('game-review-controls');
+  const reviewWorlds = reviewControls?.querySelectorAll('[data-review-world]');
+  const canReview = () => running && scene === 'level' && level?.review && !move && !fading && !inSettings;
+  let shownReviewWorld = null;
+
+  function updateReviewControls() {
+    if (!reviewControls) return;
+    const active = canReview();
+    reviewControls.hidden = !active;
+    if (!active) {
+      shownReviewWorld = null;
+      return;
+    }
+    const world = reviewWorlds[current];
+    if (shownReviewWorld !== world) {
+      reviewWorlds.forEach(item => { item.hidden = item !== world; });
+      const scenario = world.querySelector('[data-review-scenario]');
+      if (scenario) scenario.value = String(reviewScenario);
+      shownReviewWorld = world;
+    }
+    const practice = world.querySelector('[data-review-practice]');
+    if (practice) practice.hidden = !mechanicOf(current).canReviewPractice(level);
+  }
+
+  if (reviewControls) {
+    reviewControls.addEventListener('pointermove', event => {
+      event.stopPropagation();
+      pointer.inside = false;
+    });
+    reviewControls.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button || !canReview()) return;
+      const mechanic = mechanicOf(current);
+      if (button.id === 'game-review-next') {
+        goOn();
+      } else if (button.hasAttribute('data-review-play')) {
+        reviewScenario = Number(reviewWorlds[current].querySelector('[data-review-scenario]').value);
+        fadeReset();
+      } else if (button.hasAttribute('data-review-practice')) {
+        mechanic.startReviewPractice(level);
+      } else if (button.dataset.reviewSound) {
+        const effect = $(button.dataset.reviewSound).value;
+        const cue = mechanic.reviewSounds?.[effect];
+        if (cue) cue(level);
+        else sound()?.[effect]?.();
+      }
+    });
+  }
 
 })();
 
@@ -3192,44 +3295,73 @@
     const sharkStart = 65;
     const sharkCatchDistance = 48;
     const fishBodyLength = 65;
+    const pufferScale = 1.5;
+    const greenFlash = run => { run.equipFlashUntil = game.clock + 0.45; };
     const debrisWidth = 74;
     const maxStroke = Aquarium.strokeRate(Infinity) * 1.1;
     const difficulty = ['Easy', 'Medium', 'Hard'];
     const modes = ['Reach the Sea', 'Infinite Stream'];
     const enemies = [
-      { hp: 10, radius: 17 },
+      { hp: 10, radius: 17 * pufferScale },
       { hp: 5, radius: 18 },
       { hp: 40, radius: 25 }
     ];
     const upgrades = [
-      [{ name: 'Power Bubbles', icon: '●', note: '+2 bubble damage', apply: r => { r.power += 2; } },
+      [{ name: 'Power Bubbles', icon: '●', note: '+2 bubble damage', apply: r => { r.power += 2; r.powerBubbles = true; } },
        { name: 'Fresh Water', icon: '✚', note: '+15 max HP and heal 25', apply: r => {
+         r.freshWater = true;
+         greenFlash(r);
          r.maxHp += 15;
          r.hp = Math.min(r.maxHp, r.hp + 25);
        } }],
-      [{ name: 'Rapid Current', icon: '»', note: '40% faster shots', apply: r => { r.interval *= 0.6; } },
+      [{ name: 'Rapid Current', icon: '»', note: '40% faster shots', apply: r => { r.interval *= 0.6; r.rapidCurrent = true; } },
        { name: 'Reinforced Scales', icon: '⬟', note: '30% less damage and heal 15', apply: r => {
+         r.reinforcedScales = true;
+         greenFlash(r);
          r.armor *= 0.7;
          r.hp = Math.min(r.maxHp, r.hp + 15);
        } }]
     ];
 
+    const resultsFor = room => room.review ? room : game.kept;
+
     function setup(room, sub) {
-      delete game.kept.apocSummary;
-      delete game.kept.apocCollapsed;
+      const results = resultsFor(room);
+      delete results.apocSummary;
+      delete results.apocCollapsed;
       room.stream = {
-        phase: 'choice', difficulty: 0, mode: 0, stage: 0, durations: sub.stage_seconds,
+        phase: room.review && !room.reviewScenario ? 'workshop' : 'choice',
+        difficulty: 0, mode: 0, stage: 0, durations: sub.stage_seconds,
         elapsed: 0, kills: 0, damage: 0, done: 0, hp: 50, maxHp: 50, power: 3,
         interval: 0.23, armor: 1, counter: 0
       };
+      if (room.stream.phase === 'workshop') room.stream.equipped = new Set();
+      if (room.reviewScenario > 0 && room.reviewScenario < sub.stage_seconds.length * 2) {
+        const run = room.stream;
+        const choice = room.reviewScenario - 1;
+        const upgrade = choice >= run.durations.length;
+        run.stage = upgrade ? choice - run.durations.length : choice;
+        run.difficulty = 2;
+        startStream(run);
+        if (upgrade) run.phase = 'upgrade';
+      }
     }
 
     // The panels are triggers, so swimming through one never stops Fish.
     function panels(run) {
       const { w, h } = game.view;
       const choice = run.phase === 'choice';
-      if (!choice && run.phase !== 'upgrade' && run.phase !== 'ready') return [];
+      if (!choice && run.phase !== 'upgrade' && run.phase !== 'ready' && run.phase !== 'workshop') return [];
       const size = Math.round(choice ? Math.min(w * 0.28, h * 0.18) : Math.min(w * 0.36, h * 0.36, 310));
+      if (run.phase === 'workshop') {
+        const wide = w >= size * 4 + game.border() * 2 + 32;
+        return upgrades.flat().map((upgrade, i) => ({
+          ...upgrade, i, w: size, h: size, roughness: 9,
+          x: w * (wide ? 0.125 + i * 0.25 : 0.27 + (i % 2) * 0.46),
+          y: h * (wide ? 0.65 : 0.42 + Math.floor(i / 2) * 0.36),
+          selected: run.equipped.has(i)
+        }));
+      }
       const options = choice ? difficulty.map(name => ({ name })) : upgrades[run.stage];
       return options.map((option, i) => ({
         ...option, i, w: size, h: size,
@@ -3245,6 +3377,11 @@
       if (run.phase === 'choice') {
         if (run.difficulty === panel.i) return;
         run.difficulty = panel.i;
+      } else if (run.phase === 'workshop') {
+        if (run.equipped.has(panel.i)) return;
+        panel.apply(run);
+        run.equipped.add(panel.i);
+        run.lastUpgrade = panel.name;
       } else if (run.phase === 'upgrade') {
         panel.apply(run);
         run.selected = panel.i;
@@ -3288,7 +3425,7 @@
 
     function rock(room) {
       const phase = room.stream?.phase;
-      if (!phase || room.won) return null;
+      if (!phase || room.won || phase === 'workshop') return null;
       const showWall = ['choice', 'upgrade', 'ready', 'escape', 'ending'].includes(phase);
       const open = room.gone.right || (phase === 'ending' && finalStage(room.stream));
       const { h } = game.view;
@@ -3391,7 +3528,7 @@
 
     function startStream(run) {
       Object.assign(run, {
-        phase: 'entering', arrival: null, stroke: maxStroke * 0.7, x: streamCenter, y: 300, shark: sharkStart, sharkSurge: 0, stageTime: 0, counter: 0,
+        phase: 'entering', selected: null, arrival: null, stroke: maxStroke * 0.7, x: streamCenter, y: 300, shark: sharkStart, sharkSurge: 0, stageTime: 0, counter: 0,
         retreat: 0, immunity: 0, hitFlash: 0, flip: 0, shotAt: 0, drift: 0, waveAt: 2, wave: 0,
         debrisAt: 10, debris: null, enemies: [], shots: [], spines: []
       });
@@ -3412,7 +3549,7 @@
     function wave(run) {
       const { scale, left } = arena();
       const right = (game.view.w - left) / scale;
-      const tier = run.mode ? Math.min(2, Math.floor(run.elapsed / 24)) : run.stage;
+      const tier = run.practice ? 2 : run.mode ? Math.min(2, Math.floor(run.elapsed / 24)) : run.stage;
       const count = Math.min(5, 1 + tier + run.difficulty + (run.mode ? Math.floor(run.elapsed / 80) : 0));
       for (let i = 0; i < count && run.enemies.length < 16; i++) {
         const type = (run.wave + i) % (tier + 1);
@@ -3610,12 +3747,13 @@
 
     function complete(room, title) {
       const run = room.stream;
-      game.kept.apocSummary = {
+      resultsFor(room).apocSummary = {
         title, difficulty: run.difficulty, elapsed: run.elapsed,
         kills: run.kills, damage: run.damage, done: run.done
       };
       run.phase = 'complete';
       game.beatRoom();
+      if (room.review) room.gone.right = room.opened.right = true;
       game.prepareRoom();
     }
 
@@ -3693,13 +3831,15 @@
       shoot(run, x, y);
     }
 
+    const shotSound = run => game.sound()?.bubble(0.32 * (run?.powerBubbles ? 1.3 : 1));
+
     function shoot(run, x, y) {
       if (run.phase !== 'stream' || run.elapsed < run.shotAt) return;
       const fish = game.fish;
       const angle = Math.atan2(y - fish.y, x - fish.x);
       run.shots.push({ x: run.x, y: run.y, vx: Math.cos(angle) * 590, vy: Math.sin(angle) * 590 });
       run.shotAt = run.elapsed + run.interval;
-      game.sound()?.bubble(0.32);
+      shotSound(run);
     }
 
     function label(value, x, y, size = 17, color = '#fff4dd', maxWidth) {
@@ -3924,7 +4064,6 @@
         C -12 12 -19 6 -24 3 L -47 2 Z`, '#55a7c0');
       curvedShape(`M -23 2 Q -5 8 9 7 Q 26 ${4 + tail * 0.15} 35 ${2 + tail * 0.6} Q 20 10 4 11 Q -11 12 -23 2 Z`, '#bfdcd7');
       curvedShape('M -4 4 Q 3 4 7 6 Q 12 11 19 17 Q 9 16 1 11 Q -2 8 -4 4 Z', '#377d91');
-      curvedShape('M -18 5 Q -17 7 -13 8 Q -15 6 -15 3 Z', '#386e79');
       angryEye(-15, -2, -1);
       ctx.restore();
     }
@@ -3936,6 +4075,7 @@
       ctx.scale(inflate, inflate);
       if (e.age < e.flashUntil && Math.sin(e.age * 65) > -0.2) ctx.filter = 'brightness(2.1) saturate(.5)';
       if (e.type === 0) {
+        ctx.scale(pufferScale, pufferScale);
         const radius = 14 + 7 * clamp(1 - Math.abs(e.attack - e.age) / 0.75, 0, 1);
         const tail = 4 * Math.sin(e.age * 12);
         path([[10, -4], [27, -11 + tail], [24, tail], [27, 10 + tail], [11, 4]], '#92734b');
@@ -3951,7 +4091,8 @@
         oval(radius * 0.42, -radius * 0.31, 2.6, 1.8, '#a55d57');
         oval(radius * 0.65, -radius * 0.12, 2.1, 1.4, '#a55d57');
         angryEye(-radius * 0.44, -3, -1);
-        curvedShape('M -15 3 Q -11 3 -8 7 Q -12 8 -15 6 Z', '#633f45');
+        oval(-radius + 1, 4, 4, 3.4, '#b96965');
+        oval(-radius, 4, 2, 1.3, '#633f45');
       } else if (e.type === 1) {
         for (let i = -2; i <= 2; i++) {
           ctx.beginPath();
@@ -3959,6 +4100,7 @@
           ctx.quadraticCurveTo(i * 7 + Math.sin(e.age * 5 + i) * 9, 14, i * 7 - 4, 25);
           ctx.strokeStyle = i % 2 ? '#906bae' : '#dba7e2';
           ctx.lineWidth = 2.5;
+          ctx.lineCap = 'round';
           ctx.stroke();
         }
         const pulse = Math.sin(e.age * 5) * 2;
@@ -4048,11 +4190,15 @@
       return reach * pulse ** 3;
     }
 
+    const sharkGap = run => run.x - run.shark - sharkCatchDistance;
+    const sharkReach = () => Math.min(fishBodyLength, game.fullLen() / arena().scale);
+    const sharksBiting = run => run?.phase === 'stream' && sharkGap(run) < sharkReach();
+
     function paintSharks(run, reveal) {
       const sway = Math.sin(run.stageTime * 3) * 16;
       const { scale: arenaScale } = arena();
-      const bodyLength = Math.min(fishBodyLength, game.fullLen() / arenaScale);
-      const catchGap = run.x - run.shark - sharkCatchDistance;
+      const catchGap = sharkGap(run);
+      const reach = sharkReach();
       const configs = [[-31, 210 + sway, 0.8], [0, 300 - sway, 1.1], [-27, 392 + sway, 0.9]];
       configs.forEach(([x, y, scale], i) => {
         const escape = run.phase === 'ending' ? clamp(run.counter / 1.35, 0, 1) : 0;
@@ -4063,7 +4209,7 @@
         if (run.phase !== 'frenzy' && run.phase !== 'blackout') {
           const distance = Math.hypot(Math.max(0, run.x - x - 52 * scale), run.y - y);
           const opening = lerp(1, 0.2, clamp(distance / (streamCenter - startNose), 0, 1));
-          const snap = run.phase === 'stream' ? pursuitSnap(catchGap, bodyLength, run.stageTime, i) : 0;
+          const snap = run.phase === 'stream' ? pursuitSnap(catchGap, reach, run.stageTime, i) : 0;
           shark(x + snap * 11, y, scale, phase, 0, lerp(opening, 0.12, snap));
           return;
         }
@@ -4113,6 +4259,36 @@
       ctx.restore();
     }
 
+    function paintShot(shot, run) {
+      const { x, y, vx, vy } = shot;
+      const size = run.powerBubbles ? 1.5 : 1;
+      // Power Bubbles blends the standard cyan 60% toward warm red.
+      const tint = run.powerBubbles ? '#c37d8a' : '#6acdd5';
+      if (run.rapidCurrent) {
+        const ctx = game.ctx;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(Math.atan2(vy, vx));
+        ctx.scale(size, size);
+        const trail = ctx.createLinearGradient(-64, 0, 0, 0);
+        trail.addColorStop(0, tint + '00');
+        trail.addColorStop(1, tint + '85');
+        curvedShape('M 1 -7 Q -31 -4 -64 0 Q -31 4 1 7 Z', trail);
+        ctx.restore();
+      }
+      oval(x, y, 9 * size, 9 * size, tint + '85');
+      oval(x - 3 * size, y - 3 * size, 3 * size, 3 * size, run.powerBubbles ? '#f1c0b9' : '#dbfcf6');
+    }
+
+    function paintSpine(x, y, angle) {
+      const ctx = game.ctx;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      path([[-8, -3.5], [9, 0], [-8, 3.5]], '#ffd28a');
+      ctx.restore();
+    }
+
     function stream(run) {
       const ctx = game.ctx;
       const { scale, left, top } = arena();
@@ -4137,17 +4313,8 @@
         if (burst >= 0 && burst < 1) pop(e.x, e.y, burst);
         if (burst < 0) paintEnemy(e, ending ? 1 + clamp(run.counter * 1.2, 0, 1) * 0.85 : 1);
       }
-      for (const shot of run.shots) {
-        oval(shot.x, shot.y, 9, 9, '#6acdd585');
-        oval(shot.x - 3, shot.y - 3, 3, 3, '#dbfcf6');
-      }
-      for (const spine of run.spines) {
-        ctx.save();
-        ctx.translate(spine.x, spine.y);
-        ctx.rotate(Math.atan2(spine.vy, spine.vx));
-        path([[-8, -3.5], [9, 0], [-8, 3.5]], '#ffd28a');
-        ctx.restore();
-      }
+      for (const shot of run.shots) paintShot(shot, run);
+      for (const spine of run.spines) paintSpine(spine.x, spine.y, Math.atan2(spine.vy, spine.vx));
       const debris = run.debris;
       if (debris) {
         if (run.stageTime < run.debrisAt) {
@@ -4175,15 +4342,16 @@
     const retry = document.getElementById('game-stream-retry');
     const hide = document.getElementById('game-stream-hide');
     const show = document.getElementById('game-stream-show');
+    let displayedResults = game.kept;
     retry.addEventListener('click', () => game.resetRoom());
     hide.addEventListener('click', () => {
-      game.kept.apocCollapsed = true;
+      displayedResults.apocCollapsed = true;
       summary.hidden = true;
       show.hidden = false;
       show.focus();
     });
     show.addEventListener('click', () => {
-      game.kept.apocCollapsed = false;
+      displayedResults.apocCollapsed = false;
       summary.hidden = false;
       show.hidden = true;
       hide.focus();
@@ -4191,8 +4359,9 @@
 
     function plates(room) {
       const failed = room.stream?.phase === 'failed';
-      const stats = failed ? room.stream : room.won ? game.kept.apocSummary : null;
-      const collapsed = !!stats && !failed && !!game.kept.apocCollapsed;
+      displayedResults = resultsFor(room);
+      const stats = failed ? room.stream : room.won ? displayedResults.apocSummary : null;
+      const collapsed = !!stats && !failed && !!displayedResults.apocCollapsed;
       summary.hidden = !stats || collapsed;
       show.hidden = !collapsed;
       if (!stats) return;
@@ -4249,6 +4418,7 @@
         label(run.phase === 'upgrade' ? 'Dash into an upgrade to equip it' : 'Upgrade equipped',
           w / 2, h * 0.26, 30, '#ffb35c', w * 0.9);
       }
+      if (run.phase === 'workshop') drawWorkshopCreatures();
       panels(run).forEach((p, i) => {
         if (run.phase !== 'ready' || p.selected) panel(p, 64 + i);
         else {
@@ -4264,8 +4434,40 @@
       }
     }
 
+    function drawWorkshopCreatures() {
+      const { w, h } = game.view;
+      const { scale } = arena();
+      const t = game.clock;
+      const ctx = game.ctx;
+      ctx.save();
+      ctx.translate(0, h * 0.20);
+      ctx.scale(scale, scale);
+      const across = w / scale;
+      const y = Math.sin(t * 3) * 6;
+      shark(across * 0.20, y, 1.1, t * 16, 0, 0.35 + Math.sin(t * 3) * 0.23);
+      enemies.forEach(({ hp }, type) => paintEnemy({
+        type, age: t, attack: t + 2, x: across * (0.45 + type * 0.19),
+        y: Math.sin(t * 3 + type) * 9, hp, maxHp: hp,
+        angle: Math.PI + Math.sin(t * 3) * 0.08, facing: -1, stroke: t * 15
+      }));
+      ctx.restore();
+    }
+
+    function startReviewPractice(room) {
+      const run = room.stream;
+      if (run.phase !== 'workshop') return;
+      run.mode = 1;
+      run.practice = true;
+      startStream(run);
+      run.waveAt = 0;
+    }
+
     return {
-      setup, solids, draw, steer, tap, rock, rockOffset, aimExit, exit, under, plates, crosshair,
+      startReviewPractice,
+      canReviewPractice: room => room.stream.phase === 'workshop',
+      freeFishLength: room => room.stream?.phase === 'workshop' ? fishBodyLength * arena().scale : 0,
+      fishScale: room => room.stream?.freshWater ? 1.3 : 1,
+      reviewSounds: { shoot: room => shotSound(room.stream) }, setup, solids, draw, steer, tap, rock, rockOffset, aimExit, exit, under, plates, crosshair,
       wholeLevel: true,
       deferPaintNear: room => !room.won,
       ahead(i) {
@@ -4284,22 +4486,32 @@
       },
       drawCursor, entrySpeed,
       hat: room => room.stream?.phase === 'failed' ? 'halo' : 'conductor',
-      hideLeftMouth: room => room.stream?.phase !== 'choice',
+      hideLeftMouth: room => !['choice', 'workshop'].includes(room.stream?.phase),
       goal(room) {
+        const run = room.stream;
+        if (run?.phase === 'workshop') {
+          const stats = `HP ${run.hp}/${run.maxHp} · Damage ${run.power} · Shot interval ${run.interval.toFixed(2)}s · Armor ${Math.round((1 - run.armor) * 100)}%`;
+          return run.lastUpgrade ? `${run.lastUpgrade} equipped. ${stats}` : `Dash into an upgrade rock to equip it. ${stats}`;
+        }
         if (active(room.stream)) return 'Hold the left mouse button to shoot. Press A or ← to retreat, W, S, ↑ or ↓ to dodge.';
       },
       fishEffect(room) {
         const run = room.stream;
         if (!run) return;
-        const flash = run.hp > 0 && (run.immunity > 0 || run.hitFlash > 0) && Math.sin(game.clock * 44) > -0.2;
-        return { flash, alpha: run.phase === 'blackout' ? 0 : run.phase === 'frenzy' ? 1 - clamp((run.counter - 0.25) * 2.5, 0, 1) : 1 };
+        const hit = run.hp > 0 && (run.immunity > 0 || run.hitFlash > 0) && Math.sin(game.clock * 44) > -0.2;
+        const green = game.clock < run.equipFlashUntil;
+        return {
+          flash: hit && !run.reinforcedScales, green, silhouette: hit && run.reinforcedScales,
+          nervous: sharksBiting(run),
+          alpha: run.phase === 'blackout' ? 0 : run.phase === 'frenzy' ? 1 - clamp((run.counter - 0.25) * 2.5, 0, 1) : 1
+        };
       },
       rightWall(room) {
         return room.stream.phase === 'choice' ? wallSpans(room) : null;
       },
       strokeRate(room) {
         const run = room.stream;
-        if (run?.phase === 'stream') return run.stroke;
+        if (run?.phase === 'stream') return run.stroke * (sharksBiting(run) ? 1.2 : 1);
         if (run?.phase === 'ending') {
           const t = clamp(run.counter / stageEndTime, 0, 1);
           return lerp(run.stroke, Math.min(run.stroke, 1.2), t * t * (3 - 2 * t));
@@ -4309,7 +4521,7 @@
       inset: () => ({ x: game.border(), y: 0, top: 0 }),
       continuous: true,
       holds: room => active(room.stream) || ['escape', 'failed', 'blackout'].includes(room.stream?.phase),
-      hideGoal: room => !room.won && !active(room.stream) && room.stream?.phase !== 'choice',
+      hideGoal: room => !room.won && !active(room.stream) && !['choice', 'workshop'].includes(room.stream?.phase),
       angle(room) {
         const run = room.stream;
         if (run?.phase === 'frenzy') return run.counter * 8;
@@ -4796,10 +5008,12 @@
       const stars = starsFor(p);
       p.state = 'won';
       p.win = { at: game.clock, stars, landed: 0 };
-      const key = keyOf(room.i, room.n);
-      const best = game.kept[key];
-      game.kept[key] = { stars: Math.max(best ? best.stars : 0, stars),
-                         used: Math.min(best ? best.used : p.used, p.used) };
+      if (!room.review) {
+        const key = keyOf(room.i, room.n);
+        const best = game.kept[key];
+        game.kept[key] = { stars: Math.max(best ? best.stars : 0, stars),
+                           used: Math.min(best ? best.used : p.used, p.used) };
+      }
       const box = fit(p.field);
       const [x, y] = at(box, p.field.chest.r, p.field.chest.c);
       for (let i = 0; i < 8; i++) game.puff(x + rand(-16, 16), y + rand(-16, 16), 0.8);
@@ -5276,7 +5490,8 @@
 
     function fillResults(i) {
       const subs = game.subsOf(i);
-      const bests = subs.map((sub, n) => game.kept[keyOf(i, n)] || { stars: 0, used: 0 });
+      const first = subs[0].review ? 1 : 0;
+      const bests = subs.slice(first).map((sub, n) => game.kept[keyOf(i, n + first)] || { stars: 0, used: 0 });
       const stamp = i + ':' + JSON.stringify(bests);
       if (page.rows.dataset.stamp === stamp) return;
       page.rows.dataset.stamp = stamp;
@@ -5285,13 +5500,13 @@
         const row = page.rows.insertRow();
         const name = document.createElement('th');
         name.scope = 'row';
-        name.textContent = `Level ${i + 1}.${n + 1}`;
+        name.textContent = `Level ${game.levelNumber(i)}.${n + 1}`;
         row.appendChild(name);
         row.insertCell().textContent = best.used || '–';
         row.insertCell().appendChild(starsRow(best.stars));
       });
       page.totalMoves.textContent = bests.reduce((sum, b) => sum + b.used, 0);
-      page.totalStars.textContent = bests.reduce((sum, b) => sum + b.stars, 0) + ' / ' + subs.length * 3;
+      page.totalStars.textContent = bests.reduce((sum, b) => sum + b.stars, 0) + ' / ' + bests.length * 3;
     }
 
     return {
@@ -5311,7 +5526,7 @@
       solids: () => [],
 
       rock(room, open) {
-        return room.puzzle ? rockFor(room.i, room.n, room.puzzle.field, open) : null;
+        return room.puzzle ? rockFor(room.i, room.review ? 'review-' + room.reviewScenario : room.n, room.puzzle.field, open) : null;
       },
 
       inset(room) {

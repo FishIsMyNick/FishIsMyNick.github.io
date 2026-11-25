@@ -100,5 +100,8 @@
 {% include "sections/details.html" %}
 {% include "sections/game.html" %}
 
+{% if test_build is defined %}
+<div class="test-build-number">Build {{ test_build }}</div>
+{% endif %}
 </body>
 </html>

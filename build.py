@@ -80,7 +80,7 @@ def require_dependencies():
 
 # ------------------------------------------------------------- content --
 
-def load_content():
+def load_content(test=False):
     import yaml
 
     def read(name):
@@ -110,7 +110,29 @@ def load_content():
     if isinstance(hero, dict) and "panels" not in hero and "showcase" in hero:
         hero["panels"] = hero.pop("showcase")
     data["hidden"] = hide_in_progress(data)
+    if test:
+        configure_test_build(data, read("test-build.yaml"))
     return data
+
+
+def configure_test_build(data, config):
+    levels = data["site"]["game"]["levels"]
+    current = config["current_world"]
+    if not any(level["project"] == current for level in levels):
+        sys.exit(f"Unknown test build world: {current}")
+
+    data["test_build"] = config["number"]
+    for index, level in enumerate(levels, 1):
+        level.setdefault("number", index)
+        world = config["worlds"].get(level["project"], {})
+        sublevels = level.get("sublevels", [{}])
+        level["sublevels"] = [
+            dict(sublevels[0], review=True, hint="Review this world or continue to its first level."),
+            *sublevels,
+        ]
+        level["review_sounds"] = config["shared_sounds"] + world.get("sounds", [])
+
+    levels.sort(key=lambda level: level["project"] != current)
 
 
 # Two ways to keep something in the content files without it reaching the page:
@@ -690,9 +712,9 @@ def fingerprint(text):
     return hashlib.sha1(text.encode("utf-8")).hexdigest()[:10]
 
 
-def build(quiet=False):
+def build(quiet=False, test=False):
     require_dependencies()
-    data = load_content()
+    data = load_content(test=test)
     validate(data)
 
     page = render_page(data)
@@ -856,7 +878,7 @@ def make_server(port=8000):
     return Server(("127.0.0.1", port), partial(Handler, directory=str(ROOT)))
 
 
-def watch(serve=False):
+def watch(serve=False, test=False):
     import threading
 
     if serve:
@@ -865,7 +887,7 @@ def watch(serve=False):
         print("Serving http://localhost:8000")
 
     try:
-        build()
+        build(test=test)
     except SystemExit as exc:          # keep watching through a content error
         print(exc)
 
@@ -879,7 +901,7 @@ def watch(serve=False):
                 last = now
                 print(f"\n[{time.strftime('%H:%M:%S')}] rebuilding")
                 try:
-                    build()
+                    build(test=test)
                 except SystemExit as exc:
                     print(exc)
     except KeyboardInterrupt:
@@ -888,9 +910,10 @@ def watch(serve=False):
 
 if __name__ == "__main__":
     args = set(sys.argv[1:])
+    test = "--test" in args
     if args & {"--serve", "-s"}:
-        watch(serve=True)
+        watch(serve=True, test=test)
     elif args & {"--watch", "-w"}:
-        watch()
+        watch(test=test)
     else:
-        build()
+        build(test=test)

@@ -51,8 +51,10 @@
      in. Other levels keep what's been done in them. */
   function resetLevel() {
     const n = level.n;
-    beaten[current] = false;
-    if (cleared[current]) cleared[current][n] = false;
+    if (!level.review) {
+      beaten[current] = false;
+      if (cleared[current]) cleared[current][n] = false;
+    }
     bubbles.length = 0;
     const to = { kind: 'level', i: current, n, lv: makeLevel(current, n) };
     arrive(to);
@@ -180,6 +182,7 @@
       fading = false;
       inSettings = paused = false;
       setFade(false, 0);
+      updateReviewControls();
       emptyRoom();
       keys.clear();
       pointer.down = null;

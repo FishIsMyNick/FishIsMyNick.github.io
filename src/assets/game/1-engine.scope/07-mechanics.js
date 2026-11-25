@@ -121,7 +121,7 @@
     levelNumber: i => levels[i].number,
     nextStream(room, stream, title, fork) {
       const lv = { ...makeLevel(room.i, room.n), stream };
-      begin('tunnel', { kind: 'level', i: room.i, lv }, title, levels[room.i].title, false, false, fork);
+      begin('tunnel', { kind: 'level', i: room.i, lv }, room.review ? roomName(room.i, room.n) : title, levels[room.i].title, false, false, fork);
     },
     goBack: () => goBack(),
     resetRoom: () => fadeReset(),

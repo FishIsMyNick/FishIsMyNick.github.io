@@ -2,6 +2,7 @@
 
   function frame(now) {
     if (!running) return;
+    updateReviewControls();
     if (paused) {
       last = 0;
       raf = requestAnimationFrame(frame);
@@ -11,7 +12,7 @@
     last = now;
     clock += dt;
 
-    let wantLen = 0;
+    let wantLen = level && mechanicOf(level.i).freeFishLength?.(level);
     const held = holder();
     if (held) {
       const to = held.steer(level, dt, held.continuous ? keyDir() : undefined);

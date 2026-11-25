@@ -447,7 +447,8 @@
     const roomAt = m.from.kind === 'room' ? fromAt : m.to.kind === 'room' ? toAt : null;
     frosted(roomAt === null ? null : roomRect(...along(roomAt)), soft => {
       if (!soft) drawBubbles(dt);
-      drawFish(fish.x, fish.y, rot, fish.flip, len, worn.hat, worn.lift);
+      const scale = lerp(visualFishScale(m.from), visualFishScale(m.to), smooth(u));
+      drawFish(fish.x, fish.y, rot, fish.flip, len * scale, worn.hat, worn.lift);
     });
 
     if (u >= 1) finish();

@@ -1,6 +1,8 @@
   // -------------------------------------------------------------- places --
 
   const subsOf = i => (levels[i] && levels[i].sublevels) || [{}];
+  const isReview = (i, n) => !!subsOf(i)[n]?.review;
+  let reviewScenario = 0;
   const lastSub = i => subsOf(i).length - 1;
   const isCleared = (i, n) => !!(cleared[i] && cleared[i][n]);
 
@@ -9,15 +11,17 @@
      done is its last room with the title page, and the floor open as well. */
   function makeLevel(i, n = lastSub(i)) {
     // a level not built yet has nothing to beat: it's open from the start
-    if (mechanicOf(i).notBuilt) {
+    const review = isReview(i, n);
+    if (mechanicOf(i).notBuilt && !review) {
       cleared[i] = subsOf(i).map(() => true);
       beaten[i] = true;
     }
-    const done = isCleared(i, n);
-    const titled = !!beaten[i] && n === lastSub(i);
+    const done = review ? !!mechanicOf(i).notBuilt : isCleared(i, n);
+    const titled = !review && !!beaten[i] && n === lastSub(i);
     const lv = {
       i,
       n,
+      review,
       won: done,
       titled,
       wonAt: done ? -99 : 0,
@@ -29,6 +33,12 @@
       glowAt: {},        // when each opening began to glow
       debris: []
     };
-    if (!done) mechanicOf(i).setup(lv, subsOf(i)[n]);
+    if (!done) {
+      const scenarios = subsOf(i);
+      const puzzle = levels[i].mechanic === 'pushpuzzle';
+      const sub = review && puzzle ? scenarios[reviewScenario + 1] : scenarios[n];
+      if (review) lv.reviewScenario = reviewScenario;
+      mechanicOf(i).setup(lv, sub);
+    }
     return lv;
   }

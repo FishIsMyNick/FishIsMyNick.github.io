@@ -1,0 +1,17 @@
+# Increment once when completing a batch of test-build tasks.
+number: 6
+current_world: llamaware
+shared_sounds:
+  - [bubble, Bubbles]
+  - [tap, Hat pickup]
+  - [crumble, Rock crumble]
+  - [ding, Level complete]
+  - [woosh, Game Mode transition]
+worlds:
+  brave-giant:
+    sounds:
+      - [tap, Puzzle movement]
+      - [crack, Clam break]
+  llamaware:
+    sounds:
+      - [shoot, Bubble shot]
