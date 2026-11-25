@@ -22,6 +22,9 @@
     <button type="button" data-review-play>Load</button>
     {% if level.mechanic == 'apoc-express' %}
     <button type="button" data-review-practice>Fight with upgrades</button>
+    <label class="game-review-option">
+      <input type="checkbox" data-review-invulnerable> Invulnerable
+    </label>
     {% endif %}
     {% endif %}
     <label for="review-sound-{{ loop.index0 }}">Sound</label>

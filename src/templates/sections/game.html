@@ -57,7 +57,11 @@
 
     <div class="game-goal" id="game-goal">
       <p class="game-goal-level" id="game-goal-level"></p>
-      <p class="game-goal-text" id="game-goal-text"></p>
+      <div class="game-hint-bubble" id="game-hint-bubble">
+        <button class="game-hint-toggle" id="game-hint-toggle" type="button"
+                aria-controls="game-goal-text" aria-expanded="true" aria-label="Minimize level hint">−</button>
+        <p class="game-goal-text" id="game-goal-text"></p>
+      </div>
     </div>
 
     {# What a mechanic has to say on the page, slid with its room. For now only

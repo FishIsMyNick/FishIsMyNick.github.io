@@ -225,7 +225,7 @@
     const flipRate = dt / 0.12;
     fish.flip = fish.facing > 0 ? Math.min(1, fish.flip + flipRate) : Math.max(-1, fish.flip - flipRate);
     const mechanic = scene === 'level' && mechanicOf(level.i);
-    const strokeRate = mechanic && mechanic.strokeRate?.(level);
+    const strokeRate = mechanic && mechanic.strokeRate?.(level, speed);
     fish.phase += dt * Math.PI * 2 * (strokeRate || Aquarium.strokeRate(speed));
     const pitch = clamp(Math.atan2(fish.vy, Math.max(Math.abs(fish.vx), 60)) * 0.6, -0.8, 0.8);
     const angle = mechanic && mechanic.angle ? mechanic.angle(level) : 0;

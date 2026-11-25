@@ -3,6 +3,7 @@
   const subsOf = i => (levels[i] && levels[i].sublevels) || [{}];
   const isReview = (i, n) => !!subsOf(i)[n]?.review;
   let reviewScenario = 0;
+  let reviewInvulnerable = false;
   const lastSub = i => subsOf(i).length - 1;
   const isCleared = (i, n) => !!(cleared[i] && cleared[i][n]);
 
@@ -37,7 +38,10 @@
       const scenarios = subsOf(i);
       const puzzle = levels[i].mechanic === 'pushpuzzle';
       const sub = review && puzzle ? scenarios[reviewScenario + 1] : scenarios[n];
-      if (review) lv.reviewScenario = reviewScenario;
+      if (review) {
+        lv.reviewScenario = reviewScenario;
+        lv.reviewInvulnerable = reviewInvulnerable;
+      }
       mechanicOf(i).setup(lv, sub);
     }
     return lv;

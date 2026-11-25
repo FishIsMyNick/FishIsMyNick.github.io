@@ -8,6 +8,9 @@
     const stageEndTime = 3.2;
     const streamCenter = 480;
     const sharkStart = 65;
+    const sharkBodyColor = '#597f95';
+    const fishSpriteColor = '#ff6b2c';
+    const fishBadgeIcon = new Path2D('M -3 -1.2 L -7 -3.5 L -7 3.5 L -3 1.2 Q 1.8 5.4 7 0 Q 1.8 -5.4 -3 -1.2 Z');
     const sharkCatchDistance = 48;
     const fishBodyLength = 65;
     const pufferScale = 1.5;
@@ -21,22 +24,42 @@
       { hp: 5, radius: 18 },
       { hp: 40, radius: 25 }
     ];
+    const upgradeIcons = {
+      power: new Path2D('M 5 0 A 5 5 0 1 1 -5 0 A 5 5 0 1 1 5 0 Z'),
+      water: new Path2D('M -2 -7 H 2 V -2 H 7 V 2 H 2 V 7 H -2 V 2 H -7 V -2 H -2 Z'),
+      bubbles: new Path2D('M -2.5 4 A 3 3 0 1 1 -8.5 4 A 3 3 0 1 1 -2.5 4 Z M 8.5 4 A 3 3 0 1 1 2.5 4 A 3 3 0 1 1 8.5 4 Z M 4 -3 A 4 4 0 1 1 -4 -3 A 4 4 0 1 1 4 -3 Z'),
+      scales: new Path2D('M 0 -8 L 7 -4 V 4 L 0 8 L -7 4 V -4 Z'),
+      flipper: new Path2D('M -8 -6 H -4 L 1 0 L -4 6 H -8 L -3 0 Z M -1 -6 H 3 L 8 0 L 3 6 H -1 L 4 0 Z')
+    };
     const upgrades = [
-      [{ name: 'Power Bubbles', icon: '●', note: '+2 bubble damage', apply: r => { r.power += 2; r.powerBubbles = true; } },
-       { name: 'Fresh Water', icon: '✚', note: '+15 max HP and heal 25', apply: r => {
-         r.freshWater = true;
-         greenFlash(r);
-         r.maxHp += 15;
-         r.hp = Math.min(r.maxHp, r.hp + 25);
-       } }],
-      [{ name: 'Rapid Current', icon: '»', note: '40% faster shots', apply: r => { r.interval *= 0.6; r.rapidCurrent = true; } },
-       { name: 'Reinforced Scales', icon: '⬟', note: '30% less damage and heal 15', apply: r => {
-         r.reinforcedScales = true;
-         greenFlash(r);
-         r.armor *= 0.7;
-         r.hp = Math.min(r.maxHp, r.hp + 15);
-       } }]
+      { name: 'Power Bubbles', icon: 'power', note: '+2 bubble damage', apply: r => { r.power += 2; r.powerBubbles = true; } },
+      { name: 'Fresh Water', icon: 'water', note: '+15 max HP and heal 25', apply: r => {
+        r.freshWater = true;
+        greenFlash(r);
+        r.maxHp += 15;
+        r.hp = Math.min(r.maxHp, r.hp + 25);
+      } },
+      { name: 'Boiling Blaster', icon: 'bubbles', note: '40% faster shots', apply: r => { r.interval *= 0.6; r.boilingBlaster = true; } },
+      { name: 'Reinforced Scales', icon: 'scales', note: '30% less damage and heal 15', apply: r => {
+        r.reinforcedScales = true;
+        greenFlash(r);
+        r.armor *= 0.7;
+        r.hp = Math.min(r.maxHp, r.hp + 15);
+      } },
+      { name: 'Hyper Flipper', icon: 'flipper', note: '+20% swim and current speed', apply: r => { r.hyperFlipper = true; } }
     ];
+
+    function upgradeOffers() {
+      const shuffled = [...upgrades];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rand(0, i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return [shuffled.slice(0, 2), shuffled.slice(2, 4)];
+    }
+
+    const currentSpeed = run => run.hyperFlipper ? 1.2 : 1;
+    const stageDuration = run => run.durations[run.stage] * (run.hyperFlipper ? 0.8 : 1);
 
     const resultsFor = room => room.review ? room : game.kept;
 
@@ -48,7 +71,7 @@
         phase: room.review && !room.reviewScenario ? 'workshop' : 'choice',
         difficulty: 0, mode: 0, stage: 0, durations: sub.stage_seconds,
         elapsed: 0, kills: 0, damage: 0, done: 0, hp: 50, maxHp: 50, power: 3,
-        interval: 0.23, armor: 1, counter: 0
+        interval: 0.23, armor: 1, counter: 0, offers: upgradeOffers(), invulnerable: !!room.reviewInvulnerable
       };
       if (room.stream.phase === 'workshop') room.stream.equipped = new Set();
       if (room.reviewScenario > 0 && room.reviewScenario < sub.stage_seconds.length * 2) {
@@ -69,15 +92,22 @@
       if (!choice && run.phase !== 'upgrade' && run.phase !== 'ready' && run.phase !== 'workshop') return [];
       const size = Math.round(choice ? Math.min(w * 0.28, h * 0.18) : Math.min(w * 0.36, h * 0.36, 310));
       if (run.phase === 'workshop') {
-        const wide = w >= size * 4 + game.border() * 2 + 32;
-        return upgrades.flat().map((upgrade, i) => ({
-          ...upgrade, i, w: size, h: size, roughness: 9,
-          x: w * (wide ? 0.125 + i * 0.25 : 0.27 + (i % 2) * 0.46),
-          y: h * (wide ? 0.65 : 0.42 + Math.floor(i / 2) * 0.36),
-          selected: run.equipped.has(i)
-        }));
+        const available = w - game.border() * 2;
+        const columns = available >= size * 5 + 32 ? 5 : available >= size * 3 + 20 ? 3 : 2;
+        const rows = Math.ceil(upgrades.length / columns);
+        const rockSize = Math.min(size, available / columns - 6, h * 0.64 / rows - 4);
+        return upgrades.map((upgrade, i) => {
+          const row = Math.floor(i / columns);
+          const items = Math.min(columns, upgrades.length - row * columns);
+          return {
+            ...upgrade, i, w: rockSize, h: rockSize, roughness: 9,
+            x: w / 2 + (i % columns - (items - 1) / 2) * (rockSize + 10),
+            y: h * 0.59 + (row - (rows - 1) / 2) * (rockSize + 8),
+            selected: run.equipped.has(i)
+          };
+        });
       }
-      const options = choice ? difficulty.map(name => ({ name })) : upgrades[run.stage];
+      const options = choice ? difficulty.map(name => ({ name })) : run.offers[run.stage] || [];
       return options.map((option, i) => ({
         ...option, i, w: size, h: size,
         x: w * (choice ? 0.42 : 0.27 + i * 0.46),
@@ -245,12 +275,13 @@
       Object.assign(run, {
         phase: 'entering', selected: null, arrival: null, stroke: maxStroke * 0.7, x: streamCenter, y: 300, shark: sharkStart, sharkSurge: 0, stageTime: 0, counter: 0,
         retreat: 0, immunity: 0, hitFlash: 0, flip: 0, shotAt: 0, drift: 0, waveAt: 2, wave: 0,
-        debrisAt: 10, debris: null, enemies: [], shots: [], spines: []
+        debrisAt: 10, debris: null, enemies: [], shots: [], spines: [],
+        nextForegroundAt: rand(7, 9), foregroundPass: null
       });
     }
 
     function damage(run, amount, grace = 0.5) {
-      if (grace && run.immunity > 0) return false;
+      if (run.invulnerable || (grace && run.immunity > 0)) return false;
       const hit = Math.min(run.hp, amount * run.armor);
       run.hp -= hit;
       run.damage += hit;
@@ -443,7 +474,7 @@
       for (const e of run.enemies) if (e.hp > 0) moveEnemy(run, e, dt);
       updateProjectiles(run, dt);
       updateDebris(run, dt);
-      if (run.x <= run.shark + sharkCatchDistance) {
+      if (!run.invulnerable && run.x <= run.shark + sharkCatchDistance) {
         run.damage += run.hp;
         run.hp = 0;
         run.phase = 'frenzy';
@@ -451,7 +482,7 @@
       } else if (run.hp <= 0) {
         run.phase = 'dying';
         run.counter = 0;
-      } else if (!run.mode && run.stageTime >= run.durations[run.stage]) {
+      } else if (!run.mode && run.stageTime >= stageDuration(run)) {
         run.phase = 'ending';
         run.counter = 0;
         run.shots = [];
@@ -591,7 +622,12 @@
       }
       label(p.name, p.x, p.y - p.h * 0.3, clamp(p.h * 0.11, 15, 29), color, p.w - 20);
       oval(p.x, p.y, p.w * 0.17, p.w * 0.17, '#203f46');
-      label(p.icon, p.x, p.y, p.h * 0.29, '#a9e8de');
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.scale(p.w * 0.014, p.w * 0.014);
+      ctx.fillStyle = '#a9e8de';
+      ctx.fill(upgradeIcons[p.icon]);
+      ctx.restore();
       label(p.note, p.x, p.y + p.h * 0.30, clamp(p.h * 0.09, 12, 19), '#d1e8e1', p.w - 20);
     }
 
@@ -740,7 +776,7 @@
         Q -65 ${-13 + tail} -75 ${-28 + tail}
         Q -62 ${-23 + tail} -54 ${-7 + tail * 0.72}
         C -46 ${-1 + tail * 0.54} -31 ${-10 + tail * 0.15} -11 -13
-        C 8 -17 26 -9 40 -5 Q 49 -2 52 3 Z`, '#597f95');
+        C 8 -17 26 -9 40 -5 Q 49 -2 52 3 Z`, sharkBodyColor);
       curvedShape(`M -31 ${11 + tail * 0.15} Q -8 13 15 ${12 + opening * 5}
         Q 39 ${jaw + 4} 46 ${jaw} ${lowerJaw} Z`, '#a9d1cf');
       curvedShape('M 5 7 Q -4 19 -21 30 Q -16 18 -12 11 Q -8 6 5 7 Z', '#365e69');
@@ -858,18 +894,29 @@
       if (run.mode) {
         label(`Survival time  ${time(run.elapsed)}`, w / 2, bottom, 18 * unit);
       } else {
-        const progress = clamp(run.stageTime / run.durations[run.stage], 0, 1);
+        const progress = clamp(run.stageTime / stageDuration(run), 0, 1);
         label(`Current ${run.stage + 1} of 3`, w / 2, bottom - 8 * unit, 13 * unit);
         const track = hudWidth * 0.81;
         const x = (w - track) / 2;
         const flash = run.phase === 'ending' && Math.sin(run.counter * 24) > 0;
         roundedBar(x, bottom + 7 * unit, track, 5 * unit, progress, flash ? '#fff5cf' : '#67b8af');
         const fishMark = x + track * progress;
-        const sharkMark = Math.max(x - 12 * unit, fishMark - (23 + (run.x - run.shark) * 0.11) * unit);
-        oval(sharkMark, bottom + 9 * unit, 9 * unit, 9 * unit, '#36555f');
-        label('▲', sharkMark, bottom + 9 * unit, 10 * unit);
-        oval(fishMark, bottom + 9 * unit, 10 * unit, 10 * unit, '#a34222');
-        label('▶', fishMark, bottom + 9 * unit, 10 * unit);
+        const gap = Math.max(0, sharkGap(run));
+        const sharkMark = Math.max(x - 22 * unit, fishMark - (22 + gap * 0.11) * unit);
+        const badgeY = bottom + 9 * unit;
+        oval(sharkMark, badgeY, 12 * unit, 12 * unit, sharkBodyColor);
+        ctx.save();
+        ctx.translate(sharkMark, badgeY);
+        ctx.scale(unit * 1.4, unit * 1.4);
+        angryEye(0, 0, 1);
+        ctx.restore();
+        oval(fishMark, badgeY, 10 * unit, 10 * unit, fishSpriteColor);
+        ctx.save();
+        ctx.translate(fishMark, badgeY);
+        ctx.scale(unit, unit);
+        ctx.fillStyle = '#fff';
+        ctx.fill(fishBadgeIcon);
+        ctx.restore();
       }
       ctx.restore();
     }
@@ -877,7 +924,7 @@
     function waterCurrent(run, opacity) {
       const ctx = game.ctx;
       const { w, h } = game.view;
-      const drift = run.drift;
+      const drift = run.drift * currentSpeed(run);
       ctx.save();
       ctx.globalAlpha *= opacity;
       const water = ctx.createLinearGradient(0, 0, 0, h);
@@ -979,7 +1026,7 @@
       const size = run.powerBubbles ? 1.5 : 1;
       // Power Bubbles blends the standard cyan 60% toward warm red.
       const tint = run.powerBubbles ? '#c37d8a' : '#6acdd5';
-      if (run.rapidCurrent) {
+      if (run.boilingBlaster) {
         const ctx = game.ctx;
         ctx.save();
         ctx.translate(x, y);
@@ -1004,6 +1051,64 @@
       ctx.restore();
     }
 
+    function passingFish(x, y, size, phase, color) {
+      const ctx = game.ctx;
+      ctx.save();
+      ctx.translate(x, y);
+      const drawSize = size * 0.9;
+      ctx.scale(drawSize, drawSize);
+      const tail = Math.sin(phase) * 3;
+      curvedShape(`M -16 0 Q -9 -9 8 -3 L 17 ${-8 + tail}
+        L 15 ${tail} L 17 ${8 + tail} L 8 3 Q -9 9 -16 0 Z`, color);
+      ctx.restore();
+    }
+
+    function distantFish(run, opacity) {
+      const { w, h, dpr } = game.view;
+      const { scale } = arena();
+      const ctx = game.ctx;
+      const drift = run.drift * currentSpeed(run);
+      const span = w + 96 * scale;
+      ctx.save();
+      ctx.globalAlpha *= opacity;
+      ctx.filter = `blur(${1.3 * dpr}px)`;
+      for (let i = 0; i < 8; i++) {
+        const size = (0.65 + i % 4 * 0.25) * 0.81;
+        const travel = (span * i / 8 + drift * 30 * size * scale) % span;
+        const y = h * (0.18 + (i * 7 % 11) / 17) + Math.sin(drift + i) * 8 * scale;
+        passingFish(w + 48 * scale - travel, y, scale * size, drift * 4 + i, '#16394670');
+      }
+      ctx.restore();
+    }
+
+    function foreground(room) {
+      const run = room.stream;
+      if (run?.phase !== 'stream' || Portfolio.reduceMotion.matches) return;
+      const { w, h, dpr } = game.view;
+      const { scale } = arena();
+      const time = run.stageTime;
+      if (time >= run.nextForegroundAt) {
+        // Squaring the offset puts more passes near the top and bottom edges.
+        const fromEdge = 0.10 + 0.40 * rand(0, 1) ** 2;
+        run.foregroundPass = {
+          at: time,
+          y: Math.random() < 0.5 ? fromEdge : 1 - fromEdge,
+          size: rand(4, 6)
+        };
+        run.nextForegroundAt = time + rand(7, 9);
+      }
+      const pass = run.foregroundPass;
+      if (!pass) return;
+      const speed = 620 * (pass.size / 5) * scale * currentSpeed(run);
+      const x = w + 110 * scale - (time - pass.at) * speed;
+      if (x < -110 * scale) return;
+      const ctx = game.ctx;
+      ctx.save();
+      ctx.filter = `blur(${3 * dpr}px)`;
+      passingFish(x, h * pass.y, scale * pass.size, time * 12, '#19415284');
+      ctx.restore();
+    }
+
     function stream(run) {
       const ctx = game.ctx;
       const { scale, left, top } = arena();
@@ -1013,7 +1118,9 @@
       const arrival = run.phase === 'entering' ? clamp(run.counter / 0.9, 0, 1) : 1;
       const reveal = arrival * arrival * (3 - 2 * arrival);
       const currentFade = run.phase === 'entering' ? clamp(run.drift / 0.85, 0, 1) : 1;
-      waterCurrent(run, curtain * currentFade * currentFade);
+      const waterOpacity = curtain * currentFade * currentFade;
+      waterCurrent(run, waterOpacity);
+      distantFish(run, waterOpacity);
       ctx.save();
       ctx.translate(left, top);
       ctx.scale(scale, scale);
@@ -1179,11 +1286,15 @@
 
     return {
       startReviewPractice,
+      setReviewInvulnerable(room, enabled) {
+        if (room.review) room.stream.invulnerable = enabled;
+      },
       canReviewPractice: room => room.stream.phase === 'workshop',
       freeFishLength: room => room.stream?.phase === 'workshop' ? fishBodyLength * arena().scale : 0,
       fishScale: room => room.stream?.freshWater ? 1.3 : 1,
-      reviewSounds: { shoot: room => shotSound(room.stream) }, setup, solids, draw, steer, tap, rock, rockOffset, aimExit, exit, under, plates, crosshair,
+      reviewSounds: { shoot: room => shotSound(room.stream) }, foreground, setup, solids, draw, steer, tap, rock, rockOffset, aimExit, exit, under, plates, crosshair,
       wholeLevel: true,
+      hintStage: room => room.stream?.stage ?? 0,
       deferPaintNear: room => !room.won,
       ahead(i) {
         const room = { gone: { right: false }, stream: { phase: 'choice' } };
@@ -1205,7 +1316,7 @@
       goal(room) {
         const run = room.stream;
         if (run?.phase === 'workshop') {
-          const stats = `HP ${run.hp}/${run.maxHp} · Damage ${run.power} · Shot interval ${run.interval.toFixed(2)}s · Armor ${Math.round((1 - run.armor) * 100)}%`;
+          const stats = `HP ${run.hp}/${run.maxHp} · Damage ${run.power} · Shot interval ${run.interval.toFixed(2)}s · Armor ${Math.round((1 - run.armor) * 100)}% · Speed ${Math.round(currentSpeed(run) * 100)}%`;
           return run.lastUpgrade ? `${run.lastUpgrade} equipped. ${stats}` : `Dash into an upgrade rock to equip it. ${stats}`;
         }
         if (active(room.stream)) return 'Hold the left mouse button to shoot. Press A or ← to retreat, W, S, ↑ or ↓ to dodge.';
@@ -1224,14 +1335,15 @@
       rightWall(room) {
         return room.stream.phase === 'choice' ? wallSpans(room) : null;
       },
-      strokeRate(room) {
+      strokeRate(room, speed) {
         const run = room.stream;
-        if (run?.phase === 'stream') return run.stroke * (sharksBiting(run) ? 1.2 : 1);
+        if (run?.phase === 'stream') return run.stroke * currentSpeed(run) * (sharksBiting(run) ? 1.2 : 1);
         if (run?.phase === 'ending') {
           const t = clamp(run.counter / stageEndTime, 0, 1);
-          return lerp(run.stroke, Math.min(run.stroke, 1.2), t * t * (3 - 2 * t));
+          return lerp(run.stroke, Math.min(run.stroke, 1.2), t * t * (3 - 2 * t)) * currentSpeed(run);
         }
-        if (room.stream?.phase === 'entering' || room.stream?.phase === 'escape') return maxStroke * 0.7;
+        if (run?.phase === 'entering' || run?.phase === 'escape') return maxStroke * 0.7 * currentSpeed(run);
+        if (run?.hyperFlipper) return Aquarium.strokeRate(speed) * currentSpeed(run);
       },
       inset: () => ({ x: game.border(), y: 0, top: 0 }),
       continuous: true,

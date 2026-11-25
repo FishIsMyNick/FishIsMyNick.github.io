@@ -231,6 +231,21 @@
      start's title and story, a level's goal and title page, the room. */
   const startEl = $('game-start');
   const goalEl = $('game-goal');
+  const hintBubble = $('game-hint-bubble');
+  const hintToggle = $('game-hint-toggle');
+  const seenHints = new Set();
+  let activeHint = null;
+  let hintExpanded = true;
+
+  function toggleHint(expanded) {
+    hintExpanded = expanded;
+    hud.goalText.hidden = !expanded;
+    hintToggle.textContent = expanded ? '−' : '?';
+    hintToggle.setAttribute('aria-expanded', String(expanded));
+    hintToggle.setAttribute('aria-label', expanded ? 'Minimize level hint' : 'Show level hint');
+  }
+
+  hintToggle.addEventListener('click', () => toggleHint(!hintExpanded));
   let shownGoalHtml = null;
   const tunnelEl = $('game-tunnel');
   const platesEl = $('game-plates');
@@ -261,7 +276,7 @@
 
     const lvl = find('level');
     const hideGoal = lvl && mechanicOf(lvl.place.i).hideGoal;
-    put(goalEl, !!lvl && !(hideGoal && hideGoal(lvl.place.lv)), lvl && lvl.ox, lvl && lvl.oy);
+    put(goalEl, !!lvl, lvl && lvl.ox, lvl && lvl.oy);
     const talks = lvl && mechanicOf(lvl.place.i).plates;
     put(platesEl, !!talks, lvl && lvl.ox, lvl && lvl.oy);
     layer.classList.toggle('has-plates', !!talks);
@@ -276,6 +291,12 @@
       const lv = levels[i] || {};
       const head = [roomName(i, lvl.place.lv.n), lv.title, lv.studio].filter(Boolean).join(' · ');
       const room = lvl.place.lv;
+      const key = [i, room.n, mechanic.hintStage?.(room)].join(':');
+      if (!move && key !== activeHint) {
+        activeHint = key;
+        toggleHint(!seenHints.has(key));
+        seenHints.add(key);
+      }
       const html = mechanic.goal?.(room) ?? (room.titled ? (i === levels.length - 1 ? data.done_last_html : data.done_html) : room.won ? data.sub_done_html : subsOf(i)[room.n].hint_html);
       if (hud.goalLevel.textContent !== head) hud.goalLevel.textContent = head;
       // These strings are escaped and formatted by build.py before serialization.
@@ -283,8 +304,10 @@
         hud.goalText.innerHTML = html;
         shownGoalHtml = html;
       }
+      hintBubble.hidden = !html || !!hideGoal?.(room);
       goalEl.classList.toggle('is-won', lvl.place.lv.won);
     }
+    if (!lvl && !move) activeHint = null;
     pages.forEach((page, i) => {
       // under solid water until it's beaten, so no need to paint it till then
       const on = lvl && lvl.place.i === i && showsPage(lvl.place.lv);

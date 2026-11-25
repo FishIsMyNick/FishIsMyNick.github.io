@@ -50,6 +50,7 @@
   /* The room starts over: its crate back, its walls whole, him at the way
      in. Other levels keep what's been done in them. */
   function resetLevel() {
+    activeHint = null;
     const n = level.n;
     if (!level.review) {
       beaten[current] = false;
@@ -137,6 +138,9 @@
       if (running) return;
       running = true;
       resize();
+      reviewInvulnerable = false;
+      seenHints.clear();
+      activeHint = null;
       beaten.length = 0;
       cleared.length = 0;
       bubbles.length = 0;

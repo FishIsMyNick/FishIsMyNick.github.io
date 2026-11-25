@@ -2164,14 +2164,14 @@ body.game-open main { visibility: hidden; opacity: 0; }
 .game-goal {
   position: absolute;
   top: 0;
-  left: 11rem;
-  right: 11rem;
+  inset-inline: 0;
   text-align: center;
   font-family: var(--sans);
 }
 /* LEVEL N · Project · Studio */
 .game-goal-level {
   height: var(--rock-top, 35px);
+  margin-inline: 11rem;
   overflow: hidden;
   font-size: clamp(.8rem, 1.25vw, 1.05rem);
   font-weight: 700;
@@ -2180,14 +2180,40 @@ body.game-open main { visibility: hidden; opacity: 0; }
   white-space: nowrap;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--bone);
+  color: #ffb35c;
   text-shadow: 0 2px 16px rgba(0, 12, 16, .6);
 }
+.game-hint-bubble {
+  position: absolute;
+  top: calc(var(--rock-top, 35px) + .8rem);
+  left: calc(var(--rock, 30px) + .75rem);
+  max-width: min(25rem, calc(100vw - 5rem));
+  display: flex;
+  align-items: flex-start;
+  gap: .55rem;
+  text-align: left;
+}
+.game-hint-bubble[hidden] { display: none; }
+.game-hint-toggle,
 .game-goal-text {
-  margin-top: .25rem;
+  border: 1px solid #739ca9;
+  background: #102b38e8;
+  color: var(--bone);
+}
+.game-hint-toggle {
+  flex: 0 0 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font: 700 1.15rem/1 var(--sans);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.game-goal-text {
+  margin: 0;
+  padding: .55rem .75rem;
+  border-radius: 1rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--bone);
   text-shadow: 0 1px 12px rgba(0, 18, 26, .6);
 }
 .game-goal.is-won .game-goal-text { color: #ffb35c; }
@@ -2683,8 +2709,8 @@ body.game-open .slider::-webkit-slider-runnable-track { background: rgba(255, 21
 
 @media (max-width: 640px) {
   .game-start { padding-right: calc(var(--pad-x) + 70px); }
-  .game-goal { top: 6.5rem; left: 1.5rem; right: 1.5rem; }   /* the top wall is all buttons here */
-  .game-goal-level { height: auto; line-height: 1.2; white-space: normal; }
+  .game-goal { top: 6.5rem; }   /* the top wall is all buttons here */
+  .game-goal-level { margin-inline: 1.5rem; height: auto; line-height: 1.2; white-space: normal; }
 }
 
 /* --------------------------------------------------------- the sweep -- */
@@ -2774,13 +2800,28 @@ body.game-open .slider::-webkit-slider-runnable-track { background: rgba(255, 21
   padding: .25rem .5rem;
 }
 
-.game-review-controls label {
+.game-review-controls label:not(.game-review-option) {
   position: absolute;
   width: 1px;
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
 }
+
+.game-review-option {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .5rem;
+  color: #fff;
+  background: #193a49;
+  border: 1px solid #8cbac8;
+  border-radius: .35rem;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.game-review-option input { accent-color: var(--koi); }
 
 /* src/assets/css/12-responsive.css */
 /* Breakpoints and motion preferences. Keep this last. */

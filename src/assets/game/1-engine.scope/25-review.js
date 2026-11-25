@@ -16,6 +16,8 @@
       reviewWorlds.forEach(item => { item.hidden = item !== world; });
       const scenario = world.querySelector('[data-review-scenario]');
       if (scenario) scenario.value = String(reviewScenario);
+      const invulnerable = world.querySelector('[data-review-invulnerable]');
+      if (invulnerable) invulnerable.checked = reviewInvulnerable;
       shownReviewWorld = world;
     }
     const practice = world.querySelector('[data-review-practice]');
@@ -26,6 +28,11 @@
     reviewControls.addEventListener('pointermove', event => {
       event.stopPropagation();
       pointer.inside = false;
+    });
+    reviewControls.addEventListener('change', event => {
+      if (!canReview() || !event.target.matches('[data-review-invulnerable]')) return;
+      reviewInvulnerable = event.target.checked;
+      mechanicOf(current).setReviewInvulnerable(level, reviewInvulnerable);
     });
     reviewControls.addEventListener('click', event => {
       const button = event.target.closest('button');

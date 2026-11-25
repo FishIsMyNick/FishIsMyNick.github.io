@@ -36,7 +36,11 @@
       layout([{ place: here, ox: 0, oy: 0 }]);
       put(tunnelEl, false);
       drawFree(dt);
-      if (level && mechanicOf(level.i).crosshair?.(level)) mechanicOf(level.i).drawCursor();
+      const mechanic = level && mechanicOf(level.i);
+      if (mechanic) {
+        mechanic.foreground?.(level);
+        if (mechanic.crosshair?.(level)) mechanic.drawCursor();
+      }
     }
 
     raf = requestAnimationFrame(frame);
